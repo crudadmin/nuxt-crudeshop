@@ -1,0 +1,319 @@
+import CrudAdmin from '~/crudadmin/crudadmin.js';
+import CartItem from '~/crudadmin/models/CartItem.js';
+import Discount from '~/crudadmin/models/Discount.js';
+import _ from 'lodash';
+
+var cartStore = {
+    namespaced: true,
+
+    state() {
+        return {
+            items: [],
+            discounts: [],
+            summary: {},
+            summary_without_mutators: {},
+            deliveries: [],
+            paymentMethods: [],
+            selectedDelivery: null,
+            selectedLocation: null,
+            selectedCountry: null,
+            selectedPaymentMethod: null,
+            clientData: null,
+            newItem: null,
+
+            //Custom eshop
+            //...
+        };
+    },
+
+    mutations: {
+        setCart(state, cart) {
+            var tryParams = [
+                //Base object data
+                'items',
+                'summary',
+                'summary_without_mutators',
+                'discounts',
+
+                //Mutators data
+                'deliveries',
+                'paymentMethods',
+                'selectedDelivery',
+                'selectedLocation',
+                'selectedCountry',
+                'selectedPaymentMethod',
+                'clientData',
+
+                //Custom eshop
+                //...
+            ];
+
+            for (var i = 0; i < tryParams.length; i++) {
+                if (tryParams[i] in cart) {
+                    state[tryParams[i]] = cart[tryParams[i]];
+                }
+            }
+        },
+        setClientData(state, clientData) {
+            state.clientData = clientData;
+        },
+        setNewItem(state, item) {
+            state.newItem = item;
+        },
+    },
+
+    actions: {
+        cartError({}, response) {
+            console.log(this);
+            throw response;
+        },
+        async addToCart({ commit, dispatch }, object) {
+            try {
+                var response = await this.$axios.$post(
+                    this.$action('Cart\\CartController@addItem'),
+                    {
+                        product_id: object.product_id,
+                        variant_id: object.variant_id,
+                        quantity: object.quantity,
+                    }
+                );
+
+                commit('setCart', response);
+
+                dispatch('sendItemEvent', {
+                    event: 'addToCart',
+                    cartItem: object,
+                    quantity: object.quantity,
+                });
+
+                dispatch('showNewItem', response.addedItems[0]);
+            } catch (e) {
+                dispatch('cartError', e);
+            }
+        },
+        showNewItem({ commit, state, getters }, object) {
+            var timeOutSeconds = 10,
+                newItem = getters.getCartItemFromObject(object);
+
+            if (this.newItemTimeout) {
+                clearTimeout(this.newItemTimeout);
+            }
+
+            commit('setNewItem', newItem);
+
+            this.newItemTimeout = setTimeout(() => {
+                commit('setNewItem', null);
+            }, timeOutSeconds * 1000);
+        },
+        async updateQuantity({ commit, dispatch, state }, obj) {
+            if (obj.quantity < 1) {
+                obj.quantity = 1;
+            }
+
+            //If no change
+            if (obj.item.quantity == obj.quantity) {
+                return;
+            }
+
+            //If user increases quantity
+            if (obj.item.quantity < obj.quantity) {
+                dispatch('sendItemEvent', {
+                    event: 'addToCart',
+                    cartItem: obj.item,
+                    quantity: obj.quantity - obj.item.quantity,
+                });
+            } else {
+                dispatch('sendItemEvent', {
+                    event: 'removeFromCart',
+                    cartItem: obj.item,
+                    quantity: obj.item.quantity - obj.quantity,
+                });
+            }
+
+            try {
+                let request = {
+                    product_id: obj.item.product.id,
+                    variant_id: (obj.item.variant || {}).id,
+                    quantity: obj.quantity,
+                };
+
+                //If cart item is assigned to another cart item, we want send this data as well
+                if (obj.item.hasParentCartItem()) {
+                    request.cart_item = obj.item.parentIdentifier.data;
+                }
+
+                var response = await this.$axios.$post(
+                    this.$action('Cart\\CartController@updateQuantity'),
+                    request
+                );
+
+                commit('setCart', response);
+            } catch (e) {
+                dispatch('cartError', e);
+            }
+        },
+        async removeItem({ commit, state, dispatch }, item) {
+            try {
+                //We need dispatch event before item will be remove from cart list, because we need retrieve product into.
+                dispatch('sendItemEvent', {
+                    event: 'removeFromCart',
+                    cartItem: item,
+                    quantity: item.quantity,
+                });
+
+                var response = await this.$axios.$post(
+                    this.$action('Cart\\CartController@removeItem'),
+                    {
+                        product_id: item.product.id,
+                        variant_id: (item.variant || {}).id,
+                    }
+                );
+
+                commit('setCart', response);
+            } catch (e) {
+                dispatch('cartError', e);
+            }
+        },
+        sendItemEvent({ state, getters }, { event, cartItem, quantity }) {
+            cartItem = cartItem
+                ? getters.getCartItemFromObject(cartItem)
+                : null;
+
+            this.$bus.$emit('tracking/' + event, {
+                cartItem,
+                quantity,
+            });
+        },
+        async setDelivery({ commit, dispatch, state }, object) {
+            let location_id, id;
+
+            //If object is
+            if (object && typeof object === 'object') {
+                id = object.id;
+                location_id = object.location_id;
+            } else {
+                id = object;
+            }
+
+            var obj = {
+                delivery_id: id || null,
+                location_id: location_id || null,
+            };
+
+            try {
+                var data = await this.$axios.$post(
+                    this.$action('Cart\\CartController@setDelivery'),
+                    obj
+                );
+
+                commit('setCart', data);
+
+                dispatch('sendItemEvent', { event: 'setDelivery' });
+            } catch (e) {
+                dispatch('cartError', e);
+            }
+        },
+        async setPaymentMethod({ commit, state, dispatch }, id) {
+            if (_.isObject(id)) {
+                id = id.id;
+            }
+
+            try {
+                var data = await this.$axios.$post(
+                    this.$action('Cart\\CartController@setPaymentMethod'),
+                    {
+                        payment_method_id: id,
+                    }
+                );
+
+                commit('setCart', data);
+
+                dispatch('sendItemEvent', { event: 'setPaymentMethod' });
+            } catch (e) {
+                dispatch('cartError', e);
+            }
+        },
+        async setCountry({ commit, state }, id) {
+            if (_.isObject(id)) {
+                id = id.id;
+            }
+
+            try {
+                var response = await this.$axios.$post(
+                    this.$action('Cart\\CartController@setCountry'),
+                    {
+                        country_id: id,
+                    }
+                );
+
+                commit('setCart', response);
+            } catch (e) {
+                dispatch('cartError', e);
+            }
+        },
+        async fetchFullSummary({ commit }) {
+            var response = await this.$axios.$get(
+                this.$action('Cart\\CartController@getFullSummary')
+            );
+
+            commit('setCart', response);
+        },
+    },
+
+    getters: {
+        cartItems: (state) => (options = {}) => {
+            let items = state.items.map((item) => new CartItem(item));
+
+            if (options.withAssignedChildItems === false) {
+                items = items.filter((item) => {
+                    return item.hasParentCartItem() == false;
+                });
+            }
+
+            return items;
+        },
+        discounts(state) {
+            return state.discounts.map((item) => new Discount(item));
+        },
+        itemsQuantityCount: (state) => {
+            return _.sum(state.items.map((item) => item.quantity));
+        },
+        getCartItemFromObject: (state) => (object) => {
+            var search = {
+                id: parseInt(object.product_id) || parseInt(object.id),
+                ...(object.variant_id
+                    ? {
+                          variant_id: parseInt(object.variant_id),
+                      }
+                    : {}),
+            };
+
+            return _.find(state.items, search);
+        },
+        indicatedDeliveries: (state) => {
+            return state.deliveries
+                .filter((delivery) => delivery.free_indicator)
+                .sort((a, b) => a.free_from - b.free_from);
+        },
+        isSelectedPaymentMethod: (state) => (method) => {
+            return (
+                state.selectedPaymentMethod &&
+                state.selectedPaymentMethod.id == method.id
+            );
+        },
+        isSelectedDelivery: (state) => (delivery) => {
+            return (
+                state.selectedDelivery &&
+                state.selectedDelivery.id == delivery.id
+            );
+        },
+        discountCode: (state) => {
+            let item = _.find(state.discounts, { key: 'DiscountCode' });
+            if (item) {
+                return new Discount(item);
+            }
+        },
+    },
+};
+
+export default cartStore;
