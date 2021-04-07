@@ -1,7 +1,7 @@
-import _ from 'lodash';
-import crudadmin from '~/crudadmin/crudadmin';
-import BaseProduct from './BaseProduct';
+const _ = require('lodash');
+const crudadmin = require('../crudadmin');
+const BaseProduct = require('./BaseProduct');
 
 class ProductsVariant extends BaseProduct {}
 
-export default ProductsVariant;
+module.exports = ProductsVariant;

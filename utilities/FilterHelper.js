@@ -1,6 +1,6 @@
-import _ from 'lodash';
+const _ = require('lodash');
 
-export const buildQueryParamFromState = (state, getters) => {
+module.exports.buildQueryParamFromState = (state, getters) => {
     let query = {};
 
     for (var attrId in state.query) {
@@ -12,7 +12,7 @@ export const buildQueryParamFromState = (state, getters) => {
             let value = state.query[attrId];
 
             if (_.isArray(value)) {
-                let queryString = _.uniq(value.map((id) => parseInt(id))).join(
+                let queryString = _.uniq(value.map(id => parseInt(id))).join(
                     ','
                 );
 
@@ -32,7 +32,7 @@ export const buildQueryParamFromState = (state, getters) => {
     return query;
 };
 
-export const buildFromQueryParamToState = (state, query) => {
+module.exports.buildFromQueryParamToState = (state, query) => {
     let queryObject = {},
         priceRange = null;
 
@@ -42,7 +42,7 @@ export const buildFromQueryParamToState = (state, query) => {
             priceRange = query[key]
                 .split(',')
                 .slice(0, 2)
-                .map((price) => parseFloat(price));
+                .map(price => parseFloat(price));
         }
 
         //Boot attributes
@@ -52,7 +52,7 @@ export const buildFromQueryParamToState = (state, query) => {
             if (attribute) {
                 queryObject[attribute.id] = query[key]
                     .split(',')
-                    .map((id) => parseInt(id));
+                    .map(id => parseInt(id));
             }
         }
     }
@@ -60,10 +60,10 @@ export const buildFromQueryParamToState = (state, query) => {
     return { queryObject, priceRange };
 };
 
-export const buildQueryFromObject = (query) => {
+module.exports.buildQueryFromObject = query => {
     var esc = encodeURIComponent;
     var query = Object.keys(params)
-        .map((k) => esc(k) + '=' + esc(params[k]))
+        .map(k => esc(k) + '=' + esc(params[k]))
         .join('&');
 
     return query;

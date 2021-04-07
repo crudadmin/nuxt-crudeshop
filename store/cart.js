@@ -1,7 +1,7 @@
-import CrudAdmin from '~/crudadmin/crudadmin.js';
-import CartItem from '~/crudadmin/models/CartItem.js';
-import Discount from '~/crudadmin/models/Discount.js';
-import _ from 'lodash';
+const CrudAdmin = require('../crudadmin.js');
+const CartItem = require('../models/CartItem.js');
+const Discount = require('../models/Discount.js');
+const _ = require('lodash');
 
 var cartStore = {
     namespaced: true,
@@ -261,11 +261,11 @@ var cartStore = {
     },
 
     getters: {
-        cartItems: (state) => (options = {}) => {
-            let items = state.items.map((item) => new CartItem(item));
+        cartItems: state => (options = {}) => {
+            let items = state.items.map(item => new CartItem(item));
 
             if (options.withAssignedChildItems === false) {
-                items = items.filter((item) => {
+                items = items.filter(item => {
                     return item.hasParentCartItem() == false;
                 });
             }
@@ -273,12 +273,12 @@ var cartStore = {
             return items;
         },
         discounts(state) {
-            return state.discounts.map((item) => new Discount(item));
+            return state.discounts.map(item => new Discount(item));
         },
-        itemsQuantityCount: (state) => {
-            return _.sum(state.items.map((item) => item.quantity));
+        itemsQuantityCount: state => {
+            return _.sum(state.items.map(item => item.quantity));
         },
-        getCartItemFromObject: (state) => (object) => {
+        getCartItemFromObject: state => object => {
             var search = {
                 id: parseInt(object.product_id) || parseInt(object.id),
                 ...(object.variant_id
@@ -290,24 +290,24 @@ var cartStore = {
 
             return _.find(state.items, search);
         },
-        indicatedDeliveries: (state) => {
+        indicatedDeliveries: state => {
             return state.deliveries
-                .filter((delivery) => delivery.free_indicator)
+                .filter(delivery => delivery.free_indicator)
                 .sort((a, b) => a.free_from - b.free_from);
         },
-        isSelectedPaymentMethod: (state) => (method) => {
+        isSelectedPaymentMethod: state => method => {
             return (
                 state.selectedPaymentMethod &&
                 state.selectedPaymentMethod.id == method.id
             );
         },
-        isSelectedDelivery: (state) => (delivery) => {
+        isSelectedDelivery: state => delivery => {
             return (
                 state.selectedDelivery &&
                 state.selectedDelivery.id == delivery.id
             );
         },
-        discountCode: (state) => {
+        discountCode: state => {
             let item = _.find(state.discounts, { key: 'DiscountCode' });
             if (item) {
                 return new Discount(item);
@@ -316,4 +316,4 @@ var cartStore = {
     },
 };
 
-export default cartStore;
+module.exports = cartStore;

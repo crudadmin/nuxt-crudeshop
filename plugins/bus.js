@@ -1,7 +1,7 @@
-import Vue from 'vue';
+const Vue = require('vue');
 
 const $bus = new Vue();
 
-export default function ({ app, store }, inject) {
+module.exports = function({ app, store }, inject) {
     inject('bus', $bus);
-}
+};

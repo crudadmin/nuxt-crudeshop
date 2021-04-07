@@ -1,11 +1,11 @@
-const sanitize = (text) => {
+const sanitize = text => {
     return (text || '')
         .replace(/<[^>]+>/g, '')
         .replace(RegExp('&amp', 'g'), '&')
         .replace(new RegExp('&nbsp;', 'g'), ' ');
 };
 
-export function bindModelMeta(options, model) {
+module.exports.bindModelMeta(options, model) => {
     let title = model.meta_title || model.name || model.title;
     if (title) {
         options.title = sanitize(title);

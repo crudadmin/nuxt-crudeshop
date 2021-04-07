@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import crudadmin from '~/crudadmin/crudadmin';
+const _ = require('lodash');
+const crudadmin = require('../crudadmin');
 
 class BaseProduct {
     constructor(rawObject) {
@@ -61,4 +61,4 @@ class BaseProduct {
     }
 }
 
-export default BaseProduct;
+module.exports = BaseProduct;

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+const _ = require('lodash');
 
 const store = {
     namespaced: true,
@@ -59,18 +59,18 @@ const store = {
     },
 
     getters: {
-        defaultVat: (state) => {
+        defaultVat: state => {
             return _.find(state.vats, { default: true });
         },
-        backendEnv: (state) => (key) => {
+        backendEnv: state => key => {
             return state.backendEnv[key];
         },
-        addDefaultVat: (state, getters) => (price) => {
+        addDefaultVat: (state, getters) => price => {
             var defaultVat = (getters.defaultVat || {}).vat || 0;
 
             return price * (1 + defaultVat / 100);
         },
-        numberFormat: (state) => (number) => {
+        numberFormat: state => number => {
             number = Math.round(number * 100) / 100;
 
             return number.toLocaleString(undefined, {
@@ -78,7 +78,7 @@ const store = {
                 maximumFractionDigits: state.rounding,
             });
         },
-        priceFormat: (state, getters) => (price) => {
+        priceFormat: (state, getters) => price => {
             //Only positive numbers can be shown as prices
             price = price < 0 ? 0 : price;
 
@@ -98,4 +98,4 @@ const store = {
     },
 };
 
-export default store;
+module.exports = store;

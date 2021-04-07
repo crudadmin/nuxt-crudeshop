@@ -1,11 +1,11 @@
-import { mapGetters, mapState } from 'vuex';
-import Vue from 'vue';
-import Product from '~/crudadmin/models/Product.js';
+const { mapGetters, mapState } = require('vuex');
+const Vue = require('vue');
+const Product = require('../models/Product.js');
 
 var storeMixin = {
     methods: {
         toProductModels(products) {
-            return products.map((item) => new Product(item));
+            return products.map(item => new Product(item));
         },
         toProductModel(item) {
             return new Product(item);

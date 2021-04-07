@@ -1,18 +1,26 @@
+//Roter
 import Router from 'vue-router';
+import {
+    createRouter as createDefaultRouter,
+    routerOptions,
+} from './defaultRouter';
 
-import CrudAdmin from './crudadmin.js';
+//Axios
+import $axios from '~/.nuxt/axios';
+import $auth from '~/.nuxt/auth/plugin.js';
 
-export async function createRouter(
-    ssrContext,
-    createDefaultRouter,
-    routerOptions
-) {
+import CrudAdmin from 'crudeshop';
+
+export async function createRouter(ssrContext, config) {
     const options = routerOptions
         ? routerOptions
         : createDefaultRouter(ssrContext).options;
 
     //We need reset data on each new request, because otherwise storage will be shared accross all requests
     CrudAdmin.setNewInstance();
+
+    CrudAdmin.setAxios($axios);
+    CrudAdmin.setAuth($auth);
 
     CrudAdmin.setContext(ssrContext);
 

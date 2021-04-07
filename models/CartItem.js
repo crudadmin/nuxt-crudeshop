@@ -1,8 +1,8 @@
-import _ from 'lodash';
-import crudadmin from '~/crudadmin/crudadmin';
+const _ = require('lodash');
+const crudadmin = require('../crudadmin');
 
-import Product from './Product';
-import ProductsVariant from './ProductsVariant';
+const Product = require('./Product');
+const ProductsVariant = require('./ProductsVariant');
 
 class CartItem {
     constructor(rawObject) {
@@ -60,10 +60,10 @@ class CartItem {
     getAssignedItems() {
         let items = crudadmin.store.getters['cart/cartItems']();
 
-        return items.filter((item) => {
+        return items.filter(item => {
             return this.isCartItemParent(item);
         });
     }
 }
 
-export default CartItem;
+module.exports = CartItem;

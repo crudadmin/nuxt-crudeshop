@@ -1,13 +1,15 @@
-import Vue from 'vue';
-import Translator from 'gettext-translator';
-import axios from './plugins/axios';
-import auth from './plugins/auth';
-import cartToken from './utilities/cartToken';
+const Vue = require('vue');
+const Translator = require('gettext-translator').default;
+// const auth = require('./plugins/auth');
+const https = require('https');
+const cartToken = require('./utilities/cartToken');
 
 const CrudAdmin = {
     booted: false,
 
-    auth: null,
+    $axios: null,
+
+    $auth: null,
 
     context: null,
 
@@ -45,11 +47,24 @@ const CrudAdmin = {
      * We need reset this data on each new request
      */
     setNewInstance() {
-        this.auth = null;
+        this.$auth = null;
 
         this.booted = false;
 
         this.context = null;
+    },
+
+    setAxios($axios) {
+        $axios(this, () => {});
+
+        //Allow self signed https
+        this.$axios.defaults['httpsAgent'] = new https.Agent({
+            rejectUnauthorized: false,
+        });
+    },
+
+    setAuth($auth) {
+        $auth(this, () => {});
     },
 
     setContext(context) {
@@ -62,11 +77,11 @@ const CrudAdmin = {
             return $nuxt.$auth;
         }
 
-        if (this.auth) {
-            return this.auth;
+        if (this.$auth) {
+            return this.$auth;
         }
 
-        return (this.auth = auth(this.context || {}));
+        return (this.$auth = auth(this.context || {}));
     },
 
     getAuthorizationHeaders() {
@@ -91,7 +106,7 @@ const CrudAdmin = {
             return;
         }
 
-        var response = await axios.$get('/api/bootstrap', {
+        var response = await this.$axios.$get('/api/bootstrap', {
             headers: this.getAuthorizationHeaders(),
         });
 
@@ -138,8 +153,8 @@ const CrudAdmin = {
 
     async installCrudAdminMethods() {
         var a = await this.getTranslator(),
-            getSelector = function (selector) {
-                return function () {
+            getSelector = function(selector) {
+                return function() {
                     var s = selector in a ? selector : '__';
 
                     return a[s].apply(a, arguments);
@@ -154,7 +169,7 @@ const CrudAdmin = {
                     );
                 }
 
-                Vue.prototype.route = (route) => {
+                Vue.prototype.route = route => {
                     return a.__(route);
                 };
 
@@ -202,4 +217,4 @@ const CrudAdmin = {
     },
 };
 
-export default CrudAdmin;
+module.exports = CrudAdmin;

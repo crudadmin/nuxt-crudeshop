@@ -1,7 +1,7 @@
-import _ from 'lodash';
-import crudadmin from '~/crudadmin/crudadmin';
-import BaseProduct from './BaseProduct';
-import ProductsVariant from './ProductsVariant';
+const _ = require('lodash');
+const crudadmin = require('../crudadmin');
+const BaseProduct = require('./BaseProduct');
+const ProductsVariant = require('./ProductsVariant');
 
 class Product extends BaseProduct {
     constructor(rawObject) {
@@ -10,7 +10,7 @@ class Product extends BaseProduct {
         //Cast also product variants if are available
         if (this.isType('variants') && this.variants) {
             this.variants = this.variants.map(
-                (variant) => new ProductsVariant(variant)
+                variant => new ProductsVariant(variant)
             );
         }
     }
@@ -18,7 +18,7 @@ class Product extends BaseProduct {
     priceFormatWithCheapestVariant(key) {
         if (this.product_type == 'variants') {
             let cheapestPrice = _.uniqBy(
-                _.sortBy(this.variants.map((variant) => variant[key]))
+                _.sortBy(this.variants.map(variant => variant[key]))
             );
 
             //If multiple prices are available, show from price
@@ -46,7 +46,7 @@ class Product extends BaseProduct {
     }
 
     hasAllVariantsAttribute(attribute_id) {
-        let variantsWithSizes = this.variants.filter((variant) => {
+        let variantsWithSizes = this.variants.filter(variant => {
             return variant.getAttribute(attribute_id);
         });
 
@@ -54,4 +54,4 @@ class Product extends BaseProduct {
     }
 }
 
-export default Product;
+module.exports = Product;
