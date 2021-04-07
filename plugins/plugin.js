@@ -1,6 +1,6 @@
-const Vue = require('vue');
-const https = require('https');
-const CrudAdmin = require('../crudadmin.js');
+import Vue from 'vue';
+import https from 'https';
+import CrudAdmin from 'crudeshop';
 
 function getRequestModels(data) {
     var models = {};
@@ -44,12 +44,7 @@ function getQueryParams(route, response) {
     }
 }
 
-module.exports = async ({ $axios, app, store, route, redirect }, inject) => {
-    await CrudAdmin.installCrudAdminMethods();
-
-    inject('translator', await CrudAdmin.getTranslator());
-    inject('action', CrudAdmin.action);
-
+export default async ({ $axios, app, store, route, redirect }, inject) => {
     //On budle update
     $axios.onResponse(function(response) {
         //Set buddle hash data
@@ -78,11 +73,6 @@ module.exports = async ({ $axios, app, store, route, redirect }, inject) => {
                 store.commit('store/setBundleHash', response.data.bundle_hash);
             }
         }
-    });
-
-    //Allow unauthorized requests
-    $axios.defaults.httpsAgent = new https.Agent({
-        rejectUnauthorized: false,
     });
 
     //Handle crudadmin findBySlug history support redirects

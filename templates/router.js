@@ -9,6 +9,7 @@ import {
 import $axios from '~/.nuxt/axios';
 import $auth from '~/.nuxt/auth/plugin.js';
 
+import axiosMutator from 'crudeshop/utilities/axiosMutator';
 import CrudAdmin from 'crudeshop';
 
 export async function createRouter(ssrContext, config) {
@@ -19,10 +20,15 @@ export async function createRouter(ssrContext, config) {
     //We need reset data on each new request, because otherwise storage will be shared accross all requests
     CrudAdmin.setNewInstance();
 
-    CrudAdmin.setAxios($axios);
+    //Assign content into crudadmin
+    CrudAdmin.setContext(ssrContext);
+
+    //Set authentification for build request
     CrudAdmin.setAuth($auth);
 
-    CrudAdmin.setContext(ssrContext);
+    //Boot axios for build purposes
+    CrudAdmin.setAxios($axios);
+    axiosMutator(CrudAdmin.$axios);
 
     return new Router({
         ...options,

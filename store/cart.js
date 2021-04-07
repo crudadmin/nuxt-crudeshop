@@ -261,7 +261,7 @@ var cartStore = {
     },
 
     getters: {
-        cartItems: state => (options = {}) => {
+        getCartItems: state => (options = {}) => {
             let items = state.items.map(item => new CartItem(item));
 
             if (options.withAssignedChildItems === false) {
@@ -272,10 +272,10 @@ var cartStore = {
 
             return items;
         },
-        discounts(state) {
+        getDiscounts: state => {
             return state.discounts.map(item => new Discount(item));
         },
-        itemsQuantityCount: state => {
+        getItemsQuantityCount: state => {
             return _.sum(state.items.map(item => item.quantity));
         },
         getCartItemFromObject: state => object => {
@@ -290,10 +290,16 @@ var cartStore = {
 
             return _.find(state.items, search);
         },
-        indicatedDeliveries: state => {
+        getIndicatedDeliveries: state => {
             return state.deliveries
                 .filter(delivery => delivery.free_indicator)
                 .sort((a, b) => a.free_from - b.free_from);
+        },
+        getDiscountCode: state => {
+            let item = _.find(state.discounts, { key: 'DiscountCode' });
+            if (item) {
+                return new Discount(item);
+            }
         },
         isSelectedPaymentMethod: state => method => {
             return (
@@ -306,12 +312,6 @@ var cartStore = {
                 state.selectedDelivery &&
                 state.selectedDelivery.id == delivery.id
             );
-        },
-        discountCode: state => {
-            let item = _.find(state.discounts, { key: 'DiscountCode' });
-            if (item) {
-                return new Discount(item);
-            }
         },
     },
 };

@@ -1,6 +1,6 @@
-const { mapGetters, mapState } = require('vuex');
-const Vue = require('vue');
-const Product = require('../models/Product.js');
+import { mapGetters, mapState } from 'vuex';
+import Vue from 'vue';
+import Product from 'crudeshop/models/Product.js';
 
 var storeMixin = {
     methods: {

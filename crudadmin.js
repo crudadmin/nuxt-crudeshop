@@ -1,8 +1,6 @@
-const Vue = require('vue');
 const Translator = require('gettext-translator').default;
-// const auth = require('./plugins/auth');
-const https = require('https');
 const cartToken = require('./utilities/cartToken');
+const axiosMutator = require('./utilities/axiosMutator');
 
 const CrudAdmin = {
     booted: false,
@@ -23,26 +21,6 @@ const CrudAdmin = {
 
     store: null,
 
-    gettextSelectors: [
-        '_',
-        '__',
-        'Gettext',
-        'd__',
-        'dgettext',
-        'dngettext',
-        'dnp__',
-        'dnpgettext',
-        'dp__',
-        'dpgettext',
-        'gettext',
-        'n__',
-        'ngettext',
-        'np__',
-        'npgettext',
-        'p__',
-        'pgettext',
-    ],
-
     /**
      * We need reset this data on each new request
      */
@@ -54,21 +32,20 @@ const CrudAdmin = {
         this.context = null;
     },
 
-    setAxios($axios) {
-        $axios(this, () => {});
-
-        //Allow self signed https
-        this.$axios.defaults['httpsAgent'] = new https.Agent({
-            rejectUnauthorized: false,
-        });
+    setContext(context) {
+        this.context = context;
     },
 
     setAuth($auth) {
-        $auth(this, () => {});
+        let obj = this.context || {};
+
+        $auth(obj, () => {});
+
+        this.$auth = obj.$auth;
     },
 
-    setContext(context) {
-        this.context = context;
+    setAxios($axios) {
+        $axios(this, () => {});
     },
 
     getAuth() {
@@ -77,11 +54,7 @@ const CrudAdmin = {
             return $nuxt.$auth;
         }
 
-        if (this.$auth) {
-            return this.$auth;
-        }
-
-        return (this.$auth = auth(this.context || {}));
+        return this.$auth;
     },
 
     getAuthorizationHeaders() {
@@ -106,9 +79,7 @@ const CrudAdmin = {
             return;
         }
 
-        var response = await this.$axios.$get('/api/bootstrap', {
-            headers: this.getAuthorizationHeaders(),
-        });
+        var response = await this.$axios.$get('/api/bootstrap');
 
         var bootstrap = response.data;
 
@@ -149,59 +120,6 @@ const CrudAdmin = {
         }
 
         this.translates = translates;
-    },
-
-    async installCrudAdminMethods() {
-        var a = await this.getTranslator(),
-            getSelector = function(selector) {
-                return function() {
-                    var s = selector in a ? selector : '__';
-
-                    return a[s].apply(a, arguments);
-                };
-            };
-
-        Vue.use({
-            install: (Vue, options) => {
-                for (var i = 0; i < this.gettextSelectors.length; i++) {
-                    Vue.prototype[this.gettextSelectors[i]] = getSelector(
-                        this.gettextSelectors[i]
-                    );
-                }
-
-                Vue.prototype.route = route => {
-                    return a.__(route);
-                };
-
-                Vue.prototype.action = this.action;
-            },
-        });
-    },
-
-    action(controller) {
-        var routes = CrudAdmin.routes,
-            actions = {};
-
-        for (var key in routes || {}) {
-            actions[key] = routes[key];
-        }
-
-        var regex = /{[a-z|A-Z|0-9|\_|\-|\?]+}/g,
-            action = actions[controller];
-
-        if (!action) {
-            console.error('Action not found ' + controller);
-            return '';
-        }
-
-        var matches = action.match(regex) || [];
-
-        //Replace action param
-        for (let i = 0; i < matches.length; i++) {
-            action = action.replace(matches[i], arguments[i + 1] || '');
-        }
-
-        return action;
     },
 
     async rewriteRoutes(routes) {

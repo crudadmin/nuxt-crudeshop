@@ -1,14 +1,11 @@
-const https = require('https');
+import https from 'https';
 
-const Vue = require('vue');
-const CrudAdmin = require('../crudadmin.js');
+import Vue from 'vue';
+import CrudAdmin from 'crudeshop';
+import axiosMutator from 'crudeshop/utilities/axiosMutator';
 
-module.exports = async ({ $axios, store }, inject) => {
+export default async ({ $axios, store }, inject) => {
+    axiosMutator($axios);
+
     CrudAdmin.bootStore(store);
-
-    //Add cart and auth headers into axios
-    var authHeaders = CrudAdmin.getAuthorizationHeaders();
-    for (var key in authHeaders) {
-        $axios.setHeader(key, authHeaders[key]);
-    }
 };
