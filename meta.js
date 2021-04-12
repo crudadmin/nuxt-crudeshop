@@ -1,17 +1,19 @@
-import _ from 'lodash';
-import { bindModelMeta } from './utilities/meta.js';
+const _ = require('lodash');
+const { bindModelMeta } = require('./utilities/meta.js');
 
-export default (models) => {
+module.exports = models => {
     var options = {
         title: '',
         meta: [],
     };
 
-    models = models ? _.toArray(models).filter((item) => item) : null;
+    models = models ? _.toArray(models).filter(item => item) : null;
 
     if (models && models.length > 0) {
-        for (var i = 0; i < models.length; i++) {
-            bindModelMeta(options, models[i]);
+        let reversedModels = models.reverse();
+
+        for (var i = 0; i < reversedModels.length; i++) {
+            bindModelMeta(options, reversedModels[i]);
         }
     }
 

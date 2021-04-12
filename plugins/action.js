@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import CrudAdmin from 'crudeshop';
 
-const action = controller => {
+const action = function(controller) {
     var routes = CrudAdmin.routes,
         actions = {};
 

@@ -5,7 +5,7 @@ const sanitize = text => {
         .replace(new RegExp('&nbsp;', 'g'), ' ');
 };
 
-module.exports.bindModelMeta(options, model) => {
+module.exports.bindModelMeta = (options, model) => {
     let title = model.meta_title || model.name || model.title;
     if (title) {
         options.title = sanitize(title);
@@ -52,4 +52,4 @@ module.exports.bindModelMeta(options, model) => {
             });
         }
     }
-}
+};
