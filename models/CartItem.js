@@ -58,7 +58,7 @@ class CartItem {
     }
 
     getAssignedItems() {
-        let items = crudadmin.store.getters['cart/cartItems']();
+        let items = crudadmin.store.getters['cart/getCartItems']();
 
         return items.filter(item => {
             return this.isCartItemParent(item);
