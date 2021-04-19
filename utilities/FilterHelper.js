@@ -73,7 +73,7 @@ module.exports.buildFromQueryParamToState = (state, query) => {
     return { queryObject, priceRange, sortBy };
 };
 
-module.exports.buildQueryFromObject = query => {
+module.exports.buildQueryFromObject = params => {
     var esc = encodeURIComponent;
     var query = Object.keys(params)
         .map(k => esc(k) + '=' + esc(params[k]))
