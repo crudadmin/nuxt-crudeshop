@@ -16,6 +16,7 @@ const store = {
 
             defaultPriceRange: [],
             priceRange: [],
+            sortBy: null,
         };
     },
 
@@ -57,6 +58,9 @@ const store = {
                 ? range.map(price => parseFloat(price))
                 : state.defaultPriceRange;
         },
+        setSortBy(state, order) {
+            state.sortBy = order;
+        },
         setDefaultPriceRange(state, range) {
             //Set default range
             var defaultRange = range.map(price => parseFloat(price)),
@@ -81,7 +85,9 @@ const store = {
 
             dispatch('updateQuery');
         },
-        toggleAttributeItem({ state, commit, dispatch }, { attribute_id, id }) {
+        toggleAttributeItem({ state, commit, dispatch }, item) {
+            const { attribute_id, id } = item;
+
             commit('toggleAttributeItem', { attribute_id, id });
 
             dispatch('updateQuery');
@@ -115,6 +121,11 @@ const store = {
 
             dispatch('updateQuery');
         }, 500),
+        setSortBy: ({ state, commit, dispatch }, sortBy) => {
+            commit('setSortBy', sortBy);
+
+            dispatch('updateQuery');
+        },
         resetPriceRange: ({ state, dispatch, commit }) => {
             commit('setPriceRange', state.defaultPriceRange);
 
@@ -131,12 +142,15 @@ const store = {
             }
         },
         bootFromQuery({ state, commit }, query) {
-            let { priceRange, queryObject } = buildFromQueryParamToState(
-                state,
-                query
-            );
+            let {
+                priceRange,
+                queryObject,
+                sortBy,
+            } = buildFromQueryParamToState(state, query);
 
             commit('setPriceRange', priceRange);
+
+            commit('setSortBy', sortBy);
 
             commit('setQuery', queryObject);
         },
@@ -184,9 +198,11 @@ const store = {
             return items;
         },
         isItemChecked: state => item => {
-            let values = state.query[item.attribute_id] || [];
+            const { attribute_id, id } = item;
 
-            return values.indexOf(item.id) > -1;
+            let values = state.query[attribute_id] || [];
+
+            return values.indexOf(id) > -1;
         },
         isAttributesSelected: state => {
             return Object.keys(state.query).length > 0;

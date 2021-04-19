@@ -64,7 +64,7 @@ var cartStore = {
 
     actions: {
         cartError({}, response) {
-            console.log(this);
+            console.error('error', this);
             throw response;
         },
         async addToCart({ commit, dispatch }, object) {

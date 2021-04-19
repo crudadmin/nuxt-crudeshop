@@ -25,8 +25,15 @@ module.exports.buildQueryParamFromState = (state, getters) => {
         }
     }
 
-    if (getters.isChangedPriceRange) {
+    if (
+        getters.isChangedPriceRange &&
+        state.priceRange.filter(item => item).length
+    ) {
         query['_price'] = state.priceRange.join(',');
+    }
+
+    if (state.sortBy) {
+        query['_sort'] = state.sortBy;
     }
 
     return query;
@@ -34,15 +41,21 @@ module.exports.buildQueryParamFromState = (state, getters) => {
 
 module.exports.buildFromQueryParamToState = (state, query) => {
     let queryObject = {},
-        priceRange = null;
+        priceRange = null,
+        sortBy = null;
 
     for (var key in query) {
         //Boot price
         if (key == '_price') {
-            priceRange = query[key]
+            priceRange = (query[key] + '')
                 .split(',')
                 .slice(0, 2)
                 .map(price => parseFloat(price));
+        }
+
+        //Boot order
+        else if (key == '_sort') {
+            sortBy = query[key];
         }
 
         //Boot attributes
@@ -50,14 +63,14 @@ module.exports.buildFromQueryParamToState = (state, query) => {
             let attribute = _.find(state.attributes, { slug: key });
 
             if (attribute) {
-                queryObject[attribute.id] = query[key]
+                queryObject[attribute.id] = (query[key] + '')
                     .split(',')
                     .map(id => parseInt(id));
             }
         }
     }
 
-    return { queryObject, priceRange };
+    return { queryObject, priceRange, sortBy };
 };
 
 module.exports.buildQueryFromObject = query => {
