@@ -52,6 +52,32 @@ class Product extends BaseProduct {
 
         return variantsWithSizes.length == this.variants.length;
     }
+
+    getCategoriesTree() {
+        let trees = [];
+
+        const buildTreeLevels = parentId => {
+            let levels = [];
+
+            for (let category of _.filter(this.categories, {
+                category_id: parentId,
+            })) {
+                levels.push(category.id);
+
+                levels = levels.concat(buildTreeLevels(category.id));
+            }
+
+            return levels;
+        };
+
+        for (let category of _.filter(this.categories, { category_id: null })) {
+            let treeLevel = [category.id].concat(buildTreeLevels(category.id));
+
+            trees.push(treeLevel.map(id => _.find(this.categories, { id })));
+        }
+
+        return trees;
+    }
 }
 
 module.exports = Product;

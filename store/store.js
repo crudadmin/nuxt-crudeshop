@@ -11,7 +11,6 @@ const store = {
             seoModel: null,
             settings: {},
             categories: [],
-            articles: [],
 
             //Store settings
             countries: [],
@@ -52,9 +51,6 @@ const store = {
         },
         setCountries(state, countries) {
             state.countries = countries;
-        },
-        setArticles(state, articles) {
-            state.articles = articles;
         },
     },
 

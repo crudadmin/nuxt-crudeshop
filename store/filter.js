@@ -58,6 +58,18 @@ const store = {
                 ? range.map(price => parseFloat(price))
                 : state.defaultPriceRange;
         },
+        setPriceRangeMin(state, value) {
+            let priceRange = _.cloneDeep(state.priceRange);
+            priceRange[0] = parseFloat(value);
+
+            state.priceRange = priceRange;
+        },
+        setPriceRangeMax(state, value) {
+            let priceRange = _.cloneDeep(state.priceRange);
+            priceRange[1] = parseFloat(value);
+
+            state.priceRange = priceRange;
+        },
         setSortBy(state, order) {
             state.sortBy = order;
         },
@@ -118,6 +130,16 @@ const store = {
         },
         setPriceRange: _.debounce(({ state, commit, dispatch }, range) => {
             commit('setPriceRange', range);
+
+            dispatch('updateQuery');
+        }, 500),
+        setPriceRangeMin: _.debounce(({ state, commit, dispatch }, value) => {
+            commit('setPriceRangeMin', value);
+
+            dispatch('updateQuery');
+        }, 500),
+        setPriceRangeMax: _.debounce(({ state, commit, dispatch }, value) => {
+            commit('setPriceRangeMax', value);
 
             dispatch('updateQuery');
         }, 500),

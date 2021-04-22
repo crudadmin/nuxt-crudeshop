@@ -10,13 +10,16 @@ export default function(moduleOptions) {
         'plugins/plugin.js',
         'plugins/bus.js',
         'plugins/store.js',
+        'plugins/tracking.client.js',
         'mixins/store.mixin.js',
-    ].forEach(plugin => {
-        this.addPlugin({
-            src: resolve(__dirname, plugin),
-            fileName: join('crudeshop', basename(plugin)),
+    ]
+        .reverse()
+        .forEach(plugin => {
+            this.addPlugin({
+                src: resolve(__dirname, plugin),
+                fileName: join('crudeshop', basename(plugin)),
+            });
         });
-    });
 
     // Rewrite default router with crudadmin router
     this.addPlugin({

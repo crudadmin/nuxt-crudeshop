@@ -28,29 +28,10 @@ var cartStore = {
 
     mutations: {
         setCart(state, cart) {
-            var tryParams = [
-                //Base object data
-                'items',
-                'summary',
-                'summary_without_mutators',
-                'discounts',
-
-                //Mutators data
-                'deliveries',
-                'paymentMethods',
-                'selectedDelivery',
-                'selectedLocation',
-                'selectedCountry',
-                'selectedPaymentMethod',
-                'clientData',
-
-                //Custom eshop
-                //...
-            ];
-
-            for (var i = 0; i < tryParams.length; i++) {
-                if (tryParams[i] in cart) {
-                    state[tryParams[i]] = cart[tryParams[i]];
+            //We can mutate this variable from outside
+            for (var key in cart) {
+                if (key in state) {
+                    state[key] = cart[key];
                 }
             }
         },
@@ -152,20 +133,20 @@ var cartStore = {
                 dispatch('cartError', e);
             }
         },
-        async removeItem({ commit, state, dispatch }, item) {
+        async removeItem({ commit, state, dispatch }, cartItem) {
             try {
                 //We need dispatch event before item will be remove from cart list, because we need retrieve product into.
                 dispatch('sendItemEvent', {
                     event: 'removeFromCart',
-                    cartItem: item,
-                    quantity: item.quantity,
+                    cartItem: cartItem,
+                    quantity: cartItem.quantity,
                 });
 
                 var response = await this.$axios.$post(
                     this.$action('Cart\\CartController@removeItem'),
                     {
-                        product_id: item.product.id,
-                        variant_id: (item.variant || {}).id,
+                        product_id: cartItem.product.id,
+                        variant_id: (cartItem.variant || {}).id,
                     }
                 );
 

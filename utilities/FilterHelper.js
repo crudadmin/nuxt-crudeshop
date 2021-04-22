@@ -81,3 +81,15 @@ module.exports.buildQueryFromObject = params => {
 
     return query;
 };
+
+module.exports.hasAttributesChanged = (attributes, newQuery, oldQuery) => {
+    attributes = Object.values(attributes);
+
+    for (attribute of attributes) {
+        if (newQuery[attribute.slug] != oldQuery[attribute.slug]) {
+            return true;
+        }
+    }
+
+    return false;
+};
