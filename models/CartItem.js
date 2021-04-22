@@ -6,6 +6,10 @@ const ProductsVariant = require('./ProductsVariant');
 
 class CartItem {
     constructor(rawObject) {
+        if (rawObject instanceof CartItem) {
+            return rawObject;
+        }
+
         //Copy all given Product attributes
         for (var key in rawObject) {
             this[key] = rawObject[key];

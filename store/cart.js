@@ -119,7 +119,7 @@ var cartStore = {
                 };
 
                 //If cart item is assigned to another cart item, we want send this data as well
-                if (obj.item.hasParentCartItem()) {
+                if (new CartItem(obj.item).hasParentCartItem()) {
                     request.cart_item = obj.item.parentIdentifier.data;
                 }
 
