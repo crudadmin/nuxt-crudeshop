@@ -78,6 +78,14 @@ class Product extends BaseProduct {
 
         return trees;
     }
+
+    canAddToCart() {
+        if (this.hasStock == true) {
+            return true;
+        }
+
+        return ['everytime'].indexOf(this.stock_type) > -1;
+    }
 }
 
 module.exports = Product;
