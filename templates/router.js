@@ -7,7 +7,7 @@ import {
 
 //Axios
 import $axios from '~/.nuxt/axios';
-import $auth from '~/.nuxt/auth/plugin.js';
+import $auth from '~/.nuxt/auth.js';
 
 import axiosMutator from 'crudeshop/utilities/axiosMutator';
 import CrudAdmin from 'crudeshop';

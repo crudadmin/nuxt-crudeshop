@@ -63,7 +63,7 @@ const CrudAdmin = {
             _authToken,
             _cartToken;
 
-        if ((_authToken = auth.getToken('local'))) {
+        if ((_authToken = auth.getStrategy('local').token.get())) {
             obj['Authorization'] = _authToken;
         }
 
