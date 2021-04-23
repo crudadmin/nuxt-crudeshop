@@ -46,34 +46,32 @@ function getQueryParams(route, response) {
 
 export default async ({ $axios, app, store, route, redirect }, inject) => {
     //On budle update
-    $axios.onResponse(function(response) {
-        //Set buddle hash data
-        if (response.data && response.data.bundle_hash) {
-            // if (
-            //     store.state.$store.bundleHash &&
-            //     response.data.bundle_hash &&
-            //     store.state.$store.bundleHash != response.data.bundle_hash
-            // ) {
-            //     let refreshText = $nuxt.$translator.__(
-            //         'Práve sme aktualizovali rozhranie eshopu, pre jeho zobrazenie Vám opätovne načítame webovú stránku.'
-            //     );
-
-            //     $nuxt.$dialog
-            //         .alert(refreshText, {
-            //             customClass: 'dialog-info',
-            //             okText: $nuxt.$translator.__('Do toho!'),
-            //         })
-            //         .then(() => {
-            //             window.location.reload();
-            //         });
-            // }
-
-            //We need update new bundle hash if has been changed or set first time
-            if (response.data.bundle_hash != store.state.$store.bundleHash) {
-                store.commit('store/setBundleHash', response.data.bundle_hash);
-            }
-        }
-    });
+    // $axios.onResponse(function(response) {
+    //Set buddle hash data
+    // if (response.data && response.data.bundle_hash) {
+    // if (
+    //     store.state.$store.bundleHash &&
+    //     response.data.bundle_hash &&
+    //     store.state.$store.bundleHash != response.data.bundle_hash
+    // ) {
+    //     let refreshText = $nuxt.$translator.__(
+    //         'Práve sme aktualizovali rozhranie eshopu, pre jeho zobrazenie Vám opätovne načítame webovú stránku.'
+    //     );
+    //     $nuxt.$dialog
+    //         .alert(refreshText, {
+    //             customClass: 'dialog-info',
+    //             okText: $nuxt.$translator.__('Do toho!'),
+    //         })
+    //         .then(() => {
+    //             window.location.reload();
+    //         });
+    // }
+    //We need update new bundle hash if has been changed or set first time
+    // if (response.data.bundle_hash != store.state.$store.bundleHash) {
+    //     store.commit('store/setBundleHash', response.data.bundle_hash);
+    // }
+    // }
+    // });
 
     //Handle crudadmin findBySlug history support redirects
     $axios.onResponse(function(response) {
