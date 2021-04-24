@@ -2,6 +2,7 @@ const _ = require('lodash');
 const crudadmin = require('../crudadmin');
 const BaseProduct = require('./BaseProduct');
 const ProductsVariant = require('./ProductsVariant');
+const Attribute = require('./Attribute');
 
 class Product extends BaseProduct {
     constructor(rawObject) {
@@ -13,6 +14,16 @@ class Product extends BaseProduct {
                 variant => new ProductsVariant(variant)
             );
         }
+    }
+
+    /**
+     * Returns producti identifier, when multiple products with same id needs to be in category layout.
+     * Then we can generate keys from variants ids
+     */
+    getVariantsKey() {
+        return [this.id]
+            .concat(this.variants.map(variant => variant.id))
+            .join('-');
     }
 
     priceFormatWithCheapestVariant(key) {
@@ -92,7 +103,9 @@ class Product extends BaseProduct {
         return variantsWithSizes.length == this.variants.length;
     }
 
-    getVariantsAttributes() {
+    getVariantsAttributes(options) {
+        let { withoutOneItem = true } = options || {};
+
         if (!this.isType('variants')) {
             return [];
         }
@@ -110,25 +123,31 @@ class Product extends BaseProduct {
                         ).length == this.variants.length
                 )
                 .map(attribute => {
-                    let sharedAttr = _.cloneDeep(attribute);
+                    let sharedAttr = new Attribute(_.cloneDeep(attribute));
+
                     sharedAttr.items = _.uniqBy(
-                        _.flatten(
-                            _.filter(allAttributes, {
-                                id: attribute.id,
-                            }).map(attr => attr.items)
-                        ),
+                        _.filter(allAttributes, {
+                            id: attribute.id,
+                        }).map(attr => attr.items[0]),
                         'id'
                     );
 
                     return sharedAttr;
                 });
 
+        //Filter out attributes with only one item. we does not want show this attribute in switch
+        if (withoutOneItem == true) {
+            sharedAttributes = sharedAttributes.filter(
+                attribute => attribute.items.length > 1
+            );
+        }
+
         return sharedAttributes;
     }
 
     getAlternativeVariantByItem(item, actualVariant) {
         let variantsWithGivenItem = this.variants.filter(variant =>
-            variant.hasAttributeItem(item.id)
+            variant.hasExactAttributeItem(item.id)
         );
 
         let variantAttributesExceptGiven = this.getVariantsAttributes().filter(
@@ -143,7 +162,7 @@ class Product extends BaseProduct {
             }
 
             let filtrated = filtratedVariants.filter(variant =>
-                variant.hasAttributeItem(
+                variant.hasExactAttributeItem(
                     actualVariant.getAttributeItemId(attribute.id)
                 )
             );

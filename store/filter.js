@@ -1,6 +1,8 @@
 const _ = require('lodash');
 const Vue = require('vue').default;
 
+const Attribute = require('../models/Attribute.js');
+
 const {
     buildQueryParamFromState,
     buildFromQueryParamToState,
@@ -257,6 +259,11 @@ const store = {
         },
         getQueryParams: (state, getters) => {
             return buildQueryParamFromState(state, getters);
+        },
+        getAttributes: state => {
+            return Object.values(state.attributes).map(
+                attr => new Attribute(attr)
+            );
         },
     },
 };

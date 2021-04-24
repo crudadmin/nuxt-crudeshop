@@ -60,7 +60,31 @@ class BaseProduct {
         return items[0] ? items[0].id : null;
     }
 
+    /*
+     * Any item of given attribute is presnet
+     */
     hasAttributeItem(id) {
+        return this.hasExactAttributeItem(id);
+    }
+
+    /*
+     * Only Main/first item of attribute is present
+     * This is helpfull when you have need match attribute in alternative filter in product detail
+     */
+    hasExactAttributeItem(id) {
+        return _.find(
+            this.attributesList.map(attribute => attribute.items[0]),
+            { id }
+        )
+            ? true
+            : false;
+    }
+
+    /*
+     * Has given product present attribute item in any position
+     * For example product has 3 colors, so yellow may be in any position order, and may not be first like in hasExactAttributeItem.
+     */
+    hasAnyAttributeItem(id) {
         return _.find(
             _.flatten(this.attributesList.map(attribute => attribute.items)),
             { id }
