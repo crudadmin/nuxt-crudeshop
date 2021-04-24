@@ -38,14 +38,14 @@ class BaseProduct {
      * Attributes
      *
      */
-    getAttribute(attribute_id) {
-        return _.find(this.attributes_items, {
-            attribute_id,
+    getAttribute(attributeId) {
+        return _.find(this.attributesList, {
+            id: attributeId,
         });
     }
 
-    getAttributeItems(attribute_id) {
-        let attribute = this.getAttribute(attribute_id);
+    getAttributeItems(attributeId) {
+        let attribute = this.getAttribute(attributeId);
 
         if (!attribute) {
             return [];
@@ -54,10 +54,19 @@ class BaseProduct {
         return attribute.items;
     }
 
-    getAttributeItemId(attribute_id) {
-        let items = this.getAttributeItems(attribute_id);
+    getAttributeItemId(attributeId) {
+        let items = this.getAttributeItems(attributeId);
 
         return items[0] ? items[0].id : null;
+    }
+
+    hasAttributeItem(id) {
+        return _.find(
+            _.flatten(this.attributesList.map(attribute => attribute.items)),
+            { id }
+        )
+            ? true
+            : false;
     }
 }
 

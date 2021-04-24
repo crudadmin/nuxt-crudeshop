@@ -45,14 +45,6 @@ class Product extends BaseProduct {
         return this.product_type == type;
     }
 
-    hasAllVariantsAttribute(attribute_id) {
-        let variantsWithSizes = this.variants.filter(variant => {
-            return variant.getAttribute(attribute_id);
-        });
-
-        return variantsWithSizes.length == this.variants.length;
-    }
-
     getCategoriesTree() {
         let trees = [];
 
@@ -85,6 +77,92 @@ class Product extends BaseProduct {
         }
 
         return ['everytime'].indexOf(this.stock_type) > -1;
+    }
+
+    /**
+     * Attributes
+     *
+     */
+
+    hasAllVariantsAttribute(attribute_id) {
+        let variantsWithSizes = this.variants.filter(variant => {
+            return variant.getAttribute(attribute_id);
+        });
+
+        return variantsWithSizes.length == this.variants.length;
+    }
+
+    getVariantsAttributes() {
+        if (!this.isType('variants')) {
+            return [];
+        }
+
+        //Find all attributes which are shared accross all variants
+        let allAttributes = _.flatten(
+                this.variants.map(variant => variant.attributesList)
+            ),
+            sharedAttributes = _.uniqBy(allAttributes, 'id')
+                .filter(attribute => attribute.variants == true)
+                .filter(
+                    attribute =>
+                        this.variants.filter(variant =>
+                            _.find(variant.attributesList, { id: attribute.id })
+                        ).length == this.variants.length
+                )
+                .map(attribute => {
+                    let sharedAttr = _.cloneDeep(attribute);
+                    sharedAttr.items = _.uniqBy(
+                        _.flatten(
+                            _.filter(allAttributes, {
+                                id: attribute.id,
+                            }).map(attr => attr.items)
+                        ),
+                        'id'
+                    );
+
+                    return sharedAttr;
+                });
+
+        return sharedAttributes;
+    }
+
+    getAlternativeVariantByItem(item, actualVariant) {
+        let variantsWithGivenItem = this.variants.filter(variant =>
+            variant.hasAttributeItem(item.id)
+        );
+
+        let variantAttributesExceptGiven = this.getVariantsAttributes().filter(
+            attribute => attribute.id != item.attribute_id
+        );
+
+        let filtratedVariants = variantsWithGivenItem;
+
+        for (let attribute of variantAttributesExceptGiven) {
+            if (!attribute.items.length) {
+                continue;
+            }
+
+            let filtrated = filtratedVariants.filter(variant =>
+                variant.hasAttributeItem(
+                    actualVariant.getAttributeItemId(attribute.id)
+                )
+            );
+
+            //If this attribute does not share value with no other variants, we want skip this filter
+            //and try other attribute filters. If no exact match has been found, we will return first available attribute.
+            if (filtrated.length == 0) {
+                continue;
+            }
+
+            filtratedVariants = filtrated;
+
+            //If end match has been found
+            if (filtrated.length == 1) {
+                break;
+            }
+        }
+
+        return filtratedVariants[0];
     }
 }
 

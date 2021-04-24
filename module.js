@@ -2,17 +2,18 @@ import { relative, resolve, basename, join } from 'path';
 import { existsSync } from 'fs';
 
 export default function(moduleOptions) {
-    //Register these modules
     [
+        //Register these modules
+        'plugins/store.js',
         'plugins/translator.js',
         'plugins/action.js',
         'plugins/bootstrap.js',
         'plugins/plugin.js',
         'plugins/bus.js',
-        'plugins/store.js',
-        'plugins/tracking.client.js',
+        moduleOptions.tracking ? 'plugins/tracking.client.js' : null,
         'mixins/store.mixin.js',
     ]
+        .filter(item => item)
         .reverse()
         .forEach(plugin => {
             this.addPlugin({
