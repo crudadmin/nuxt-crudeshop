@@ -42,7 +42,7 @@ module.exports.bindModelMeta = (options, model) => {
         });
     }
 
-    let images = model.meta_image;
+    let images = model.metaImageThumbnail || model.meta_image;
     if (images && images.length > 0) {
         for (var i = 0; i < images.length; i++) {
             options.meta.push({

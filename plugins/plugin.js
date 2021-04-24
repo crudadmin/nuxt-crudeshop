@@ -73,6 +73,17 @@ export default async ({ $axios, app, store, route, redirect }, inject) => {
     // }
     // });
 
+    let shouldResetSeoModel = false;
+    //Reset seomodel
+    app.router.beforeEach((to, from, next) => {
+        if (from && from.name != to.name) {
+            console.log('before each should reset');
+            shouldResetSeoModel = true;
+        }
+
+        next();
+    });
+
     //Handle crudadmin findBySlug history support redirects
     $axios.onResponse(function(response) {
         (() => {
@@ -108,21 +119,20 @@ export default async ({ $axios, app, store, route, redirect }, inject) => {
         })();
 
         //Set seo model
-        (() => {
-            if (response.data) {
-                var models = Object.values(getRequestModels(response.data));
+        if (response.data) {
+            var models = Object.values(getRequestModels(response.data));
 
-                if (models.length > 0) {
-                    store.commit('store/setSeoModel', models);
-                }
+            if (models.length > 0) {
+                store.commit('store/setSeoModel', models);
+
+                shouldResetSeoModel = false;
             }
+        }
+    });
 
-            //Reset seomodel
-            app.router.beforeEach((to, from, next) => {
-                store.commit('store/setSeoModel', null);
-
-                next();
-            });
-        })();
+    app.router.afterEach((to, from) => {
+        if (shouldResetSeoModel === true) {
+            store.commit('store/setSeoModel', null);
+        }
     });
 };
