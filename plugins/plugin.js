@@ -77,7 +77,6 @@ export default async ({ $axios, app, store, route, redirect }, inject) => {
     //Reset seomodel
     app.router.beforeEach((to, from, next) => {
         if (from && from.name != to.name) {
-            console.log('before each should reset');
             shouldResetSeoModel = true;
         }
 
