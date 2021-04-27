@@ -1,11 +1,18 @@
 const _ = require('lodash');
 const crudadmin = require('../crudadmin');
+const Attribute = require('./Attribute');
 
 class BaseProduct {
     constructor(rawObject) {
         //Copy all given Product attributes
         for (var key in rawObject) {
             this[key] = rawObject[key];
+        }
+
+        if (this.attributesList) {
+            this.attributesList = this.attributesList.map(
+                attr => new Attribute(attr)
+            );
         }
     }
 
@@ -40,7 +47,7 @@ class BaseProduct {
      */
     getAttribute(attributeId) {
         return _.find(this.attributesList, {
-            id: attributeId,
+            id: parseInt(attributeId),
         });
     }
 

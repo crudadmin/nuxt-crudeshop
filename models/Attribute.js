@@ -41,6 +41,19 @@ class Attribute {
             }
         });
     }
+
+    isColor() {
+        return (
+            (crudadmin.store.getters['store/backendEnv']('ATTR_COLOR_ID') + '')
+                .split(',')
+                .map(id => parseInt(id))
+                .indexOf(this.id) > -1
+        );
+    }
+
+    getValues(separator = ', ') {
+        return this.items.map(item => item.name).join(separator);
+    }
 }
 
 module.exports = Attribute;
