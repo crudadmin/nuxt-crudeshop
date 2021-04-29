@@ -1,15 +1,13 @@
 const _ = require('lodash');
 const crudadmin = require('../crudadmin');
+const Model = require('./Model');
 
 // prettier-ignore
 const internationalSizes = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '4XL', '5XL', '6XL', '7XL', '8XL', '9XL'];
 
-class Attribute {
+class Attribute extends Model {
     constructor(rawObject) {
-        //Copy all given Product attributes
-        for (var key in rawObject) {
-            this[key] = rawObject[key];
-        }
+        super(rawObject);
     }
 
     getSortedItems() {

@@ -1,19 +1,24 @@
 const _ = require('lodash');
 const crudadmin = require('../crudadmin');
 const Attribute = require('./Attribute');
+const Model = require('./Model');
 
-class BaseProduct {
+class BaseProduct extends Model {
     constructor(rawObject) {
-        //Copy all given Product attributes
-        for (var key in rawObject) {
-            this[key] = rawObject[key];
-        }
+        super(rawObject);
 
         if (this.attributesList) {
             this.attributesList = this.attributesList.map(
                 attr => new Attribute(attr)
             );
         }
+    }
+
+    /**
+     * Add support for global is type product method as fallback to other models
+     */
+    isType(type) {
+        return type == 'regular';
     }
 
     /**

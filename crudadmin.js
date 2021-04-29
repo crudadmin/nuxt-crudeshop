@@ -21,6 +21,8 @@ const CrudAdmin = {
 
     store: null,
 
+    identifiers: {},
+
     /**
      * We need reset this data on each new request
      */
@@ -30,6 +32,12 @@ const CrudAdmin = {
         this.booted = false;
 
         this.context = null;
+    },
+
+    addIdentifier(name, classReference) {
+        if (!(name in this.identifiers)) {
+            this.identifiers[name] = new classReference();
+        }
     },
 
     setContext(context) {

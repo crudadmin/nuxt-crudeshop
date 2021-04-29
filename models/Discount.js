@@ -1,12 +1,10 @@
 const _ = require('lodash');
 const crudadmin = require('../crudadmin');
+const Model = require('./Model');
 
-class Discount {
+class Discount extends Model {
     constructor(rawObject) {
-        //Copy all given Product attributes
-        for (var key in rawObject) {
-            this[key] = rawObject[key];
-        }
+        super(rawObject);
     }
 
     getProperties(hasVat) {

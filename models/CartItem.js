@@ -1,31 +1,44 @@
 const _ = require('lodash');
 const crudadmin = require('../crudadmin');
 
-const Product = require('./Product');
-const ProductsVariant = require('./ProductsVariant');
+const Model = require('./Model');
 
-class CartItem {
+class CartItem extends Model {
     constructor(rawObject) {
+        super(rawObject);
+
         if (rawObject instanceof CartItem) {
             return rawObject;
         }
 
-        //Copy all given Product attributes
-        for (var key in rawObject) {
-            this[key] = rawObject[key];
-        }
+        this.getIdentifier().bootModels(this);
+    }
 
-        if (this.product) {
-            this.product = new Product(this.product);
-        }
+    getItemKey() {
+        let key = [
+            this.identifier,
+            JSON.stringify(this.getIdentifier().buildObject(this)),
+            this.hasParentCartItem()
+                ? new CartItem({
+                      ...this.parentIdentifier.data,
+                      identifier: this.parentIdentifier.identifier,
+                  }).getItemKey()
+                : null,
+        ].filter(item => item || 0);
 
-        if (this.variant) {
-            this.variant = new ProductsVariant(this.variant);
-        }
+        return key.join('-');
+    }
+
+    getIdentifier() {
+        return crudadmin.identifiers[this.identifier || 'products'];
     }
 
     getCartItem() {
-        return this.variant || this.product;
+        let identifier = this.getIdentifier();
+
+        if (identifier) {
+            return identifier.getCartItem(this);
+        }
     }
 
     totalPriceFormat(key = 'priceWithVat') {

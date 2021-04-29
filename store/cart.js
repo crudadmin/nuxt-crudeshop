@@ -1,7 +1,13 @@
 const CrudAdmin = require('../crudadmin.js');
 const CartItem = require('../models/CartItem.js');
 const Discount = require('../models/Discount.js');
+const Delivery = require('../models/Delivery.js');
+const Model = require('../models/Model.js');
 const _ = require('lodash');
+
+const getIdentifierFromObject = object => {
+    return CrudAdmin.identifiers[object.identifier || 'products'];
+};
 
 var cartStore = {
     namespaced: true,
@@ -50,13 +56,18 @@ var cartStore = {
         },
         async addToCart({ commit, dispatch }, object) {
             try {
+                let obj = {
+                    ...object,
+                    ...getIdentifierFromObject(object).buildObject(object),
+                    cart_item:
+                        object.cart_item instanceof Model
+                            ? object.cart_item.getData()
+                            : object.cart_item,
+                };
+
                 var response = await this.$axios.$post(
                     this.$action('Cart\\CartController@addItem'),
-                    {
-                        product_id: object.product_id,
-                        variant_id: object.variant_id,
-                        quantity: object.quantity,
-                    }
+                    obj
                 );
 
                 commit('setCart', response);
@@ -70,6 +81,18 @@ var cartStore = {
                 dispatch('showNewItem', response.addedItems[0]);
             } catch (e) {
                 dispatch('cartError', e);
+            }
+        },
+        toggleItem({ commit, state, getters, dispatch }, object) {
+            let cartItem = getters.getCartItemFromObject(object);
+
+            if (!cartItem) {
+                dispatch('addToCart', {
+                    ...object,
+                    quantity: object.quantity || 1,
+                });
+            } else {
+                dispatch('removeItem', cartItem);
             }
         },
         showNewItem({ commit, state, getters }, object) {
@@ -87,40 +110,41 @@ var cartStore = {
             }, timeOutSeconds * 1000);
         },
         async updateQuantity({ commit, dispatch, state }, obj) {
-            if (obj.quantity < 1) {
-                obj.quantity = 1;
+            let { item, quantity } = obj;
+
+            if (quantity < 1) {
+                quantity = 1;
             }
 
             //If no change
-            if (obj.item.quantity == obj.quantity) {
+            if (item.quantity == quantity) {
                 return;
             }
 
             //If user increases quantity
-            if (obj.item.quantity < obj.quantity) {
+            if (item.quantity < quantity) {
                 dispatch('sendItemEvent', {
                     event: 'addToCart',
-                    cartItem: obj.item,
-                    quantity: obj.quantity - obj.item.quantity,
+                    cartItem: item,
+                    quantity: quantity - item.quantity,
                 });
             } else {
                 dispatch('sendItemEvent', {
                     event: 'removeFromCart',
-                    cartItem: obj.item,
-                    quantity: obj.item.quantity - obj.quantity,
+                    cartItem: item,
+                    quantity: item.quantity - quantity,
                 });
             }
 
             try {
                 let request = {
-                    product_id: obj.item.product.id,
-                    variant_id: (obj.item.variant || {}).id,
-                    quantity: obj.quantity,
+                    ...getIdentifierFromObject(item).buildObject(item),
+                    quantity: quantity,
                 };
 
                 //If cart item is assigned to another cart item, we want send this data as well
-                if (new CartItem(obj.item).hasParentCartItem()) {
-                    request.cart_item = obj.item.parentIdentifier.data;
+                if (new CartItem(item).hasParentCartItem()) {
+                    request.cart_item = item.parentIdentifier.data;
                 }
 
                 var response = await this.$axios.$post(
@@ -142,12 +166,18 @@ var cartStore = {
                     quantity: cartItem.quantity,
                 });
 
+                let obj = {
+                    identifier: cartItem.identifier,
+                    ...getIdentifierFromObject(cartItem).buildObject(cartItem),
+                };
+
+                if (new CartItem(cartItem).hasParentCartItem()) {
+                    obj.cart_item = cartItem.parentIdentifier.data;
+                }
+
                 var response = await this.$axios.$post(
                     this.$action('Cart\\CartController@removeItem'),
-                    {
-                        product_id: cartItem.product.id,
-                        variant_id: (cartItem.variant || {}).id,
-                    }
+                    obj
                 );
 
                 commit('setCart', response);
@@ -259,22 +289,14 @@ var cartStore = {
         getItemsQuantityCount: state => {
             return _.sum(state.items.map(item => item.quantity));
         },
-        getCartItemFromObject: state => object => {
-            var search = {
-                id: parseInt(object.product_id) || parseInt(object.id),
-                ...(object.variant_id
-                    ? {
-                          variant_id: parseInt(object.variant_id),
-                      }
-                    : {}),
-            };
-
-            return _.find(state.items, search);
+        isInCart: (state, getters) => object => {
+            return getters.getCartItemFromObject(object) ? true : false;
         },
-        getIndicatedDeliveries: state => {
-            return state.deliveries
-                .filter(delivery => delivery.free_indicator)
-                .sort((a, b) => a.free_from - b.free_from);
+        getCartItemFromObject: state => object => {
+            var search = getIdentifierFromObject(object).buildObject(object),
+                item = _.find(state.items, search);
+
+            return item ? new CartItem(item) : null;
         },
         getDiscountCode: state => {
             let item = _.find(state.discounts, { key: 'DiscountCode' });
@@ -293,6 +315,9 @@ var cartStore = {
                 state.selectedDelivery &&
                 state.selectedDelivery.id == delivery.id
             );
+        },
+        getDeliveries: state => {
+            return state.deliveries.map(item => new Delivery(item));
         },
     },
 };
