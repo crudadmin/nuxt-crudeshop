@@ -7,6 +7,10 @@ class Delivery extends Model {
         super(rawObject);
     }
 
+    isSelected() {
+        return crudadmin.store.getters['cart/isSelectedDelivery'](this);
+    }
+
     getPriceTillFreeDelivery() {
         let priceWithVat = crudadmin.store.state.cart.summary.priceWithVat || 0;
 

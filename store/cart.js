@@ -2,6 +2,7 @@ const CrudAdmin = require('../crudadmin.js');
 const CartItem = require('../models/CartItem.js');
 const Discount = require('../models/Discount.js');
 const Delivery = require('../models/Delivery.js');
+const PaymentMethod = require('../models/PaymentMethod.js');
 const Model = require('../models/Model.js');
 const _ = require('lodash');
 
@@ -316,8 +317,21 @@ var cartStore = {
                 state.selectedDelivery.id == delivery.id
             );
         },
+        getSelectedDelivery: state => {
+            return state.selectedDelivery
+                ? new Delivery(state.selectedDelivery)
+                : null;
+        },
+        getSelectedPaymentMethod: state => {
+            return state.selectedPaymentMethod
+                ? new PaymentMethod(state.selectedPaymentMethod)
+                : null;
+        },
         getDeliveries: state => {
             return state.deliveries.map(item => new Delivery(item));
+        },
+        getPaymentMethods: state => {
+            return state.paymentMethods.map(item => new PaymentMethod(item));
         },
     },
 };

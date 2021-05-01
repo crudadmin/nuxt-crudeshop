@@ -22,6 +22,13 @@ var storeMixin = {
         priceFormat(number) {
             return this.$store.getters['store/priceFormat'](number, this);
         },
+        priceFormatWithFree(number) {
+            if (number == 0) {
+                return this.$translator.__('Zdarma');
+            }
+
+            return this.$store.getters['store/priceFormat'](number, this);
+        },
         priceFormatWithVatName(number, vat) {
             return this.$store.getters['store/priceFormatWithVatName'](
                 number,
