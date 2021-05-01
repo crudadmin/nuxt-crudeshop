@@ -12,6 +12,7 @@ export default function(moduleOptions) {
         'plugins/bus.js',
         moduleOptions.tracking ? 'plugins/tracking.client.js' : null,
         'mixins/store.mixin.js',
+        'middleware/authenticableMiddleware.js',
     ]
         .filter(item => item)
         .reverse()
@@ -27,6 +28,7 @@ export default function(moduleOptions) {
         src: resolve(__dirname, './templates/router.js'),
         fileName: 'router.js',
     });
+
     // Put default router as .nuxt/defaultRouter.js
     let defaultRouter = require.resolve('@nuxt/vue-app/template/router');
     this.addTemplate({
