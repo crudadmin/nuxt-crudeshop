@@ -1,15 +1,16 @@
 const _ = require('lodash');
 
-module.exports.buildQueryParamFromState = (state, getters) => {
-    let query = {};
+const buildQueryParamFromState = (state, getters) => {
+    let query = {},
+        filter = state.filter;
 
-    for (var attrId in state.query) {
+    for (var attrId in filter) {
         let attribute = _.find(state.attributes, {
             id: parseInt(attrId),
         });
 
         if (attribute) {
-            let value = state.query[attrId];
+            let value = filter[attrId];
 
             if (_.isArray(value)) {
                 let queryString = _.uniq(value.map(id => parseInt(id))).join(
@@ -36,13 +37,18 @@ module.exports.buildQueryParamFromState = (state, getters) => {
         query['_sort'] = state.sortBy;
     }
 
+    if (state.search) {
+        query['_search'] = state.search;
+    }
+
     return query;
 };
 
-module.exports.buildFromQueryParamToState = (state, query) => {
-    let queryObject = {},
+const buildFromQueryParamToState = (state, query) => {
+    let filterObject = {},
         priceRange = null,
-        sortBy = null;
+        sortBy = null,
+        search = null;
 
     for (var key in query) {
         //Boot price
@@ -58,22 +64,27 @@ module.exports.buildFromQueryParamToState = (state, query) => {
             sortBy = query[key];
         }
 
+        //Boot search
+        else if (key == '_search') {
+            search = query[key];
+        }
+
         //Boot attributes
         else {
             let attribute = _.find(state.attributes, { slug: key });
 
             if (attribute) {
-                queryObject[attribute.id] = (query[key] + '')
+                filterObject[attribute.id] = (query[key] + '')
                     .split(',')
                     .map(id => parseInt(id));
             }
         }
     }
 
-    return { queryObject, priceRange, sortBy };
+    return { filterObject, priceRange, sortBy, search };
 };
 
-module.exports.buildQueryFromObject = params => {
+const buildQueryFromObject = params => {
     var esc = encodeURIComponent;
     var query = Object.keys(params)
         .map(k => esc(k) + '=' + esc(params[k]))
@@ -82,7 +93,7 @@ module.exports.buildQueryFromObject = params => {
     return query;
 };
 
-module.exports.hasAttributesChanged = (attributes, newQuery, oldQuery) => {
+const hasAttributesChanged = (attributes, newQuery, oldQuery) => {
     attributes = Object.values(attributes);
 
     for (attribute of attributes) {
@@ -92,4 +103,11 @@ module.exports.hasAttributesChanged = (attributes, newQuery, oldQuery) => {
     }
 
     return false;
+};
+
+module.exports = {
+    buildQueryParamFromState,
+    buildFromQueryParamToState,
+    buildQueryFromObject,
+    hasAttributesChanged,
 };
