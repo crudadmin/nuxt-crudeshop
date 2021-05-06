@@ -294,8 +294,18 @@ var cartStore = {
             return getters.getCartItemFromObject(object) ? true : false;
         },
         getCartItemFromObject: state => object => {
-            var search = getIdentifierFromObject(object).buildObject(object),
-                item = _.find(state.items, search);
+            var search = getIdentifierFromObject(object).buildObject(object);
+
+            //If has parent identifier, we need check also parent identifier match
+            if ( object.cart_item ) {
+                console.log('hmm', object.cart_item);
+                search.parentIdentifier = {
+                    identifier : object.cart_item.identifier,
+                    data : getIdentifierFromObject(object.cart_item).buildObject(object.cart_item),
+                };
+            }
+
+            let item = _.find(state.items, search);
 
             return item ? new CartItem(item) : null;
         },
