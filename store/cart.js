@@ -298,7 +298,6 @@ var cartStore = {
 
             //If has parent identifier, we need check also parent identifier match
             if ( object.cart_item ) {
-                console.log('hmm', object.cart_item);
                 search.parentIdentifier = {
                     identifier : object.cart_item.identifier,
                     data : getIdentifierFromObject(object.cart_item).buildObject(object.cart_item),
