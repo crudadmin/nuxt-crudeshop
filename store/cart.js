@@ -60,10 +60,11 @@ var cartStore = {
                 let obj = {
                     ...object,
                     ...getIdentifierFromObject(object).buildObject(object),
-                    cart_item:
-                        object.cart_item instanceof Model
-                            ? object.cart_item.getData()
-                            : object.cart_item,
+                    cart_item: object.cart_item
+                        ? getIdentifierFromObject(object.cart_item).buildObject(
+                              object.cart_item
+                          )
+                        : null,
                 };
 
                 var response = await this.$axios.$post(
@@ -80,6 +81,38 @@ var cartStore = {
                 });
 
                 dispatch('showNewItem', response.addedItems[0]);
+            } catch (e) {
+                dispatch('cartError', e);
+            }
+        },
+        async toggleCartItems({ commit, dispatch }, array) {
+            try {
+                let items = [];
+
+                for (var object of array) {
+                    let obj = {
+                        ...object,
+                        ...getIdentifierFromObject(object).buildObject(object),
+                    };
+
+                    //If cart item is assigned to another cart item, we want send this data as well
+                    if (new CartItem(object).hasParentCartItem()) {
+                        obj.cart_item = object.parentIdentifier.data;
+                    } else if (object.cart_item) {
+                        obj.cart_item = getIdentifierFromObject(
+                            object.cart_item
+                        ).buildObject(object.cart_item);
+                    }
+
+                    items.push(obj);
+                }
+
+                var response = await this.$axios.$post(
+                    this.$action('Cart\\CartController@toggleItems'),
+                    { items }
+                );
+
+                commit('setCart', response);
             } catch (e) {
                 dispatch('cartError', e);
             }
@@ -297,10 +330,12 @@ var cartStore = {
             var search = getIdentifierFromObject(object).buildObject(object);
 
             //If has parent identifier, we need check also parent identifier match
-            if ( object.cart_item ) {
+            if (object.cart_item) {
                 search.parentIdentifier = {
-                    identifier : object.cart_item.identifier,
-                    data : getIdentifierFromObject(object.cart_item).buildObject(object.cart_item),
+                    identifier: object.cart_item.identifier,
+                    data: getIdentifierFromObject(object.cart_item).buildObject(
+                        object.cart_item
+                    ),
                 };
             }
 
