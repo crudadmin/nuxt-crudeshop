@@ -1,5 +1,5 @@
 import { relative, resolve, basename, join } from 'path';
-import { existsSync } from 'fs';
+import { existsSync, writeFileSync } from 'fs';
 
 export default function(moduleOptions) {
     [
@@ -34,5 +34,23 @@ export default function(moduleOptions) {
     this.addTemplate({
         fileName: 'defaultRouter.js',
         src: defaultRouter,
+    });
+
+    //Generate routes translations
+    this.nuxt.hook('build:done', builder => {
+        var routes = [];
+
+        for (var key in builder.routes) {
+            routes.push("__('" + builder.routes[key].path + "')");
+        }
+
+        const extraFilePath = join(
+            builder.nuxt.options.buildDir + '/crudeshop/',
+            'crudadmin_routes.js'
+        );
+
+        var routesString = routes.join(', ');
+
+        writeFileSync(extraFilePath, `{ routes: [${routesString}] }`);
     });
 }
