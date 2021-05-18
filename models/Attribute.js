@@ -50,7 +50,19 @@ class Attribute extends Model {
     }
 
     getValues(separator = ', ') {
-        return this.items.map(item => item.name).join(separator);
+        return this.items
+            .map(item => {
+                if (this.unitName) {
+                    return item.name + ' ' + this.unitName;
+                }
+
+                return item.name;
+            })
+            .join(separator);
+    }
+
+    isColor() {
+        return this.unitFormat == 'color';
     }
 }
 
