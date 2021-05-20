@@ -82,12 +82,14 @@ class Product extends BaseProduct {
         return trees;
     }
 
-    canAddToCart() {
-        if (this.hasStock == true) {
+    canAddToCart(productOrVariant) {
+        productOrVariant = productOrVariant || this;
+
+        if (productOrVariant.hasStock == true) {
             return true;
         }
 
-        return ['everytime'].indexOf(this.stock_type) > -1;
+        return productOrVariant.canOrderEverytime;
     }
 
     /**
