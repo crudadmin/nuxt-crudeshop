@@ -40,15 +40,6 @@ class Attribute extends Model {
         });
     }
 
-    isColor() {
-        return (
-            (crudadmin.store.getters['store/backendEnv']('ATTR_COLOR_ID') + '')
-                .split(',')
-                .map(id => parseInt(id))
-                .indexOf(this.id) > -1
-        );
-    }
-
     getValues(separator = ', ') {
         return this.items
             .map(item => {
@@ -62,6 +53,15 @@ class Attribute extends Model {
     }
 
     isColor() {
+        if (
+            (crudadmin.store.getters['store/backendEnv']('ATTR_COLOR_ID') + '')
+                .split(',')
+                .map(id => parseInt(id))
+                .indexOf(this.id) > -1
+        ) {
+            return true;
+        }
+
         return this.unitFormat == 'color';
     }
 }
