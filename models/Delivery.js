@@ -22,6 +22,10 @@ class Delivery extends Model {
 
         return priceWithVat >= this.free_from;
     }
+
+    isProvider(providerName) {
+        return this.shippingProvider?.name === providerName;
+    }
 }
 
 module.exports = Delivery;
