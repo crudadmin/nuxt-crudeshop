@@ -24,7 +24,9 @@ class Delivery extends Model {
     }
 
     isProvider(providerName) {
-        return this.shippingProvider?.name === providerName;
+        return this.shippingProvider
+            ? this.shippingProvider.name === providerName
+            : false;
     }
 }
 
