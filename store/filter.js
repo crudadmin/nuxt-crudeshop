@@ -15,7 +15,6 @@ const store = {
         return {
             attributes: [],
             filter: {},
-            lastQuery: {},
 
             defaultPriceRange: [],
             priceRange: [],
@@ -95,9 +94,6 @@ const store = {
             state.priceRange = _.cloneDeep(state.defaultPriceRange);
 
             state.filter = {};
-        },
-        setLastQuery(state, lastQuery) {
-            state.lastQuery = lastQuery;
         },
     },
 
@@ -182,8 +178,6 @@ const store = {
                 search,
             } = buildFromQueryParamToState(state, query);
 
-            commit('setLastQuery', query);
-
             commit('setPriceRange', priceRange);
 
             commit('setSortBy', sortBy);
@@ -200,16 +194,6 @@ const store = {
     },
 
     getters: {
-        hasQueryChanged: state => query => {
-            console.log(
-                'query change check',
-                _.isEqual(state.lastQuery, query),
-                state.lastQuery,
-                query
-            );
-
-            return _.isEqual(state.lastQuery, query) === false;
-        },
         isChangedPriceRange: (state, getters) => {
             return !_.isEqual(
                 getters.priceRangeMutated,

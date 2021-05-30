@@ -41,8 +41,28 @@ class CartItem extends Model {
         }
     }
 
+    /**
+     * Return total price with multiple quantities
+     *
+     * @param  string  key
+     */
     totalPriceFormat(key = 'priceWithVat') {
         let total = this.getCartItem()[key] * this.quantity;
+
+        return crudadmin.store.getters['store/priceFormat'](total);
+    }
+
+    /**
+     * Return total price with multiple quantities with assigned additional items
+     *
+     * @param  string  key
+     */
+    totalWithAssignedPriceFormat(key = 'priceWithVat') {
+        let total = this.getCartItem()[key] * this.quantity;
+
+        for (let item of this.getAssignedItems()) {
+            total += item.getCartItem()[key] * item.quantity;
+        }
 
         return crudadmin.store.getters['store/priceFormat'](total);
     }
