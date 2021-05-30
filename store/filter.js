@@ -15,6 +15,7 @@ const store = {
         return {
             attributes: [],
             filter: {},
+            lastQuery: {},
 
             defaultPriceRange: [],
             priceRange: [],
@@ -95,6 +96,9 @@ const store = {
 
             state.filter = {};
         },
+        setLastQuery(state, lastQuery) {
+            state.lastQuery = lastQuery;
+        },
     },
 
     actions: {
@@ -160,11 +164,12 @@ const store = {
             dispatch('updateQuery');
         },
         updateQuery({ state, getters }) {
-            let query = getters.getQueryParams;
+            let query = getters.getQueryParams,
+                currentRoute = this.$router.currentRoute;
 
-            if (!_.isEqual(query, $nuxt.$route.query)) {
-                $nuxt.$router.push({
-                    path: $nuxt.$route.path,
+            if (!_.isEqual(query, currentRoute.query)) {
+                this.$router.push({
+                    path: currentRoute.path,
                     query,
                 });
             }
@@ -176,6 +181,8 @@ const store = {
                 sortBy,
                 search,
             } = buildFromQueryParamToState(state, query);
+
+            commit('setLastQuery', query);
 
             commit('setPriceRange', priceRange);
 
@@ -193,6 +200,16 @@ const store = {
     },
 
     getters: {
+        hasQueryChanged: state => query => {
+            console.log(
+                'query change check',
+                _.isEqual(state.lastQuery, query),
+                state.lastQuery,
+                query
+            );
+
+            return _.isEqual(state.lastQuery, query) === false;
+        },
         isChangedPriceRange: (state, getters) => {
             return !_.isEqual(
                 getters.priceRangeMutated,

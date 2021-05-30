@@ -9,6 +9,7 @@ const products = {
             defaultFetchRoute: null,
             defaultLimit: null,
             loading: false,
+            latestRequest: {},
             pagination: {},
             products: [],
             whitelistedQueries: ['page', 'limit', 'search'],
@@ -25,6 +26,9 @@ const products = {
         setLoading(state, loading) {
             state.loading = loading;
         },
+        setLatestRequest(state, requestData) {
+            state.latestRequest = requestData;
+        },
         setProducts(state, products) {
             state.products = products;
         },
@@ -40,9 +44,11 @@ const products = {
     },
 
     actions: {
-        async fetchProducts({ state, commit, getters }, options = {}) {
-            var { url, resetFilter, resetDefaultPriceRange, setProducts } =
-                options || {};
+        async fetchProducts(
+            { state, commit, dispatch, getters },
+            options = {}
+        ) {
+            var { url, resetFilter } = options || {};
 
             commit('setLoading', true);
 
@@ -56,9 +62,31 @@ const products = {
 
             url = getters.getUrlWithParams({ url, query: route.query });
 
-            const response = await this.$axios.$post(url, {
-                filter: this.getters['filter/getQueryParams'],
+            let postData = {
+                    filter: this.getters['filter/getQueryParams'],
+                },
+                //Build latest request data
+                latestRequest = { url, postData };
+
+            //Disable fire duplicate requests.
+            if (_.isEqual(state.latestRequest, latestRequest)) {
+                return;
+            }
+
+            //Save request data, to be able identifiry duplicate requests.
+            commit('setLatestRequest', latestRequest);
+
+            const response = await this.$axios.$post(url, postData);
+
+            dispatch('setProductsResponse', {
+                response,
+                options,
             });
+
+            return response;
+        },
+        setProductsResponse({ state, commit }, { response, options }) {
+            var { resetDefaultPriceRange, setProducts } = options || {};
 
             //Set filter attributes
             this.commit('filter/setAttributes', response.data.attributes);
@@ -81,8 +109,6 @@ const products = {
             }
 
             commit('setLoading', false);
-
-            return response;
         },
     },
     getters: {
