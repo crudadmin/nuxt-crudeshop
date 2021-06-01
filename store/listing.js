@@ -1,4 +1,5 @@
 const { buildQueryFromObject } = require('../utilities/FilterHelper');
+const _ = require('lodash');
 
 const products = {
     namespaced: true,
