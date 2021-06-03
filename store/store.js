@@ -10,6 +10,8 @@ const store = {
             bundleHash: null,
             seoModel: null,
             settings: {},
+            languages: [],
+            language: null,
             categories: [],
 
             //Store settings
@@ -52,6 +54,12 @@ const store = {
         setCountries(state, countries) {
             state.countries = countries;
         },
+        setLanguages(state, languages) {
+            state.languages = languages;
+        },
+        setLanguage(state, langCode) {
+            state.language = langCode;
+        },
     },
 
     getters: {
@@ -69,7 +77,7 @@ const store = {
         numberFormat: state => number => {
             number = Math.round(number * 100) / 100;
 
-            return number.toLocaleString(undefined, {
+            return number.toLocaleString(state.language || 'sk', {
                 minimumFractionDigits: state.rounding,
                 maximumFractionDigits: state.rounding,
             });
