@@ -8,6 +8,8 @@ const {
     buildFromQueryParamToState,
 } = require('../utilities/FilterHelper.js');
 
+var filterTimeout;
+
 const store = {
     namespaced: true,
 
@@ -18,6 +20,7 @@ const store = {
 
             defaultPriceRange: [],
             priceRange: [],
+            instantPriceRange: [],
             sortBy: null,
             search: null,
         };
@@ -63,6 +66,9 @@ const store = {
             state.priceRange = range
                 ? range.map(price => parseFloat(price))
                 : state.defaultPriceRange;
+        },
+        setInstantPriceRange(state, range) {
+            state.instantPriceRange = range;
         },
         setPriceRangeMin(state, value) {
             let priceRange = _.cloneDeep(state.priceRange);
@@ -134,11 +140,21 @@ const store = {
 
             dispatch('updateQuery');
         },
-        setPriceRange: _.debounce(({ state, commit, dispatch }, range) => {
-            commit('setPriceRange', range);
+        setPriceRange: ({ state, commit, dispatch }, range) => {
+            if (filterTimeout) {
+                clearTimeout(filterTimeout);
+            }
 
-            dispatch('updateQuery');
-        }, 500),
+            commit('setInstantPriceRange', range);
+
+            filterTimeout = setTimeout(() => {
+                commit('setInstantPriceRange', []);
+
+                commit('setPriceRange', range);
+
+                dispatch('updateQuery');
+            }, 500);
+        },
         setPriceRangeMin: _.debounce(({ state, commit, dispatch }, value) => {
             commit('setPriceRangeMin', value);
 
@@ -258,12 +274,13 @@ const store = {
         },
         priceRangeMutated: (state, getters) => {
             let min = getters.defaultPriceRangeMutated[0],
-                max = getters.defaultPriceRangeMutated[1];
+                max = getters.defaultPriceRangeMutated[1],
+                priceRange =
+                    state.instantPriceRange.length > 0
+                        ? state.instantPriceRange
+                        : state.priceRange;
 
-            return [
-                _.max([min, state.priceRange[0]]),
-                _.min([max, state.priceRange[1]]),
-            ];
+            return [_.max([min, priceRange[0]]), _.min([max, priceRange[1]])];
         },
         getQueryParams: (state, getters) => {
             return buildQueryParamFromState(state, getters);
