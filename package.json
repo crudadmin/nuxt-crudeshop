@@ -1,6 +1,6 @@
 {
     "name": "crudeshop",
-    "version": "1.0.22",
+    "version": "1.0.23",
     "description": "",
     "main": "crudadmin.js",
     "scripts": {
