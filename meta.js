@@ -9,7 +9,7 @@ const getActualSeoRoute = route => {
 
     let matchedRoute = route.matched
         .map(matched => {
-            let meta = matched?.meta || {};
+            let meta = matched ? matched.meta || {} : {};
 
             return meta._original;
         })
