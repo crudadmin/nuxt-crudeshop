@@ -19,6 +19,8 @@ const CrudAdmin = {
 
     routes: [],
 
+    seoRoutes: [],
+
     store: null,
 
     identifiers: {},
@@ -100,6 +102,8 @@ const CrudAdmin = {
 
         this.routes = bootstrap.routes;
 
+        this.seoRoutes = bootstrap.seo_routes || [];
+
         this.booted = true;
     },
 
@@ -135,7 +139,11 @@ const CrudAdmin = {
 
         //Translate routes from backend
         for (var key in routes) {
-            routes[key].original = routes[key].path;
+            routes[key].meta = {
+                ...(routes[key].meta || {}),
+                _original: routes[key].path,
+            };
+
             routes[key].path = translator.__(routes[key].path);
         }
 

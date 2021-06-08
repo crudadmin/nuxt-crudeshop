@@ -1,13 +1,40 @@
 const _ = require('lodash');
 const { bindModelMeta } = require('./utilities/meta.js');
+const crudadmin = require('./crudadmin.js');
 
-module.exports = models => {
+const getActualSeoRoute = route => {
+    if (crudadmin.seoRoutes.length == 0) {
+        return;
+    }
+
+    let matchedRoute = route.matched
+        .map(matched => {
+            let meta = matched?.meta || {};
+
+            return meta._original;
+        })
+        .filter(item => item);
+
+    if (matchedRoute.length > 0) {
+        return _.find(crudadmin.seoRoutes, {
+            url: matchedRoute[matchedRoute.length - 1],
+        });
+    }
+};
+
+module.exports = (models, route) => {
     var options = {
         title: '',
         meta: [],
     };
 
-    models = models ? _.toArray(models).filter(item => item) : null;
+    let actualSeoRoute = getActualSeoRoute(route);
+
+    models = models ? _.toArray(models).filter(item => item) : [];
+
+    if (actualSeoRoute) {
+        models = [actualSeoRoute].concat(models);
+    }
 
     if (models && models.length > 0) {
         let reversedModels = models.reverse();
