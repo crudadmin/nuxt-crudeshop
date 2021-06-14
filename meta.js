@@ -3,7 +3,7 @@ const { bindModelMeta } = require('./utilities/meta.js');
 const crudadmin = require('./crudadmin.js');
 
 const getActualSeoRoute = route => {
-    if (crudadmin.seoRoutes.length == 0) {
+    if (crudadmin.seoRoutes.length == 0 || !route) {
         return;
     }
 

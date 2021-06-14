@@ -67,12 +67,12 @@ var cartStore = {
                         : null,
                 };
 
-                var response = await this.$axios.$post(
+                var { data } = await this.$axios.$post(
                     this.$action('Cart\\CartController@addItem'),
                     obj
                 );
 
-                commit('setCart', response);
+                commit('setCart', data);
 
                 dispatch('sendItemEvent', {
                     event: 'addToCart',
@@ -80,7 +80,7 @@ var cartStore = {
                     quantity: object.quantity,
                 });
 
-                dispatch('showNewItem', response.addedItems[0]);
+                dispatch('showNewItem', data.addedItems[0]);
             } catch (e) {
                 dispatch('cartError', e);
             }
@@ -107,12 +107,12 @@ var cartStore = {
                     items.push(obj);
                 }
 
-                var response = await this.$axios.$post(
+                var { data } = await this.$axios.$post(
                     this.$action('Cart\\CartController@toggleItems'),
                     { items }
                 );
 
-                commit('setCart', response);
+                commit('setCart', data);
             } catch (e) {
                 dispatch('cartError', e);
             }
@@ -181,12 +181,12 @@ var cartStore = {
                     request.cart_item = item.parentIdentifier.data;
                 }
 
-                var response = await this.$axios.$post(
+                var { data } = await this.$axios.$post(
                     this.$action('Cart\\CartController@updateQuantity'),
                     request
                 );
 
-                commit('setCart', response);
+                commit('setCart', data);
             } catch (e) {
                 dispatch('cartError', e);
             }
@@ -209,12 +209,12 @@ var cartStore = {
                     obj.cart_item = cartItem.parentIdentifier.data;
                 }
 
-                var response = await this.$axios.$post(
+                var { data } = await this.$axios.$post(
                     this.$action('Cart\\CartController@removeItem'),
                     obj
                 );
 
-                commit('setCart', response);
+                commit('setCart', data);
             } catch (e) {
                 dispatch('cartError', e);
             }
@@ -246,7 +246,7 @@ var cartStore = {
             };
 
             try {
-                var data = await this.$axios.$post(
+                var { data } = await this.$axios.$post(
                     this.$action('Cart\\CartController@setDelivery'),
                     obj
                 );
@@ -264,7 +264,7 @@ var cartStore = {
             }
 
             try {
-                var data = await this.$axios.$post(
+                var { data } = await this.$axios.$post(
                     this.$action('Cart\\CartController@setPaymentMethod'),
                     {
                         payment_method_id: id,
@@ -284,24 +284,24 @@ var cartStore = {
             }
 
             try {
-                var response = await this.$axios.$post(
+                var { data } = await this.$axios.$post(
                     this.$action('Cart\\CartController@setCountry'),
                     {
                         country_id: id,
                     }
                 );
 
-                commit('setCart', response);
+                commit('setCart', data);
             } catch (e) {
                 dispatch('cartError', e);
             }
         },
         async fetchFullSummary({ commit }) {
-            var response = await this.$axios.$get(
+            var { data } = await this.$axios.$get(
                 this.$action('Cart\\CartController@getFullSummary')
             );
 
-            commit('setCart', response);
+            commit('setCart', data);
         },
     },
 

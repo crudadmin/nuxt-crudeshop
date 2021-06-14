@@ -94,7 +94,9 @@ const CrudAdmin = {
         var bootstrap = response.data;
 
         //Refresh/save cart token
-        cartToken.refreshToken(this.getAuth().$storage, bootstrap.cart_token);
+        if (bootstrap.cart_token) {
+            this.setCartToken(bootstrap.cart_token);
+        }
 
         this.response = bootstrap;
 
@@ -132,6 +134,10 @@ const CrudAdmin = {
         }
 
         this.translates = translates;
+    },
+
+    setCartToken(token) {
+        cartToken.refreshToken(this.getAuth().$storage, token);
     },
 
     async rewriteRoutes(routes) {
