@@ -96,10 +96,15 @@ const store = {
             state.priceRange = defaultRange;
             state.defaultPriceRange = defaultRange;
         },
-        resetFilter(state) {
+        resetFilter(state, allParams = false) {
             state.priceRange = _.cloneDeep(state.defaultPriceRange);
 
             state.filter = {};
+
+            if (allParams) {
+                state.search = null;
+                state.sortBy = null;
+            }
         },
     },
 
