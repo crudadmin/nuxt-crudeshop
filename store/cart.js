@@ -361,6 +361,12 @@ var cartStore = {
                 state.selectedDelivery.id == delivery.id
             );
         },
+        isSelectedDeliveryLocation: state => location => {
+            return (
+                state.selectedLocation &&
+                state.selectedLocation.id == location.id
+            );
+        },
         getSelectedDelivery: state => {
             return state.selectedDelivery
                 ? new Delivery(state.selectedDelivery)

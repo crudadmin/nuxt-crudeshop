@@ -23,6 +23,10 @@ class Delivery extends Model {
         return priceWithVat >= this.free_from;
     }
 
+    hasMultipleLocations() {
+        return this.multiple_locations === true;
+    }
+
     isProvider(providerName) {
         return this.shippingProvider
             ? this.shippingProvider.name === providerName
