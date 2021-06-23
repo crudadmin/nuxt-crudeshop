@@ -49,7 +49,7 @@ const products = {
             { state, commit, dispatch, getters },
             options = {}
         ) {
-            var { url, resetFilter } = options || {};
+            var { url, resetFilter, query } = options || {};
 
             commit('setLoading', true);
 
@@ -64,7 +64,7 @@ const products = {
             url = getters.getUrlWithParams({ url, query: route.query });
 
             let postData = {
-                    filter: this.getters['filter/getQueryParams'],
+                    filter: query || this.getters['filter/getQueryParams'],
                 },
                 //Build latest request data
                 latestRequest = { url, postData };
