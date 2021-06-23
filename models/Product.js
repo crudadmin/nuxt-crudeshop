@@ -3,6 +3,9 @@ const crudadmin = require('../crudadmin');
 const BaseProduct = require('./BaseProduct');
 const ProductsVariant = require('./ProductsVariant');
 const Attribute = require('./Attribute');
+const {
+    filterUnexistingConfiguredAttributeItems,
+} = require('../utilities/ProductHelper.js');
 
 class Product extends BaseProduct {
     constructor(rawObject) {
@@ -106,7 +109,7 @@ class Product extends BaseProduct {
     }
 
     getVariantsAttributes(options) {
-        let { withoutOneItem = true } = options || {};
+        let { withoutOneItem = true, productOrVariant } = options || {};
 
         if (!this.isType('variants')) {
             return [];
@@ -141,6 +144,15 @@ class Product extends BaseProduct {
         if (withoutOneItem == true) {
             sharedAttributes = sharedAttributes.filter(
                 attribute => attribute.items.length > 1
+            );
+        }
+
+        //Filter unexisting combinations of variants
+        if (productOrVariant) {
+            filterUnexistingConfiguredAttributeItems(
+                sharedAttributes,
+                this,
+                productOrVariant
             );
         }
 
