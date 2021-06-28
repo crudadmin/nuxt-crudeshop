@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 /**
  * If matched attributes has been found in all variants.
  * We want filter items out of each attribute in synchronious order,
