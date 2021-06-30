@@ -92,6 +92,9 @@ const queryBuilder = {
                 return state.priceRange.join(',');
             }
         },
+        reset({ state }) {
+            state.priceRange = _.cloneDeep(state.defaultPriceRange);
+        },
     },
     _sort: {
         filterEnabled: false,

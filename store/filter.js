@@ -111,7 +111,11 @@ const store = {
             state.defaultPriceRange = defaultRange;
         },
         resetFilter(state, allParams = false) {
-            state.priceRange = _.cloneDeep(state.defaultPriceRange);
+            for (let key in store.queryBuilder) {
+                if (store.queryBuilder[key].reset) {
+                    store.queryBuilder[key].reset({ state });
+                }
+            }
 
             state.attributesFilter = {};
 
