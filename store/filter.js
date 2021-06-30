@@ -20,50 +20,59 @@ const store = {
     state() {
         return {
             attributes: [],
-            filter: {},
+            attributesFilter: {},
+            filters: {},
 
             defaultPriceRange: [],
-            priceRange: [],
             instantPriceRange: [],
-            sortBy: null,
-            search: null,
+
+            priceRange: [],
         };
     },
 
     mutations: {
-        setFilter(state, filter) {
-            state.filter = filter || {};
-        },
-        setSearch(state, search) {
-            state.search = search;
+        setAttributesFilter(state, filter) {
+            state.attributesFilter = filter || {};
         },
         setAttributes(state, attributes) {
             state.attributes = attributes;
         },
+        setStaticFilter(state, data) {
+            for (let key in data) {
+                if (key in state.filters) {
+                    state.filters[key] = data[key];
+                } else {
+                    let obj = {};
+                    obj[key] = data[key];
+
+                    state.filters = Object.assign(state.filters, {}, obj);
+                }
+            }
+        },
         setAttributeItem(state, { attribute_id, id }) {
             //If empty value has been given, we want remove attribute from filter
             if (_.isNil(id)) {
-                if (attribute_id in state.filter) {
-                    Vue.delete(state.filter, attribute_id);
+                if (attribute_id in state.attributesFilter) {
+                    Vue.delete(state.attributesFilter, attribute_id);
                 }
             }
 
             //Set new value
             else {
-                Vue.set(state.filter, attribute_id, id);
+                Vue.set(state.attributesFilter, attribute_id, id);
             }
         },
         toggleAttributeItem(state, { attribute_id, id }) {
-            let values = _.castArray(state.filter[attribute_id] || []).map(id =>
-                parseInt(id)
-            );
+            let values = _.castArray(
+                state.attributesFilter[attribute_id] || []
+            ).map(id => parseInt(id));
 
             let newValues = _.xor(values, [id]);
 
             if (newValues.length == 0) {
-                Vue.delete(state.filter, attribute_id);
+                Vue.delete(state.attributesFilter, attribute_id);
             } else {
-                Vue.set(state.filter, attribute_id, newValues);
+                Vue.set(state.attributesFilter, attribute_id, newValues);
             }
         },
         setPriceRange(state, range) {
@@ -86,9 +95,6 @@ const store = {
 
             state.priceRange = priceRange;
         },
-        setSortBy(state, order) {
-            state.sortBy = order;
-        },
         setDefaultPriceRange(state, range) {
             if (!range) {
                 return;
@@ -107,11 +113,16 @@ const store = {
         resetFilter(state, allParams = false) {
             state.priceRange = _.cloneDeep(state.defaultPriceRange);
 
-            state.filter = {};
+            state.attributesFilter = {};
 
             if (allParams) {
-                state.search = null;
-                state.sortBy = null;
+                for (let key in store.queryBuilder) {
+                    let defaultState = store.queryBuilder[key].default;
+
+                    state.filters[key] = defaultState
+                        ? _.cloneDeep(defaultState)
+                        : null;
+                }
             }
         },
     },
@@ -130,7 +141,7 @@ const store = {
             dispatch('updateQuery');
         },
         removeAttributeItem({ state, commit, dispatch }, id) {
-            let filter = state.filter;
+            let filter = state.attributesFilter;
 
             for (var attrId in filter) {
                 let values = filter[attrId];
@@ -179,7 +190,9 @@ const store = {
             dispatch('updateQuery');
         }, 500),
         setSortBy: ({ state, commit, dispatch }, sortBy) => {
-            commit('setSortBy', sortBy);
+            commit('setStaticFilter', {
+                _sort: sortBy,
+            });
 
             dispatch('updateQuery');
         },
@@ -201,32 +214,46 @@ const store = {
         },
         bootFromQuery({ state, commit }, query) {
             //Boot dynamic attributes
-            let filterObject = buildAttributesFromQuery(state, query);
-            commit('setFilter', filterObject);
+            let filterObject = buildAttributesFromQuery(
+                state.attributes,
+                query
+            );
+
+            commit('setAttributesFilter', filterObject);
+
+            let filters = {};
 
             //Boot additional attributes
             for (let key in store.queryBuilder) {
-                store.queryBuilder[key].set(
+                let value = store.queryBuilder[key].set(
                     {
                         state,
                         commit,
                     },
                     query[key]
                 );
+
+                filters[key] = value;
             }
+
+            commit('setStaticFilter', filters);
         },
-        resetFilter({ commit, dispatch }) {
-            commit('resetFilter');
+        resetFilter({ commit, dispatch }, allParams) {
+            commit('resetFilter', allParams);
 
             dispatch('updateQuery');
         },
     },
 
     getters: {
+        getStaticFilter: state => key => {
+            return state.filters[key];
+        },
         selectedItems: state => {
-            var items = [];
+            var items = [],
+                filter = state.attributesFilter;
 
-            for (var attrId in state.filter) {
+            for (var attrId in filter) {
                 let attribute = _.find(state.attributes, {
                     id: parseInt(attrId),
                 });
@@ -238,12 +265,12 @@ const store = {
                 items = items.concat(
                     attribute.items.filter(item => {
                         //If is multi array of attributes
-                        if (_.isArray(state.filter[attrId])) {
-                            return _.includes(state.filter[attrId], item.id);
+                        if (_.isArray(filter[attrId])) {
+                            return _.includes(filter[attrId], item.id);
                         }
 
                         //If is simple attribute item value
-                        else if (state.filter[attrId] == item.id) {
+                        else if (filter[attrId] == item.id) {
                             return true;
                         }
                     })
@@ -255,31 +282,71 @@ const store = {
         isItemChecked: state => item => {
             const { attribute_id, id } = item;
 
-            let values = state.filter[attribute_id] || [];
+            let values = state.attributesFilter[attribute_id] || [];
 
             return values.indexOf(id) > -1;
         },
         isAttributesSelected: state => {
-            return Object.keys(state.filter).length > 0;
+            return Object.keys(state.attributesFilter).length > 0;
         },
         isFilterEnabled: (state, getters) => {
-            if (getters.isChangedPriceRange) {
-                return true;
+            let staticFilterEnabled = false;
+
+            for (let key in store.queryBuilder) {
+                let filterEnabled = store.queryBuilder[key].filterEnabled;
+
+                //If filter enable state is disabled all the time
+                if (filterEnabled === false) {
+                    continue;
+                }
+
+                //If filter has callback for enabled state
+                else if (typeof filterEnabled == 'function') {
+                    if (
+                        filterEnabled(
+                            {
+                                state,
+                                getters,
+                            },
+                            state.filters[key]
+                        )
+                    ) {
+                        staticFilterEnabled = true;
+                        break;
+                    }
+                }
+
+                //If filter has set values
+                else {
+                    let value = state.filters[key];
+
+                    if (
+                        !_.isNil(value) &&
+                        !(_.isArray(value) && value.length == 0)
+                    ) {
+                        staticFilterEnabled = true;
+
+                        break;
+                    }
+                }
             }
 
-            if (getters.isAttributesSelected) {
-                return true;
-            }
-
-            return false;
+            return staticFilterEnabled || getters.isAttributesSelected;
         },
         getQueryParams: (state, getters) => {
-            let query = buildAttributesFromState(state);
+            let query = buildAttributesFromState(
+                state.attributesFilter,
+                state.attributes
+            );
+
             for (let key in store.queryBuilder) {
-                let queryValue = store.queryBuilder[key].get({
-                    state,
-                    getters,
-                });
+                let queryValue = store.queryBuilder[key].get(
+                    {
+                        state,
+                        getters,
+                    },
+                    state.filters[key]
+                );
 
                 if (queryValue) {
                     query[key] = queryValue;

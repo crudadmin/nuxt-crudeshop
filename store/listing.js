@@ -53,7 +53,8 @@ const products = {
 
             commit('setLoading', true);
 
-            //Reset filter if needed
+            //Reset filter if needed. On onitial request
+            //this method will set default static filter states
             if (resetFilter === true) {
                 this.dispatch('filter/resetFilter');
             }

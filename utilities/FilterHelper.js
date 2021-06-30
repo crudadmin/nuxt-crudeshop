@@ -1,11 +1,10 @@
 const _ = require('lodash');
 
-const buildAttributesFromState = state => {
-    let query = {},
-        filter = state.filter;
+const buildAttributesFromState = (filter, attributes) => {
+    let query = {};
 
     for (var attrId in filter) {
-        let attribute = _.find(state.attributes, {
+        let attribute = _.find(attributes, {
             id: parseInt(attrId),
         });
 
@@ -29,7 +28,7 @@ const buildAttributesFromState = state => {
     return query;
 };
 
-const buildAttributesFromQuery = (state, query) => {
+const buildAttributesFromQuery = (attributes, query) => {
     let filterObject = {};
 
     for (var key in query) {
@@ -39,7 +38,7 @@ const buildAttributesFromQuery = (state, query) => {
         }
 
         //Boot attributes
-        let attribute = _.find(state.attributes, { slug: key });
+        let attribute = _.find(attributes, { slug: key });
 
         if (attribute) {
             filterObject[attribute.id] = (query[key] + '')
@@ -74,6 +73,9 @@ const hasAttributesChanged = (attributes, newQuery, oldQuery) => {
 
 const queryBuilder = {
     _price: {
+        filterEnabled({ state, getters }) {
+            return getters.isChangedPriceRange;
+        },
         set({ commit }, value) {
             let priceRange = (value + '')
                 .split(',')
@@ -92,19 +94,21 @@ const queryBuilder = {
         },
     },
     _sort: {
+        filterEnabled: false,
         set({ commit }, value) {
-            commit('setSortBy', value);
+            return value;
         },
-        get({ state, getters }) {
-            return state.sortBy;
+        get({ state, getters }, value) {
+            return value;
         },
     },
     _search: {
+        filterEnabled: false,
         set({ commit }, value) {
-            commit('setSearch', value);
+            return value;
         },
-        get({ state, getters }) {
-            return state.search;
+        get({ state, getters }, value) {
+            return value;
         },
     },
 };
