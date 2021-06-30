@@ -64,6 +64,12 @@ class Attribute extends Model {
 
         return this.unitFormat == 'color';
     }
+
+    selectedItems() {
+        return this.items.filter(item =>
+            crudadmin.store.getters['filter/isItemChecked'](item)
+        );
+    }
 }
 
 module.exports = Attribute;

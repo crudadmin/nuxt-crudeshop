@@ -4,14 +4,18 @@ const Vue = require('vue').default;
 const Attribute = require('../models/Attribute.js');
 
 const {
-    buildQueryParamFromState,
-    buildFromQueryParamToState,
+    buildAttributesFromState,
+    buildAttributesFromQuery,
+    queryBuilder,
 } = require('../utilities/FilterHelper.js');
 
 var filterTimeout;
 
 const store = {
     namespaced: true,
+
+    //You can mutate bootable queries for filtration
+    queryBuilder,
 
     state() {
         return {
@@ -86,6 +90,10 @@ const store = {
             state.sortBy = order;
         },
         setDefaultPriceRange(state, range) {
+            if (!range) {
+                return;
+            }
+
             //Set default range
             var defaultRange = range.map(price => parseFloat(price)),
                 defaultRange = [
@@ -192,20 +200,20 @@ const store = {
             }
         },
         bootFromQuery({ state, commit }, query) {
-            let {
-                filterObject,
-                priceRange,
-                sortBy,
-                search,
-            } = buildFromQueryParamToState(state, query);
-
-            commit('setPriceRange', priceRange);
-
-            commit('setSortBy', sortBy);
-
+            //Boot dynamic attributes
+            let filterObject = buildAttributesFromQuery(state, query);
             commit('setFilter', filterObject);
 
-            commit('setSearch', search);
+            //Boot additional attributes
+            for (let key in store.queryBuilder) {
+                store.queryBuilder[key].set(
+                    {
+                        state,
+                        commit,
+                    },
+                    query[key]
+                );
+            }
         },
         resetFilter({ commit, dispatch }) {
             commit('resetFilter');
@@ -215,12 +223,6 @@ const store = {
     },
 
     getters: {
-        isChangedPriceRange: (state, getters) => {
-            return !_.isEqual(
-                getters.priceRangeMutated,
-                state.defaultPriceRange
-            );
-        },
         selectedItems: state => {
             var items = [];
 
@@ -271,6 +273,30 @@ const store = {
 
             return false;
         },
+        getQueryParams: (state, getters) => {
+            let query = buildAttributesFromState(state);
+            for (let key in store.queryBuilder) {
+                let queryValue = store.queryBuilder[key].get({
+                    state,
+                    getters,
+                });
+
+                if (queryValue) {
+                    query[key] = queryValue;
+                }
+            }
+
+            return query;
+        },
+        getAttributes: state => {
+            return Object.values(state.attributes).map(
+                attr => new Attribute(attr)
+            );
+        },
+
+        /**
+         * Price filter
+         */
         defaultPriceRangeMutated: state => {
             return [
                 parseInt(state.defaultPriceRange[0]),
@@ -287,12 +313,16 @@ const store = {
 
             return [_.max([min, priceRange[0]]), _.min([max, priceRange[1]])];
         },
-        getQueryParams: (state, getters) => {
-            return buildQueryParamFromState(state, getters);
+        isPriceRangeEnabled: (state, getters) => {
+            return (
+                getters.defaultPriceRangeMutated.filter(item => item).length ==
+                2
+            );
         },
-        getAttributes: state => {
-            return Object.values(state.attributes).map(
-                attr => new Attribute(attr)
+        isChangedPriceRange: (state, getters) => {
+            return !_.isEqual(
+                getters.priceRangeMutated,
+                state.defaultPriceRange
             );
         },
     },

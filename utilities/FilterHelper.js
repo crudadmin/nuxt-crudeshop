@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const buildQueryParamFromState = (state, getters) => {
+const buildAttributesFromState = state => {
     let query = {},
         filter = state.filter;
 
@@ -26,62 +26,29 @@ const buildQueryParamFromState = (state, getters) => {
         }
     }
 
-    if (
-        getters.isChangedPriceRange &&
-        state.priceRange.filter(item => item).length
-    ) {
-        query['_price'] = state.priceRange.join(',');
-    }
-
-    if (state.sortBy) {
-        query['_sort'] = state.sortBy;
-    }
-
-    if (state.search) {
-        query['_search'] = state.search;
-    }
-
     return query;
 };
 
-const buildFromQueryParamToState = (state, query) => {
-    let filterObject = {},
-        priceRange = null,
-        sortBy = null,
-        search = null;
+const buildAttributesFromQuery = (state, query) => {
+    let filterObject = {};
 
     for (var key in query) {
-        //Boot price
-        if (key == '_price') {
-            priceRange = (query[key] + '')
-                .split(',')
-                .slice(0, 2)
-                .map(price => parseFloat(price));
-        }
-
-        //Boot order
-        else if (key == '_sort') {
-            sortBy = query[key];
-        }
-
-        //Boot search
-        else if (key == '_search') {
-            search = query[key];
+        //Skip reserved queries
+        if (key.substr(0, 1) == '_') {
+            continue;
         }
 
         //Boot attributes
-        else {
-            let attribute = _.find(state.attributes, { slug: key });
+        let attribute = _.find(state.attributes, { slug: key });
 
-            if (attribute) {
-                filterObject[attribute.id] = (query[key] + '')
-                    .split(',')
-                    .map(id => parseInt(id));
-            }
+        if (attribute) {
+            filterObject[attribute.id] = (query[key] + '')
+                .split(',')
+                .map(id => parseInt(id));
         }
     }
 
-    return { filterObject, priceRange, sortBy, search };
+    return filterObject;
 };
 
 const buildQueryFromObject = params => {
@@ -105,9 +72,47 @@ const hasAttributesChanged = (attributes, newQuery, oldQuery) => {
     return false;
 };
 
+const queryBuilder = {
+    _price: {
+        set({ commit }, value) {
+            let priceRange = (value + '')
+                .split(',')
+                .slice(0, 2)
+                .map(price => parseFloat(price));
+
+            commit('setPriceRange', priceRange);
+        },
+        get({ state, getters }) {
+            if (
+                getters.isChangedPriceRange &&
+                state.priceRange.filter(item => item).length
+            ) {
+                return state.priceRange.join(',');
+            }
+        },
+    },
+    _sort: {
+        set({ commit }, value) {
+            commit('setSortBy', value);
+        },
+        get({ state, getters }) {
+            return state.sortBy;
+        },
+    },
+    _search: {
+        set({ commit }, value) {
+            commit('setSearch', value);
+        },
+        get({ state, getters }) {
+            return state.search;
+        },
+    },
+};
+
 module.exports = {
-    buildQueryParamFromState,
-    buildFromQueryParamToState,
+    buildAttributesFromState,
+    buildAttributesFromQuery,
+    queryBuilder,
     buildQueryFromObject,
     hasAttributesChanged,
 };
