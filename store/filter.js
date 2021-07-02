@@ -200,6 +200,13 @@ const store = {
 
             dispatch('updateQuery');
         },
+        setSearch: ({ state, commit, dispatch }, query) => {
+            commit('setStaticFilter', {
+                _search: query,
+            });
+
+            dispatch('updateQuery');
+        },
         resetPriceRange: ({ state, dispatch, commit }) => {
             commit('setPriceRange', state.defaultPriceRange);
 
