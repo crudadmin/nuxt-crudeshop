@@ -1,17 +1,20 @@
 import Vue from 'vue';
 import VueGtag from 'vue-gtag';
+import CartItemModel from 'crudeshop/models/CartItem.js';
 
-const buildGa4ItemFromCartItem = (cartItem, quantity) => {
-    let id = cartItem.id,
-        item = cartItem.getCartItem();
+const buildGa4ItemFromCartItem = (CartItem, quantity) => {
+    CartItem = new CartItemModel(CartItem);
+
+    let id = CartItem.id,
+        model = CartItem.getCartItem();
 
     return {
-        item_id: cartItem.id,
-        item_name: item ? item.name : null,
-        item_variant: item ? item.attributesText : null,
-        price: item ? item.priceWithVat : null,
+        item_id: CartItem.id,
+        item_name: model ? model.name : null,
+        item_variant: model ? model.attributesText : null,
+        price: model ? model.priceWithVat : null,
         currency: 'EUR',
-        quantity: _.isNil(quantity) ? cartItem.quantity : quantity,
+        quantity: _.isNil(quantity) ? CartItem.quantity : quantity,
     };
 };
 
