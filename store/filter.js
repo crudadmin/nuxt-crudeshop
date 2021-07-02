@@ -396,6 +396,9 @@ const store = {
                 state.defaultPriceRange
             );
         },
+        getSortBy: (state, getters) => {
+            return getters.getStaticFilter('_sort');
+        },
     },
 };
 

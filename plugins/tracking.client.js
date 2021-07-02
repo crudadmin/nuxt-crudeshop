@@ -3,13 +3,13 @@ import VueGtag from 'vue-gtag';
 
 const buildGa4ItemFromCartItem = (cartItem, quantity) => {
     let id = cartItem.id,
-        item = cartItem.variant ? cartItem.variant : cartItem.product;
+        item = cartItem.getCartItem();
 
     return {
         item_id: cartItem.id,
-        item_name: item.name,
-        item_variant: item.attributesText,
-        price: item.priceWithVat,
+        item_name: item ? item.name : null,
+        item_variant: item ? item.attributesText : null,
+        price: item ? item.priceWithVat : null,
         currency: 'EUR',
         quantity: _.isNil(quantity) ? cartItem.quantity : quantity,
     };
