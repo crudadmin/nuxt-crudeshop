@@ -51,9 +51,13 @@ class BaseProduct extends Model {
      *
      */
     getAttribute(attributeId) {
-        return _.find(this.attributesList, {
+        return _.find(this.getAttributesList(), {
             id: parseInt(attributeId),
         });
+    }
+
+    getAttributesList() {
+        return this.attributesList || [];
     }
 
     getAttributeItems(attributeId) {
@@ -85,7 +89,7 @@ class BaseProduct extends Model {
      */
     hasExactAttributeItem(id) {
         return _.find(
-            this.attributesList.map(attribute => attribute.items[0]),
+            this.getAttributesList().map(attribute => attribute.items[0]),
             { id }
         )
             ? true
@@ -98,7 +102,9 @@ class BaseProduct extends Model {
      */
     hasAnyAttributeItem(id) {
         return _.find(
-            _.flatten(this.attributesList.map(attribute => attribute.items)),
+            _.flatten(
+                this.getAttributesList().map(attribute => attribute.items)
+            ),
             { id }
         )
             ? true
