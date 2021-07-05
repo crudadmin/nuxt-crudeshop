@@ -18,7 +18,7 @@ var cartStore = {
             items: [],
             discounts: [],
             summary: {},
-            summary_without_mutators: {},
+            summaryTotal: {},
             deliveries: [],
             paymentMethods: [],
             selectedDelivery: null,
@@ -306,6 +306,12 @@ var cartStore = {
     },
 
     getters: {
+        getSummary: state => key => {
+            return state.summary[key] || 0;
+        },
+        getTotalSummary: state => key => {
+            return state.summaryTotal[key] || 0;
+        },
         getCartItems: state => (options = {}) => {
             let items = state.items.map(item => new CartItem(item));
 
