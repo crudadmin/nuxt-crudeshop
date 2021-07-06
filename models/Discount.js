@@ -7,39 +7,20 @@ class Discount extends Model {
         super(rawObject);
     }
 
-    getProperties(hasVat) {
+    getMessageProperties(message, hasVat) {
         hasVat = _.isNil(hasVat) ? crudadmin.store.state.store.vat : hasVat;
 
-        var message;
-
-        if (this.message) {
-            if (_.isArray(this.message)) {
-                message = this.message
-                    .map(msg => msg[hasVat ? 'withVat' : 'withoutVat'])
-                    .join(', ');
-            } else if (typeof this.message == 'object') {
-                message = this.message[hasVat ? 'withVat' : 'withoutVat'];
-            } else {
-                message = this.message;
-            }
-        }
-
-        if (!message || this.value == 0) {
-            return null;
-        }
-
         return {
-            name: this.name,
-            value: message,
+            name: message.name,
+            value: message.value[hasVat ? 'withVat' : 'withoutVat'],
+            discount: this,
         };
     }
 
-    getName() {
-        return this.getProperties().name;
-    }
-
-    getValue() {
-        return this.getProperties().value;
+    getFormatedMessages(hasVat) {
+        return this.messages.map(message =>
+            this.getMessageProperties(message, hasVat)
+        );
     }
 }
 

@@ -326,6 +326,27 @@ var cartStore = {
         getDiscounts: state => {
             return state.discounts.map(item => new Discount(item));
         },
+        //Returns all available discount values.
+        //One discount provider may have multiple discounts. For example discount codes.
+        getDiscountsMessages: (state, getters) => (
+            whitelistedDiscounts = [],
+            hasVat = null
+        ) => {
+            let messages = [];
+
+            for (let discount of getters.getDiscounts) {
+                if (
+                    whitelistedDiscounts.length == 0 ||
+                    whitelistedDiscounts.indexOf(discount.key) > -1
+                ) {
+                    messages = messages.concat(
+                        discount.getFormatedMessages(hasVat)
+                    );
+                }
+            }
+
+            return messages;
+        },
         getItemsQuantityCount: state => {
             return _.sum(state.items.map(item => item.quantity));
         },
