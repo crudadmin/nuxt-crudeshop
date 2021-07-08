@@ -4,29 +4,14 @@ const Identifier = require('./Identifier');
 
 class ProductIdentifier extends Identifier {
     identifierKeys() {
-        return {
-            variant: ProductsVariant,
-            product: Product,
-        };
-    }
-
-    buildObject(object) {
-        let data = {
-            id: parseInt(object.product_id || object.id),
-        };
-
-        if (object.variant_id) {
-            data.variant_id = parseInt(object.variant_id);
-        }
-
-        return data;
+        return {};
     }
 
     /**
      * Returns name of product from cart item
      */
     getName(CartItem) {
-        return CartItem.variant?.name || CartItem.product?.name;
+        return CartItem.item_name;
     }
 
     /**
@@ -36,7 +21,11 @@ class ProductIdentifier extends Identifier {
      * @param  string  key
      */
     getPrice(CartItem, key = 'priceWithVat') {
-        return CartItem.getCartItem()[key];
+        if (key.indexOf('withVat') > -1) {
+            return CartItem.item_price_vat;
+        } else {
+            return CartItem.item_price;
+        }
     }
 }
 

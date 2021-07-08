@@ -16,6 +16,25 @@ class Identifier {
             }
         }
     }
+
+    buildObject(object) {}
+
+    /**
+     * Returns name of product from cart item
+     */
+    getName(CartItem) {
+        //...
+    }
+
+    /**
+     * Return cart item price value specific price type
+     *
+     * @param  CartItem  CartItem
+     * @param  string  key
+     */
+    getPrice(CartItem, key = 'priceWithVat') {
+        //..
+    }
 }
 
 module.exports = Identifier;

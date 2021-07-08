@@ -16,6 +16,7 @@ var cartStore = {
     state() {
         return {
             items: [],
+            itemsHidden: [],
             discounts: [],
             summary: {},
             summaryTotal: {},
@@ -313,7 +314,10 @@ var cartStore = {
             return state.summaryTotal[key] || 0;
         },
         getCartItems: state => (options = {}) => {
-            let items = state.items.map(item => new CartItem(item));
+            let items = (options.hidden == true
+                ? state.itemsHidden
+                : state.items
+            ).map(item => new CartItem(item));
 
             if (options.withAssignedChildItems === false) {
                 items = items.filter(item => {

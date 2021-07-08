@@ -29,6 +29,14 @@ class CartItem extends Model {
         return key.join('-');
     }
 
+    getName() {
+        return this.getIdentifier().getName(this);
+    }
+
+    getPrice(key = 'priceWithVat') {
+        return this.getIdentifier().getPrice(this, key);
+    }
+
     getIdentifier() {
         return crudadmin.identifiers[this.identifier || 'products'];
     }
@@ -46,8 +54,8 @@ class CartItem extends Model {
      *
      * @param  string  key
      */
-    totalPriceFormat(key = 'priceWithVat') {
-        let total = this.getCartItem()[key] * this.quantity;
+    totalPriceFormat(key) {
+        let total = this.getPrice(key) * this.quantity;
 
         return crudadmin.store.getters['store/priceFormat'](total);
     }
@@ -57,11 +65,11 @@ class CartItem extends Model {
      *
      * @param  string  key
      */
-    totalWithAssignedPriceFormat(key = 'priceWithVat') {
-        let total = this.getCartItem()[key] * this.quantity;
+    totalWithAssignedPriceFormat(key) {
+        let total = this.getPrice(key) * this.quantity;
 
         for (let item of this.getAssignedItems()) {
-            total += item.getCartItem()[key] * item.quantity;
+            total += item.getPrice(key) * item.quantity;
         }
 
         return crudadmin.store.getters['store/priceFormat'](total);
