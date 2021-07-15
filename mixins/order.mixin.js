@@ -20,6 +20,8 @@ module.exports = {
                     }
                 } else if (payment.provider == 'GPWebPayment') {
                     window.location.href = payment.url;
+                } else {
+                    window.location.href = payment.url;
                 }
             } else {
                 success();

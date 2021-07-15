@@ -38,7 +38,10 @@ class CartItem extends Model {
     }
 
     getIdentifier() {
-        return crudadmin.identifiers[this.identifier || 'products'];
+        return (
+            crudadmin.identifiers[this.identifier || 'products'] ||
+            crudadmin.identifiers['default']
+        );
     }
 
     getCartItem() {
