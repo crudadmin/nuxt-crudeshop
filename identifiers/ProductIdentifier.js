@@ -26,7 +26,13 @@ class ProductIdentifier extends Identifier {
      * Returns name of product from cart item
      */
     getName(CartItem) {
-        return CartItem.variant?.name || CartItem.product?.name;
+        if (CartItem.variant && CartItem.variant.name) {
+            return CartItem.variant.name;
+        }
+
+        if (CartItem.product) {
+            return CartItem.product.name;
+        }
     }
 
     /**
