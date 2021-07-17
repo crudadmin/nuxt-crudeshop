@@ -386,8 +386,8 @@ const store = {
         },
         isPriceRangeEnabled: (state, getters) => {
             return (
-                getters.defaultPriceRangeMutated.filter(item => item).length ==
-                2
+                getters.defaultPriceRangeMutated.filter(item => !_.isNil(item))
+                    .length == 2
             );
         },
         isChangedPriceRange: (state, getters) => {

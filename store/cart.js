@@ -15,6 +15,7 @@ var cartStore = {
 
     state() {
         return {
+            initialized: false,
             items: [],
             itemsHidden: [],
             discounts: [],
@@ -42,6 +43,8 @@ var cartStore = {
                     state[key] = cart[key];
                 }
             }
+
+            state.initialized = true;
         },
         setClientData(state, clientData) {
             state.clientData = clientData;
