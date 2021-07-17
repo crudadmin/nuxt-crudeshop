@@ -119,7 +119,7 @@ const store = {
                     data[key] = defaultState ? _.cloneDeep(defaultState) : null;
                 }
 
-                Object.assign({}, state.filters, data);
+                state.filters = Object.assign({}, state.filters, data);
             }
         },
     },
