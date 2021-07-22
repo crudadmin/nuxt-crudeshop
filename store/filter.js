@@ -58,7 +58,10 @@ const store = {
                 state.attributesFilter[attribute_id] || []
             ).map(id => parseInt(id));
 
-            let newValues = _.xor(values, [id]);
+            let newValues = _.xor(
+                values,
+                _.castArray(id).map(id => parseInt(id))
+            );
 
             if (newValues.length == 0) {
                 Vue.delete(state.attributesFilter, attribute_id);

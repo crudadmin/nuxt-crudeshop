@@ -73,7 +73,7 @@ class Product extends BaseProduct {
                 levels = levels.concat(buildTreeLevels(category.id));
             }
 
-            return levels;
+            return _.uniqBy(levels);
         };
 
         for (let category of _.filter(this.categories, { category_id: null })) {
