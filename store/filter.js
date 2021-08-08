@@ -209,10 +209,17 @@ const store = {
             dispatch('updateQuery');
         },
         updateQuery({ state, getters }) {
-            let query = getters.getQueryParams,
-                currentRoute = this.$router.currentRoute;
+            let query = _.cloneDeep(getters.getQueryParams),
+                currentRoute = this.$router.currentRoute,
+                currentQuery = _.cloneDeep(currentRoute.query);
 
-            if (!_.isEqual(query, currentRoute.query)) {
+            //Remove whitelisted keys
+            for (let key of this.state.listing.whitelistedQueries) {
+                if (key in query) delete query[key];
+                if (key in currentQuery) delete currentQuery[key];
+            }
+
+            if (!_.isEqual(query, currentQuery)) {
                 this.$router.push({
                     path: currentRoute.path,
                     query,

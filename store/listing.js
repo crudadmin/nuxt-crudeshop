@@ -49,7 +49,7 @@ const products = {
             { state, commit, dispatch, getters },
             options = {}
         ) {
-            var { url, resetFilter, query } = options || {};
+            var { url, resetFilter, query, route } = options || {};
 
             commit('setLoading', true);
 
@@ -59,9 +59,7 @@ const products = {
                 this.dispatch('filter/resetFilter', true);
             }
 
-            let route = this.$router.currentRoute,
-                params = route.params;
-
+            route = route || this.$router.currentRoute;
             url = getters.getUrlWithParams({ url, query: route.query });
 
             let postData = {
