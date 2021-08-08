@@ -38,16 +38,7 @@ const store = {
             state.attributes = attributes;
         },
         setStaticFilter(state, data) {
-            for (let key in data) {
-                if (key in state.filters) {
-                    state.filters[key] = data[key];
-                } else {
-                    let obj = {};
-                    obj[key] = data[key];
-
-                    state.filters = Object.assign(state.filters, {}, obj);
-                }
-            }
+            state.filters = Object.assign({}, state.filters, data);
         },
         setAttributeItem(state, { attribute_id, id }) {
             //If empty value has been given, we want remove attribute from filter
@@ -120,13 +111,15 @@ const store = {
             state.attributesFilter = {};
 
             if (allParams) {
+                let data = {};
+
                 for (let key in store.queryBuilder) {
                     let defaultState = store.queryBuilder[key].default;
 
-                    state.filters[key] = defaultState
-                        ? _.cloneDeep(defaultState)
-                        : null;
+                    data[key] = defaultState ? _.cloneDeep(defaultState) : null;
                 }
+
+                state.filters = Object.assign({}, state.filters, data);
             }
         },
     },
@@ -393,8 +386,8 @@ const store = {
         },
         isPriceRangeEnabled: (state, getters) => {
             return (
-                getters.defaultPriceRangeMutated.filter(item => item).length ==
-                2
+                getters.defaultPriceRangeMutated.filter(item => !_.isNil(item))
+                    .length == 2
             );
         },
         isChangedPriceRange: (state, getters) => {
