@@ -56,7 +56,10 @@ const products = {
             //Reset filter if needed. On onitial request
             //this method will set default static filter states
             if (resetFilter === true) {
-                this.dispatch('filter/resetFilter', true);
+                this.dispatch('filter/resetFilter', {
+                    route,
+                    allParams: true,
+                });
             }
 
             route = route || this.$router.currentRoute;

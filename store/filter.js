@@ -208,9 +208,9 @@ const store = {
 
             dispatch('updateQuery');
         },
-        updateQuery({ state, getters }) {
+        updateQuery({ state, getters }, route) {
             let query = _.cloneDeep(getters.getQueryParams),
-                currentRoute = this.$router.currentRoute,
+                currentRoute = route || this.$router.currentRoute,
                 currentQuery = _.cloneDeep(currentRoute.query);
 
             //Remove whitelisted keys
@@ -253,9 +253,15 @@ const store = {
             commit('setStaticFilter', filters);
         },
         resetFilter({ commit, dispatch }, allParams) {
+            var route;
+
+            if (_.isObject(allParams)) {
+                var { allParams = false, route } = allParams;
+            }
+
             commit('resetFilter', allParams);
 
-            dispatch('updateQuery');
+            dispatch('updateQuery', route);
         },
     },
 
