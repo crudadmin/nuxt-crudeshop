@@ -7,6 +7,7 @@ const {
     buildAttributesFromState,
     buildAttributesFromQuery,
     queryBuilder,
+    castAndSortFilterKeys,
 } = require('../utilities/FilterHelper.js');
 
 var filterTimeout;
@@ -209,9 +210,13 @@ const store = {
             dispatch('updateQuery');
         },
         updateQuery({ state, getters }, route) {
-            let query = _.cloneDeep(getters.getQueryParams),
+            let query = castAndSortFilterKeys(
+                    _.cloneDeep(getters.getQueryParams)
+                ),
                 currentRoute = route || this.$router.currentRoute,
-                currentQuery = _.cloneDeep(currentRoute.query);
+                currentQuery = castAndSortFilterKeys(
+                    _.cloneDeep(currentRoute.query)
+                );
 
             //Remove whitelisted keys
             for (let key of this.state.listing.whitelistedQueries) {

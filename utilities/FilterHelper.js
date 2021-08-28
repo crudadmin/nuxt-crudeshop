@@ -71,6 +71,23 @@ const hasAttributesChanged = (attributes, newQuery, oldQuery) => {
     return false;
 };
 
+const castAndSortFilterKeys = object => {
+    if (typeof object != 'object') {
+        return object;
+    }
+
+    let keys = _.sortBy(Object.keys(object)),
+        newObject = {};
+
+    for (key of keys) {
+        newObject[key] = _.isNumber(object[key])
+            ? object[key] + ''
+            : object[key];
+    }
+
+    return newObject;
+};
+
 const queryBuilder = {
     _price: {
         filterEnabled({ state, getters }) {
@@ -122,4 +139,5 @@ module.exports = {
     queryBuilder,
     buildQueryFromObject,
     hasAttributesChanged,
+    castAndSortFilterKeys,
 };
