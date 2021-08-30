@@ -86,9 +86,9 @@ const store = {
                 maximumFractionDigits: state.rounding,
             });
         },
-        priceFormat: (state, getters) => price => {
+        priceFormat: (state, getters) => (price, negative = false) => {
             //Only positive numbers can be shown as prices
-            price = price < 0 ? 0 : price;
+            price = price < 0 && negative == false ? 0 : price;
 
             return getters.numberFormat(price) + ' ' + state.currency;
         },
