@@ -13,6 +13,7 @@ const store = {
             languages: [],
             language: null,
             categories: [],
+            favourites: [],
 
             //Store settings
             countries: [],
@@ -59,6 +60,9 @@ const store = {
         },
         setLanguage(state, langCode) {
             state.language = langCode;
+        },
+        setFavourites(state, favourites) {
+            state.favourites = favourites;
         },
     },
 
