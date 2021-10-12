@@ -95,6 +95,24 @@ class Product extends BaseProduct {
         return productOrVariant.canOrderEverytime;
     }
 
+    cartQuantityExceed(productOrVariant) {
+        productOrVariant = productOrVariant || this;
+
+        let cartItem = crudadmin.store.getters['cart/getCartItemFromObject'](
+            productOrVariant
+        );
+
+        if (
+            productOrVariant.canOrderEverytime !== true &&
+            cartItem &&
+            cartItem.quantity >= productOrVariant.stock_quantity
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Attributes
      *
