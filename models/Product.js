@@ -100,7 +100,7 @@ class Product extends BaseProduct {
 
         let cartItem = crudadmin.store.getters['cart/getCartItemFromObject']({
             product_id: this.id,
-            variant_id: variant?.id,
+            variant_id: variant ? variant.id : null,
         });
 
         if (
