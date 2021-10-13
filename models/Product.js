@@ -95,15 +95,16 @@ class Product extends BaseProduct {
         return productOrVariant.canOrderEverytime;
     }
 
-    cartQuantityExceed(productOrVariant) {
-        productOrVariant = productOrVariant || this;
+    cartQuantityExceed(variant) {
+        let productOrVariant = variant || this;
 
-        let cartItem = crudadmin.store.getters['cart/getCartItemFromObject'](
-            productOrVariant
-        );
+        let cartItem = crudadmin.store.getters['cart/getCartItemFromObject']({
+            product_id: this.id,
+            variant_id: variant?.id,
+        });
 
         if (
-            productOrVariant.canOrderEverytime !== true &&
+            this.canOrderEverytime !== true &&
             cartItem &&
             cartItem.quantity >= productOrVariant.stock_quantity
         ) {
