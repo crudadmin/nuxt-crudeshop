@@ -128,23 +128,36 @@ class Product extends BaseProduct {
     }
 
     getVariantsAttributes(options) {
-        let { withoutOneItem = true, productOrVariant } = options || {};
+        let {
+            withoutOneItem = true,
+            productOrVariant,
+            onlyForVariants = false,
+        } = options || {};
 
-        if (!this.isType('variants')) {
+        let isVariant = this.isType('variants');
+
+        if (onlyForVariants == true && isVariant == false) {
             return [];
         }
 
         //Find all attributes which are shared accross all variants
-        let allAttributes = _.flatten(
-                this.variants.map(variant => variant.attributesList)
+        let allAttributes = _.cloneDeep(
+                isVariant
+                    ? _.flatten(
+                          this.variants.map(variant => variant.attributesList)
+                      )
+                    : this.attributesList
             ),
             sharedAttributes = _.uniqBy(allAttributes, 'id')
                 .filter(attribute => attribute.variants == true)
-                .filter(
-                    attribute =>
-                        this.variants.filter(variant =>
-                            _.find(variant.attributesList, { id: attribute.id })
-                        ).length == this.variants.length
+                .filter(attribute =>
+                    isVariant
+                        ? this.variants.filter(variant =>
+                              _.find(variant.attributesList, {
+                                  id: attribute.id,
+                              })
+                          ).length == this.variants.length
+                        : true
                 )
                 .map(attribute => {
                     let sharedAttr = new Attribute(_.cloneDeep(attribute));
@@ -167,7 +180,7 @@ class Product extends BaseProduct {
         }
 
         //Filter unexisting combinations of variants
-        if (productOrVariant) {
+        if (productOrVariant && isVariant) {
             filterUnexistingConfiguredAttributeItems(
                 sharedAttributes,
                 this,
@@ -179,6 +192,10 @@ class Product extends BaseProduct {
     }
 
     getAlternativeVariantByItem(item, actualVariant) {
+        if (this.isType('variants') === false) {
+            return this;
+        }
+
         let variantsWithGivenItem = this.variants.filter(variant =>
             variant.hasExactAttributeItem(item.id)
         );
