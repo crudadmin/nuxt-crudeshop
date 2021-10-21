@@ -53,14 +53,22 @@ const products = {
 
             commit('setLoading', true);
 
-            //Reset filter if needed. On onitial request
-            //this method will set default static filter states
-            if (resetFilter === true) {
-                this.dispatch('filter/resetFilter', true);
-            }
-
             route = route || this.$router.currentRoute;
             url = getters.getUrlWithParams({ url, query: route.query });
+
+            //Reset filter on onitial asynData request
+            //but only when page view has been changed.
+            //For example if we are on same category route view, but we are changing only subcategory level,
+            //then we want reset filters from previous category.
+            //
+            //this.$router.currentRoute will be set as previous route, and route property is new route. So this is how
+            //can we check if router has been changed from other page.
+            if (
+                resetFilter === true &&
+                this.$router.currentRoute.name == route.name
+            ) {
+                this.dispatch('filter/resetFilter', true);
+            }
 
             let postData = {
                     filter: query || this.getters['filter/getQueryParams'],
