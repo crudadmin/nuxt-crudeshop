@@ -1,6 +1,6 @@
 module.exports = {
     methods: {
-        processOrder(response, { success }) {
+        processOrder(response, { callback, successWithoutCallback }) {
             this.$bus.$emit('tracking/purchase', response.data.order);
 
             //We need reset cart
@@ -8,7 +8,12 @@ module.exports = {
 
             let payment = response.data.payment;
 
-            if (payment.url) {
+            if (callback && typeof callback == 'function') {
+                callback(payment, response);
+            }
+
+            //Automatic callback
+            else if (payment.url) {
                 if (payment.provider == 'GopayPayment') {
                     if (window._gopay) {
                         _gopay.checkout({
@@ -23,8 +28,11 @@ module.exports = {
                 } else {
                     window.location.href = payment.url;
                 }
-            } else {
-                success();
+            }
+
+            //If no callback has been found
+            else if (successWithoutCallback) {
+                successWithoutCallback(payment, response);
             }
         },
     },
