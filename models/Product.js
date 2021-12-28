@@ -233,35 +233,6 @@ class Product extends BaseProduct {
 
         return filtratedVariants[0];
     }
-
-    /**
-     * Variants
-     */
-    async toggleFavourite() {
-        try {
-            let response = await $nuxt.$axios.$post(
-                $nuxt.$action('FavouriteController@toggleFavourite'),
-                {
-                    product_id: this.id,
-                }
-            );
-
-            crudadmin.store.commit(
-                'store/setFavourites',
-                response.data.favourites
-            );
-        } catch (e) {
-            console.error(e);
-        }
-    }
-
-    isFavourite() {
-        return _.find(crudadmin.store.state.store.favourites, {
-            product_id: parseInt(this.id),
-        })
-            ? true
-            : false;
-    }
 }
 
 module.exports = Product;
