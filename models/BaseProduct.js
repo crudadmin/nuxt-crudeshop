@@ -110,6 +110,44 @@ class BaseProduct extends Model {
             ? true
             : false;
     }
+
+    getFavouriteObject() {
+        if (this.product_id) {
+            return {
+                variant_id: this.id,
+                product_id: this.product_id,
+            };
+        } else {
+            return {
+                product_id: this.id,
+            };
+        }
+    }
+
+    async toggleFavourite() {
+        try {
+            let response = await $nuxt.$axios.$post(
+                $nuxt.$action('FavouriteController@toggleFavourite'),
+                this.getFavouriteObject()
+            );
+
+            crudadmin.store.commit(
+                'store/setFavourites',
+                response.data.favourites
+            );
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    isFavourite() {
+        return _.find(
+            crudadmin.store.state.store.favourites,
+            this.getFavouriteObject()
+        )
+            ? true
+            : false;
+    }
 }
 
 module.exports = BaseProduct;
