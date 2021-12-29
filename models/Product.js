@@ -25,7 +25,7 @@ class Product extends BaseProduct {
      */
     getVariantsKey() {
         return [this.id]
-            .concat(this.variants.map(variant => variant.id))
+            .concat((this.variants || []).map(variant => variant.id))
             .join('-');
     }
 
