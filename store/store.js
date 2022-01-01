@@ -21,6 +21,7 @@ const store = {
             vat: true,
             vats: [],
             rounding: 2,
+            decimalPlaces: 2,
         };
     },
 
@@ -45,6 +46,9 @@ const store = {
         },
         setRounding(state, rounding) {
             state.rounding = rounding;
+        },
+        setDecimalPlaces(state, decimalPlaces) {
+            state.decimalPlaces = decimalPlaces;
         },
         setVat(state, vat) {
             state.vat = vat;
@@ -79,11 +83,13 @@ const store = {
             return price * (1 + defaultVat / 100);
         },
         numberFormat: state => number => {
+            let digits = state.decimalPlaces || state.rounding;
+
             number = Math.round(number * 100) / 100;
 
             return number.toLocaleString(state.language || 'sk', {
-                minimumFractionDigits: state.rounding,
-                maximumFractionDigits: state.rounding,
+                minimumFractionDigits: digits,
+                maximumFractionDigits: digits,
             });
         },
         priceFormat: (state, getters) => price => {
