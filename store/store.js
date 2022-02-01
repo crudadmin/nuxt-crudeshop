@@ -92,7 +92,7 @@ const store = {
                 maximumFractionDigits: digits,
             });
         },
-        priceFormat: (state, getters) => (price, negative = false) => {
+        priceFormat: (state, getters) => (price, negative = true) => {
             //Only positive numbers can be shown as prices
             price = price < 0 && negative == false ? 0 : price;
 
