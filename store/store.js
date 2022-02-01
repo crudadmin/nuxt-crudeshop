@@ -93,9 +93,6 @@ const store = {
             });
         },
         priceFormat: (state, getters) => price => {
-            //Only positive numbers can be shown as prices
-            price = price < 0 ? 0 : price;
-
             return getters.numberFormat(price) + ' ' + state.currency;
         },
         priceFormatWithVatName: (state, getters) => (price, vat) => {
