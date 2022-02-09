@@ -1,5 +1,6 @@
 const https = require('https');
 const crudadmin = require('../crudadmin.js');
+const Localization = require('./Localization.js');
 
 module.exports = $axios => {
     //Allow self signed https for development purposes
@@ -12,10 +13,13 @@ module.exports = $axios => {
             //Push admin headers into each request
             if (successfulReq.headers) {
                 //Add cart and auth headers into axios
-                var authHeaders = crudadmin.getAuthorizationHeaders();
+                var storeHeaders = {
+                    ...crudadmin.getAuthorizationHeaders(),
+                    ...Localization.getLocaleHeaders(),
+                };
 
-                for (var key in authHeaders) {
-                    successfulReq.headers[key] = authHeaders[key];
+                for (var key in storeHeaders) {
+                    successfulReq.headers[key] = storeHeaders[key];
                 }
             }
 
