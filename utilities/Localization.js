@@ -87,6 +87,9 @@ module.exports = {
     },
 
     async rewriteRoutes(routes, currentPath) {
+        //We does not want to rewrite routes, it may be buggy
+        routes = _.cloneDeep(routes);
+
         var translator = await crudadmin.getTranslator();
 
         //Initialize localization on ssr and also client
