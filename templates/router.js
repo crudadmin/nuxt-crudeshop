@@ -11,6 +11,7 @@ import $auth from '~/.nuxt/auth.js';
 
 import axiosMutator from 'crudeshop/utilities/axiosMutator';
 import CrudAdmin from 'crudeshop';
+import Localization from 'crudeshop/utilities/Localization';
 
 export async function createRouter(ssrContext, config) {
     const options = routerOptions
@@ -28,10 +29,16 @@ export async function createRouter(ssrContext, config) {
 
     //Boot axios for build purposes
     CrudAdmin.setAxios($axios);
+
     axiosMutator(CrudAdmin.$axios);
+
+    let routes = await Localization.rewriteRoutes(
+        options.routes,
+        ssrContext ? ssrContext.req.url : null
+    );
 
     return new Router({
         ...options,
-        routes: await CrudAdmin.rewriteRoutes(options.routes),
+        routes,
     });
 }

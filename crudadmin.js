@@ -17,6 +17,8 @@ const CrudAdmin = {
 
     translates: [],
 
+    languages: [],
+
     routes: [],
 
     seoRoutes: [],
@@ -67,6 +69,10 @@ const CrudAdmin = {
         return this.$auth;
     },
 
+    getStorage() {
+        return this.getAuth().$storage;
+    },
+
     getAuthorizationHeaders() {
         var auth = this.getAuth(),
             obj = {},
@@ -104,6 +110,8 @@ const CrudAdmin = {
 
         this.routes = bootstrap.routes;
 
+        this.languages = bootstrap.languages;
+
         this.seoRoutes = bootstrap.seo_routes || [];
 
         this.booted = true;
@@ -137,23 +145,7 @@ const CrudAdmin = {
     },
 
     setCartToken(token) {
-        cartToken.refreshToken(this.getAuth().$storage, token);
-    },
-
-    async rewriteRoutes(routes) {
-        var translator = await this.getTranslator();
-
-        //Translate routes from backend
-        for (var key in routes) {
-            routes[key].meta = {
-                ...(routes[key].meta || {}),
-                _original: routes[key].path,
-            };
-
-            routes[key].path = translator.__(routes[key].path);
-        }
-
-        return routes;
+        cartToken.refreshToken(this.getStorage(), token);
     },
 };
 
