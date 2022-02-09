@@ -19,7 +19,9 @@ module.exports = {
             return;
         }
 
-        this.languageSlug = this.get(false)?.slug;
+        let language = this.get(false);
+
+        this.languageSlug = language ? language.slug : null;
 
         //Get first segment, if it is valid language slug. we can return this value
         let slug = this.getValidLangSegment(this.path);
