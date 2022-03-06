@@ -8,6 +8,7 @@ const products = {
         return {
             //Global listing states
             defaultFetchRoute: null,
+            defaultFilterParams: {},
             defaultLimit: null,
             loading: false,
             latestRequest: {},
@@ -22,7 +23,17 @@ const products = {
 
     mutations: {
         setDefaultFetchRoute(state, defaultFetchRoute) {
-            state.defaultFetchRoute = defaultFetchRoute;
+            if (!defaultFetchRoute) {
+                return;
+            }
+
+            if (typeof defaultFetchRoute == 'string') {
+                state.defaultFetchRoute = defaultFetchRoute;
+                state.defaultFilterParams = {};
+            } else if (typeof defaultFetchRoute == 'object') {
+                state.defaultFetchRoute = defaultFetchRoute.url;
+                state.defaultFilterParams = defaultFetchRoute.filter || {};
+            }
         },
         setLoading(state, loading) {
             state.loading = loading;
@@ -74,7 +85,10 @@ const products = {
             }
 
             let postData = {
-                    filter: query || this.getters['filter/getQueryParams'],
+                    filter: {
+                        ...(query || this.getters['filter/getQueryParams']),
+                        ...state.defaultFilterParams,
+                    },
                 },
                 //Build latest request data
                 latestRequest = { url, postData };
