@@ -112,13 +112,18 @@ class BaseProduct extends Model {
     }
 
     getFavouriteObject() {
+        //We can mutate post data via this object
+        let mutator = this._favouritePostData || {};
+
         if (this.product_id) {
             return {
+                ...mutator,
                 variant_id: this.id,
                 product_id: this.product_id,
             };
         } else {
             return {
+                ...mutator,
                 product_id: this.id,
             };
         }
