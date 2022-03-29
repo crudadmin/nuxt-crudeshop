@@ -22,6 +22,18 @@ class Discount extends Model {
             this.getMessageProperties(message, hasVat)
         );
     }
+
+    getName(index = 0) {
+        let message = this.getFormatedMessages()[index];
+
+        return message ? message.name : null;
+    }
+
+    getValue(index = 0) {
+        let message = this.getFormatedMessages()[index];
+
+        return message ? message.value : null;
+    }
 }
 
 module.exports = Discount;
