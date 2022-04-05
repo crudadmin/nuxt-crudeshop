@@ -54,6 +54,39 @@ var storeMixin = {
                 item[vat ? selector + 'WithVat' : selector + 'WithoutVat'] || 0
             );
         },
+
+        async fetchStoreSession(callback) {
+            // prettier-ignore
+            var { data } = await this.$axios.get(this.action('Cart\\CartController@getFullSummary'), {
+                    headers: { 'Cart-Initialize': 1 },
+                }),
+                data = data.data;
+
+            //Authenticate logged client and cart identification
+            if (data.client) {
+                this.setClient(data.client);
+            }
+
+            //If user is not logged anymore, we need logout him. Otherwise errors may occur.
+            else if (this.$auth.loggedIn) {
+                this.$auth.logout();
+            }
+
+            this.$crudadmin.setCartToken(data.cartToken);
+            this.$store.commit('cart/setCart', data);
+
+            //other data
+            //...
+
+            //Set cart summary data
+            if (data.favourites) {
+                this.$store.commit('store/setFavourites', data.favourites);
+            }
+
+            if (callback && typeof callback == 'function') {
+                callback(data);
+            }
+        },
     },
     computed: {
         ...mapGetters('store', ['backendEnv']),

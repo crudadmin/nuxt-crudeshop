@@ -11,6 +11,7 @@ export default function(moduleOptions) {
         'plugins/plugin.js',
         'plugins/bus.js',
         moduleOptions.tracking ? 'plugins/tracking.client.js' : null,
+        'mixins/auth.mixin.js',
         'mixins/store.mixin.js',
         'middleware/authenticableMiddleware.js',
     ]
