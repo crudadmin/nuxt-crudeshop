@@ -12,7 +12,7 @@ const setListingFetchRoute = async (store, route, action, fetchOptions) => {
         action('ListingController@index', category)
     );
 
-    var response = await store.dispatch('listing/fetchProducts', {
+    return await store.dispatch('listing/fetchProducts', {
         route,
         ...(fetchOptions || {}),
     });
@@ -72,6 +72,19 @@ module.exports = {
             ...mapActions('filter', ['updateQuery', 'setLimit']),
             ...mapActions('listing', ['fetchProducts']),
             ...mapMutations('listing', ['setProducts', 'setLoadingNextPage']),
+            /*
+             * This method is usefull when we have pagination [10, 15, 100], and from backend we retrieve limit 20.
+             * So we add 20 into options from backend pagination.
+             */
+            limitOptions(options) {
+                return _.uniqBy(
+                    _.sortBy(
+                        options
+                            .map(limit => parseInt(limit))
+                            .concat(this.pagination.per_page)
+                    )
+                );
+            },
             onQueryChangeListener() {
                 this.$bus.$on('queryChange', this.onQueryChange);
             },

@@ -70,6 +70,12 @@ class Attribute extends Model {
             crudadmin.store.getters['filter/isItemChecked'](item)
         );
     }
+
+    selectedItemId() {
+        return _.castArray(
+            crudadmin.store.state.filter.attributesFilter[this.id]
+        )[0];
+    }
 }
 
 module.exports = Attribute;

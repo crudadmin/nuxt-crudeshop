@@ -197,13 +197,13 @@ const store = {
 
             dispatch('updateQuery');
         },
-        setSearch: ({ state, commit, dispatch }, query) => {
+        setSearch: _.debounce(function({ state, commit, dispatch }, query) {
             commit('setStaticFilter', {
                 _search: query,
             });
 
             dispatch('updateQuery');
-        },
+        }, 750),
         setLimit: ({ state, commit, dispatch }, limit) => {
             commit('setStaticFilter', {
                 _limit: limit,
@@ -232,10 +232,12 @@ const store = {
             }
 
             if (!_.isEqual(query, currentQuery)) {
-                this.$router.push({
-                    path: currentRoute.path,
-                    query,
-                });
+                this.$router
+                    .push({
+                        path: currentRoute.path,
+                        query,
+                    })
+                    .catch(e => e);
             }
         },
         bootFromQuery({ state, commit }, query) {
@@ -314,7 +316,9 @@ const store = {
         isItemChecked: state => item => {
             const { attribute_id, id } = item;
 
-            let values = state.attributesFilter[attribute_id] || [];
+            let values = _.castArray(
+                state.attributesFilter[attribute_id] || []
+            );
 
             return values.indexOf(id) > -1;
         },
