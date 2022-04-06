@@ -113,6 +113,38 @@ const queryBuilder = {
             state.priceRange = _.cloneDeep(state.defaultPriceRange);
         },
     },
+    _prices: {
+        filterEnabled({ state, getters }) {
+            return state.multiplePriceRanges.length > 1;
+        },
+        set({ commit }, value) {
+            if (!value) {
+                return;
+            }
+
+            let priceRanges = (value + '')
+                .split(';')
+                .map(range =>
+                    range
+                        .split(',')
+                        .filter(item => item)
+                        .map(item => parseFloat(item))
+                )
+                .filter(item => item.length);
+
+            commit('setMultiplePriceRanges', priceRanges);
+        },
+        get({ state, getters }) {
+            if (state.multiplePriceRanges.length) {
+                return state.multiplePriceRanges
+                    .map(range => range.join(','))
+                    .join(';');
+            }
+        },
+        reset({ state }) {
+            state.multiplePriceRanges = [];
+        },
+    },
     _sort: {
         filterEnabled: false,
         set({ commit }, value) {

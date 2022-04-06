@@ -27,7 +27,10 @@ const store = {
             defaultPriceRange: [],
             instantPriceRange: [],
 
+            //For single price range
             priceRange: [],
+            //For multiple price ranges
+            multiplePriceRanges: [],
         };
     },
 
@@ -75,6 +78,9 @@ const store = {
                 ? range.map(price => parseFloat(price))
                 : state.defaultPriceRange;
         },
+        setMultiplePriceRanges(state, ranges) {
+            state.multiplePriceRanges = ranges;
+        },
         setInstantPriceRange(state, range) {
             state.instantPriceRange = range;
         },
@@ -104,6 +110,19 @@ const store = {
 
             state.priceRange = defaultRange;
             state.defaultPriceRange = defaultRange;
+        },
+        togglePriceRange(state, range) {
+            let exists =
+                state.multiplePriceRanges.filter(item => _.isEqual(item, range))
+                    .length > 0;
+
+            if (exists) {
+                _.remove(state.multiplePriceRanges, item =>
+                    _.isEqual(item, range)
+                );
+            } else {
+                state.multiplePriceRanges.push(range);
+            }
         },
         resetFilter(state, allParams = false) {
             for (let key in store.queryBuilder) {
@@ -179,6 +198,11 @@ const store = {
 
                 dispatch('updateQuery');
             }, 500);
+        },
+        togglePriceRange: ({ state, commit, dispatch }, range) => {
+            commit('togglePriceRange', range);
+
+            dispatch('updateQuery');
         },
         setPriceRangeMin: _.debounce(({ state, commit, dispatch }, value) => {
             commit('setPriceRangeMin', value);
@@ -430,6 +454,12 @@ const store = {
         },
         getSortBy: (state, getters) => {
             return getters.getStaticFilter('_sort');
+        },
+        isPriceRangeChecked: state => range => {
+            return (
+                state.multiplePriceRanges.filter(item => _.isEqual(item, range))
+                    .length > 0
+            );
         },
     },
 };

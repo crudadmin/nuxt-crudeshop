@@ -3,26 +3,41 @@ const _ = require('lodash');
 const { hasAttributesChanged } = require('../utilities/FilterHelper.js');
 
 //From which route should we fetch products by default on attribute filter change
-const setListingFetchRoute = async (store, route, action, fetchOptions) => {
-    // prettier-ignore
-    let category = route.params.category5 || route.params.category4 || route.params.category3 || route.params.category2 || route.params.category1;
+const config = {
+    getListingFetchRoute: ({ route, action, store }) => {
+        // prettier-ignore
+        let category = route.params.category5 || route.params.category4 || route.params.category3 || route.params.category2 || route.params.category1;
+
+        return action('ListingController@index', category);
+    },
+};
+
+const fetchListing = async (context, fetchOptions) => {
+    const { store, route } = context;
 
     store.commit(
         'listing/setDefaultFetchRoute',
-        action('ListingController@index', category)
+        config.getListingFetchRoute(context)
     );
 
-    return await store.dispatch('listing/fetchProducts', {
+    let response = await store.dispatch('listing/fetchProducts', {
         route,
         ...(fetchOptions || {}),
     });
+
+    //Set models
+    if (response.model) {
+        store.commit('listing/setCategory', response.model.category);
+    }
+
+    return response;
 };
 
 //From which route should we fetch products by default on attribute filter change
 //prettier-ignore
-const listingAsyncData = async ({ route, $axios, $action, store, error }) => {
+const listingAsyncData = async ({ route, $axios, $action, store, error }, callback) => {
     try {
-        await setListingFetchRoute(store, route, $action, {
+        var response = await fetchListing({ store, route, action : $action }, {
             resetFilter: true,
             query: route.query,
         });
@@ -33,16 +48,30 @@ const listingAsyncData = async ({ route, $axios, $action, store, error }) => {
     //Then we can boot filter params.
     //States must be initialized after attributes and default price has been set, because we may replace price range.
     store.dispatch('filter/bootFromQuery', route.query);
+
+    if ( callback ){
+        return await callback(response);
+    }
 };
 
 module.exports = {
-    setListingFetchRoute,
+    config,
+    fetchListing,
     listingAsyncData,
     parentListingMixin: {
         watchQuery(newQuery, oldQuery) {
             if (this && this.$bus) {
                 this.$bus.$emit('queryChange', { newQuery, oldQuery });
             }
+        },
+        methods: {
+            fetchListing() {
+                fetchListing({
+                    store: this.$store,
+                    route: this.$route,
+                    action: this.$action,
+                });
+            },
         },
     },
     listingMixin: {
@@ -109,7 +138,7 @@ module.exports = {
 
                 //ON page change
                 if (newQuery?.page != oldQuery?.page) {
-                    this.scrollOnListing();
+                    this.scrollToListing();
                 }
             }, 50),
             async loadNextPage(options) {
@@ -153,7 +182,7 @@ module.exports = {
 
                 this.setLoadingNextPage(false);
             },
-            scrollOnListing: _.debounce(function() {
+            scrollToListing: _.debounce(function() {
                 let scrollTop = $(window).scrollTop();
 
                 //Disable scroll if scrollTop is not present
