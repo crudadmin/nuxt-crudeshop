@@ -42,6 +42,8 @@ const listingAsyncData = async ({ route, $axios, $action, store, error }, callba
             query: route.query,
         });
     } catch (e) {
+        console.error(e);
+
         return error({ statusCode: 404 });
     }
 

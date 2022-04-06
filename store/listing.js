@@ -28,7 +28,7 @@ const products = {
             }
 
             //Reset latest request on route change
-            state.setLatestRequest = null;
+            state.latestRequest = null;
 
             if (typeof defaultFetchRoute == 'string') {
                 state.defaultFetchRoute = defaultFetchRoute;
