@@ -76,8 +76,14 @@ module.exports = {
                 this.$bus.$on('queryChange', this.onQueryChange);
             },
             onQueryChange: _.debounce(function({ newQuery, oldQuery }) {
-                //Component is not initialized yet
-                if (_.isEqual(newQuery, oldQuery)) {
+                if (
+                    //Component is not initialized yet
+                    //prettier-ignore
+                    (!_.isEqual(this.$router.currentRoute.query, newQuery) || _.isEqual(newQuery, oldQuery)) ||
+
+                    //Or user manually clicked on next page button
+                    this.loadingNextPage === true
+                ) {
                     return;
                 }
 
@@ -87,8 +93,15 @@ module.exports = {
                 this.fetchProducts({
                     resetDefaultPriceRange: hasAttributesChanged(this.$store.state.filter.attributes, newQuery, oldQuery),
                 });
+
+                //ON page change
+                if (newQuery?.page != oldQuery?.page) {
+                    this.scrollOnListing();
+                }
             }, 50),
-            async loadNextPage() {
+            async loadNextPage(options) {
+                let { rewritePageQuery = false } = options || {};
+
                 //If pagination has no more pages.
                 if (
                     !this.pagination.next_page_url ||
@@ -97,9 +110,24 @@ module.exports = {
                     return;
                 }
 
-                try {
-                    this.setLoadingNextPage(true);
+                this.setLoadingNextPage(true);
 
+                if (rewritePageQuery === true) {
+                    let page = (
+                        this.pagination.next_page_url.split('page=')[1] + ''
+                    ).split('%')[0];
+
+                    this.$router
+                        .push({
+                            query: {
+                                ...this.$route.query,
+                                ...{ page },
+                            },
+                        })
+                        .catch(() => {});
+                }
+
+                try {
                     let response = await this.fetchProducts({
                         url: this.pagination.next_page_url,
                         setProducts: false,
@@ -112,6 +140,16 @@ module.exports = {
 
                 this.setLoadingNextPage(false);
             },
+            scrollOnListing: _.debounce(function() {
+                let scrollTop = $(window).scrollTop();
+
+                //Disable scroll if scrollTop is not present
+                if (scrollTop < 500) {
+                    return;
+                }
+
+                this.scrollTo('[data-listing]', null, null, 70);
+            }, 100),
         },
     },
 };
