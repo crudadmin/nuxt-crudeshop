@@ -1,4 +1,4 @@
-const { mapState, mapActions } = require('vuex');
+const { mapState, mapActions, mapMutations, mapGetters } = require('vuex');
 const _ = require('lodash');
 const { hasAttributesChanged } = require('../utilities/FilterHelper.js');
 
@@ -56,19 +56,22 @@ module.exports = {
             this.$bus.$off('queryChange', this.onQueryChange);
         },
         computed: {
+            ...mapGetters('filter', ['getStaticFilter']),
             ...mapState('listing', [
+                'loadingNextPage',
                 'products',
                 'pagination',
                 'loading',
-                'defaultLimit',
+                'limit',
             ]),
             filtratedProducts() {
                 return this.toProductModels(this.products);
             },
         },
         methods: {
-            ...mapActions('filter', ['updateQuery']),
+            ...mapActions('filter', ['updateQuery', 'setLimit']),
             ...mapActions('listing', ['fetchProducts']),
+            ...mapMutations('listing', ['setProducts', 'setLoadingNextPage']),
             onQueryChangeListener() {
                 this.$bus.$on('queryChange', this.onQueryChange);
             },
@@ -85,6 +88,30 @@ module.exports = {
                     resetDefaultPriceRange: hasAttributesChanged(this.$store.state.filter.attributes, newQuery, oldQuery),
                 });
             }, 50),
+            async loadNextPage() {
+                //If pagination has no more pages.
+                if (
+                    !this.pagination.next_page_url ||
+                    this.loadingNextPage === true
+                ) {
+                    return;
+                }
+
+                try {
+                    this.setLoadingNextPage(true);
+
+                    let response = await this.fetchProducts({
+                        url: this.pagination.next_page_url,
+                        setProducts: false,
+                    });
+
+                    this.setProducts(
+                        this.products.concat(response.data.pagination.data)
+                    );
+                } catch (e) {}
+
+                this.setLoadingNextPage(false);
+            },
         },
     },
 };

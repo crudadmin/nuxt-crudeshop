@@ -9,8 +9,8 @@ const products = {
             //Global listing states
             defaultFetchRoute: null,
             defaultFilterParams: {},
-            defaultLimit: null,
             loading: false,
+            loadingNextPage: false,
             latestRequest: {},
             pagination: {},
             products: [],
@@ -41,6 +41,9 @@ const products = {
         setLoading(state, loading) {
             state.loading = loading;
         },
+        setLoadingNextPage(state, loading) {
+            state.loadingNextPage = loading;
+        },
         setLatestRequest(state, requestData) {
             state.latestRequest = requestData;
         },
@@ -49,9 +52,6 @@ const products = {
         },
         setPagination(state, pagination) {
             state.pagination = pagination;
-        },
-        setDefaultLimit(state, DefaultLimit) {
-            state.defaultLimit = DefaultLimit;
         },
         setCategory(state, category) {
             state.category = category;
@@ -129,7 +129,6 @@ const products = {
 
             //Base listing response
             commit('setPagination', response.data.pagination);
-            commit('setDefaultLimit', response.data.defaultLimit);
 
             //Skip setting products
             if (setProducts !== false) {
@@ -146,7 +145,8 @@ const products = {
             let obj = {};
 
             for (let key of state.whitelistedQueries) {
-                if (query[key]) {
+                //Add whitelisted query from url, only when given url does not contain value already
+                if (query[key] && url.includes(key + '=') === false) {
                     obj[key] = query[key];
                 }
             }

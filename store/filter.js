@@ -204,6 +204,13 @@ const store = {
 
             dispatch('updateQuery');
         },
+        setLimit: ({ state, commit, dispatch }, limit) => {
+            commit('setStaticFilter', {
+                _limit: limit,
+            });
+
+            dispatch('updateQuery');
+        },
         resetPriceRange: ({ state, dispatch, commit }) => {
             commit('setPriceRange', state.defaultPriceRange);
 

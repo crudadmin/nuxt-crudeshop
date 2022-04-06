@@ -131,6 +131,15 @@ const queryBuilder = {
             return value;
         },
     },
+    _limit: {
+        filterEnabled: false,
+        set({ commit }, value) {
+            return value;
+        },
+        get({ state, getters }, value) {
+            return value;
+        },
+    },
 };
 
 module.exports = {
