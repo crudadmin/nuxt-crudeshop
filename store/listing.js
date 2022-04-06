@@ -27,6 +27,9 @@ const products = {
                 return;
             }
 
+            //Reset latest request on route change
+            state.setLatestRequest = null;
+
             if (typeof defaultFetchRoute == 'string') {
                 state.defaultFetchRoute = defaultFetchRoute;
                 state.defaultFilterParams = {};

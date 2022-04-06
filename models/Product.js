@@ -29,8 +29,16 @@ class Product extends BaseProduct {
             .join('-');
     }
 
+    hasMultiplePrices() {
+        if (this.isType('variants') && this.variants.length > 1) {
+            return true;
+        }
+
+        return false;
+    }
+
     priceFormatWithCheapestVariant(key) {
-        if (this.product_type == 'variants') {
+        if (this.isType('variants')) {
             let cheapestPrice = _.uniqBy(
                 _.sortBy(this.variants.map(variant => variant[key]))
             );

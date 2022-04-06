@@ -1,5 +1,11 @@
 const sanitize = text => {
-    return (text || '')
+    text = text || '';
+
+    if (typeof text !== 'string') {
+        return '';
+    }
+
+    return text
         .replace(/<[^>]+>/g, '')
         .replace(RegExp('&amp', 'g'), '&')
         .replace(new RegExp('&nbsp;', 'g'), ' ');
