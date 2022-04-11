@@ -26,9 +26,10 @@ const fetchListing = async (context, fetchOptions) => {
     });
 
     //Set models
-    if (response.model) {
-        store.commit('listing/setCategory', response.model.category);
-    }
+    store.commit(
+        'listing/setCategory',
+        response.model ? response.model.category : null
+    );
 
     return response;
 };
