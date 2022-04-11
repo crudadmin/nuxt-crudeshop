@@ -140,7 +140,7 @@ module.exports = {
                 });
 
                 //ON page change
-                if (newQuery?.page != oldQuery?.page) {
+                if ((newQuery || {}).page != (oldQuery || {}).page) {
                     this.scrollToListing();
                 }
             }, 50),

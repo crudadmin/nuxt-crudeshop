@@ -93,7 +93,9 @@ export default async ({ app, store, $bus }) => {
             items: items,
             value: order.price_vat,
             tax: order.price_vat - order.price,
-            payment_type: store.state.cart.selectedPaymentMethod?.name,
+            payment_type: store.state.cart.selectedPaymentMethod
+                ? store.state.cart.selectedPaymentMethod.name
+                : null,
             shipping: order.delivery_price,
         });
     });
