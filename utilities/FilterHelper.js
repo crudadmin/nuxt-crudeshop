@@ -115,7 +115,7 @@ const queryBuilder = {
     },
     _prices: {
         filterEnabled({ state, getters }) {
-            return state.multiplePriceRanges.length > 1;
+            return state.multiplePriceRanges.length >= 1;
         },
         set({ commit }, value) {
             if (!value) {
@@ -145,16 +145,21 @@ const queryBuilder = {
             state.multiplePriceRanges = [];
         },
     },
-    _sort: {
-        filterEnabled: false,
+    _search: {
+        filterEnabled({ state, getters }) {
+            return getters.getStaticFilter('_search') ? true : false;
+        },
         set({ commit }, value) {
             return value;
         },
         get({ state, getters }, value) {
             return value;
         },
+        reset({ state }) {
+            state.filters._search = null;
+        },
     },
-    _search: {
+    _sort: {
         filterEnabled: false,
         set({ commit }, value) {
             return value;
