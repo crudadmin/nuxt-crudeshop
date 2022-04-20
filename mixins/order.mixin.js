@@ -1,4 +1,32 @@
+const redirectIfCartIsNotValid = async ({ app, step, goTo }) => {
+    const { $axios, $action, $translator, redirect } = app;
+
+    //If cart has errors
+    try {
+        var response = await $axios.get(
+            $action('Cart\\CartController@passesValidation', step)
+        );
+    } catch (e) {
+        //If is browser, we want show alert
+        if (process.client) {
+            $nuxt.$dialog.destroy();
+
+            $nuxt.$dialog.alert(e.response.data.orderErrors.join('<br>'), {
+                html: true,
+                okText: $translator.__('Okay'),
+                customClass: 'dialog-error',
+                backdropClose: true,
+            });
+        }
+
+        return redirect({
+            name: goTo,
+        });
+    }
+};
+
 module.exports = {
+    redirectIfCartIsNotValid,
     methods: {
         processOrder(response, { callback, successWithoutCallback }) {
             this.$bus.$emit('tracking/purchase', response.data.order);

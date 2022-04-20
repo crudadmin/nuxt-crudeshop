@@ -153,6 +153,31 @@ class BaseProduct extends Model {
             ? true
             : false;
     }
+
+    hasOnStock() {
+        if (this.hasStock == true) {
+            return true;
+        }
+
+        return this.canOrderEverytime;
+    }
+
+    getMaxQuantity() {
+        if (this.canOrderEverytime) {
+            return 999999999999;
+        }
+
+        let cartItem = crudadmin.store.getters['cart/getCartItemFromObject']({
+            product_id: this.product_id || this.id,
+            variant_id: this.product_id ? this.id : null,
+        });
+
+        if (cartItem) {
+            return this.stock_quantity - cartItem.quantity;
+        }
+
+        return this.stock_quantity;
+    }
 }
 
 module.exports = BaseProduct;

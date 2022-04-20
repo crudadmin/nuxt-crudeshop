@@ -40,14 +40,18 @@ class Attribute extends Model {
         });
     }
 
+    getItemName(item) {
+        if (this.unitName) {
+            return item.name + ' ' + this.unitName;
+        }
+
+        return item.name;
+    }
+
     getValues(separator = ', ') {
         return this.items
             .map(item => {
-                if (this.unitName) {
-                    return item.name + ' ' + this.unitName;
-                }
-
-                return item.name;
+                return this.getItemName(item);
             })
             .join(separator);
     }

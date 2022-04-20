@@ -1,6 +1,7 @@
 import { mapGetters, mapState } from 'vuex';
 import Vue from 'vue';
 import Product from 'crudeshop/models/Product.js';
+import _ from 'lodash';
 
 var storeMixin = {
     methods: {
@@ -86,6 +87,20 @@ var storeMixin = {
             if (callback && typeof callback == 'function') {
                 callback(data);
             }
+        },
+        fromCategoriesTreeToRoute(name, category, level) {
+            let index = _.findIndex(level, { id: category.id });
+
+            let obj = {
+                name,
+                params: {},
+            };
+
+            for (let i = 1; i <= index + 1; i++) {
+                obj.params['category' + i] = level[i - 1].slug;
+            }
+
+            return obj;
         },
     },
     computed: {

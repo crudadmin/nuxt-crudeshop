@@ -96,11 +96,7 @@ class Product extends BaseProduct {
     canAddToCart(productOrVariant) {
         productOrVariant = productOrVariant || this;
 
-        if (productOrVariant.hasStock == true) {
-            return true;
-        }
-
-        return productOrVariant.canOrderEverytime;
+        return productOrVariant.hasOnStock();
     }
 
     cartQuantityExceed(variant) {

@@ -34,6 +34,12 @@ class Discount extends Model {
 
         return message ? message.value : null;
     }
+
+    getCode(index = 0) {
+        let message = this.getFormatedMessages()[index];
+
+        return message ? message.discount.messages[0].code.code : null;
+    }
 }
 
 module.exports = Discount;

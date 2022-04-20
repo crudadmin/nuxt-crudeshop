@@ -96,13 +96,18 @@ module.exports = {
         this.setPath(currentPath || this.path).initialize();
 
         //Translate routes from backend
-        for (var key in routes) {
-            routes[key].meta = {
-                ...(routes[key].meta || {}),
-                _original: routes[key].path,
-            };
+        for (let i = 0; i < routes.length; i++) {
+            //Remove duplicate route names
+            if (_.filter(routes, { name: routes[i].name }).length >= 2) {
+                routes.splice(i, 1);
+            } else {
+                routes[i].meta = {
+                    ...(routes[i].meta || {}),
+                    _original: routes[i].path,
+                };
 
-            routes[key].path = translator.__(routes[key].path);
+                routes[i].path = translator.__(routes[i].path);
+            }
         }
 
         return await this.asyncAddSlugIntoRoutes(routes);
