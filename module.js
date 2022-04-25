@@ -1,5 +1,6 @@
 import { relative, resolve, basename, join } from 'path';
 import { existsSync, writeFileSync } from 'fs';
+import sitemapGenerator from './utilities/sitemap.js';
 
 export default function(moduleOptions) {
     [
@@ -54,4 +55,13 @@ export default function(moduleOptions) {
 
         writeFileSync(extraFilePath, `{ routes: [${routesString}] }`);
     });
+
+    if (moduleOptions.sitemap) {
+        this.options.sitemap = {
+            hostname: this.options.env.baseUrl,
+            routes: () => {
+                return sitemapGenerator();
+            },
+        };
+    }
 }
