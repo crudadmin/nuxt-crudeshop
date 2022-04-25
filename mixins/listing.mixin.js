@@ -183,7 +183,9 @@ module.exports = {
                     );
                 } catch (e) {}
 
-                this.setLoadingNextPage(false);
+                this.$nextTick(() => {
+                    this.setLoadingNextPage(false);
+                });
             },
             scrollToListing: _.debounce(function() {
                 let scrollTop = $(window).scrollTop();
