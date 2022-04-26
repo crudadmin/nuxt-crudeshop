@@ -60,11 +60,11 @@ const store = {
         toggleAttributeItem(state, { attribute_id, id }) {
             let values = _.castArray(
                 state.attributesFilter[attribute_id] || []
-            ).map(id => parseInt(id));
+            ).map((id) => parseInt(id));
 
             let newValues = _.xor(
                 values,
-                _.castArray(id).map(id => parseInt(id))
+                _.castArray(id).map((id) => parseInt(id))
             );
 
             if (newValues.length == 0) {
@@ -75,7 +75,7 @@ const store = {
         },
         setPriceRange(state, range) {
             state.priceRange = range
-                ? range.map(price => parseFloat(price))
+                ? range.map((price) => parseFloat(price))
                 : state.defaultPriceRange;
         },
         setMultiplePriceRanges(state, ranges) {
@@ -102,7 +102,7 @@ const store = {
             }
 
             //Set default range
-            var defaultRange = range.map(price => parseFloat(price)),
+            var defaultRange = range.map((price) => parseFloat(price)),
                 defaultRange = [
                     parseInt(defaultRange[0]),
                     Math.ceil(defaultRange[1]),
@@ -113,11 +113,12 @@ const store = {
         },
         togglePriceRange(state, range) {
             let exists =
-                state.multiplePriceRanges.filter(item => _.isEqual(item, range))
-                    .length > 0;
+                state.multiplePriceRanges.filter((item) =>
+                    _.isEqual(item, range)
+                ).length > 0;
 
             if (exists) {
-                _.remove(state.multiplePriceRanges, item =>
+                _.remove(state.multiplePriceRanges, (item) =>
                     _.isEqual(item, range)
                 );
             } else {
@@ -221,7 +222,7 @@ const store = {
 
             dispatch('updateQuery');
         },
-        setSearch: _.debounce(function({ state, commit, dispatch }, query) {
+        setSearch: _.debounce(function ({ state, commit, dispatch }, query) {
             commit('setStaticFilter', {
                 _search: query,
             });
@@ -261,7 +262,7 @@ const store = {
                         path: currentRoute.path,
                         query,
                     })
-                    .catch(e => e);
+                    .catch((e) => e);
             }
         },
         bootFromQuery({ state, commit }, query) {
@@ -304,10 +305,10 @@ const store = {
     },
 
     getters: {
-        getStaticFilter: state => key => {
+        getStaticFilter: (state) => (key) => {
             return state.filters[key];
         },
-        selectedItems: state => {
+        selectedItems: (state) => {
             var items = [],
                 filter = state.attributesFilter;
 
@@ -321,7 +322,7 @@ const store = {
                 }
 
                 items = items.concat(
-                    attribute.items.filter(item => {
+                    attribute.items.filter((item) => {
                         //If is multi array of attributes
                         if (_.isArray(filter[attrId])) {
                             return _.includes(filter[attrId], item.id);
@@ -337,7 +338,7 @@ const store = {
 
             return items;
         },
-        isItemChecked: state => item => {
+        isItemChecked: (state) => (item) => {
             const { attribute_id, id } = item;
 
             let values = _.castArray(
@@ -346,7 +347,7 @@ const store = {
 
             return values.indexOf(id) > -1;
         },
-        isAttributesSelected: state => {
+        isAttributesSelected: (state) => {
             return Object.keys(state.attributesFilter).length > 0;
         },
         isFilterEnabled: (state, getters) => {
@@ -415,16 +416,16 @@ const store = {
 
             return query;
         },
-        getAttributes: state => {
+        getAttributes: (state) => {
             return Object.values(state.attributes).map(
-                attr => new Attribute(attr)
+                (attr) => new Attribute(attr)
             );
         },
 
         /**
          * Price filter
          */
-        defaultPriceRangeMutated: state => {
+        defaultPriceRangeMutated: (state) => {
             return [
                 parseInt(state.defaultPriceRange[0]),
                 Math.ceil(state.defaultPriceRange[1]),
@@ -442,8 +443,9 @@ const store = {
         },
         isPriceRangeEnabled: (state, getters) => {
             return (
-                getters.defaultPriceRangeMutated.filter(item => !_.isNil(item))
-                    .length == 2
+                getters.defaultPriceRangeMutated.filter(
+                    (item) => !_.isNil(item)
+                ).length == 2
             );
         },
         isChangedPriceRange: (state, getters) => {
@@ -455,10 +457,11 @@ const store = {
         getSortBy: (state, getters) => {
             return getters.getStaticFilter('_sort');
         },
-        isPriceRangeChecked: state => range => {
+        isPriceRangeChecked: (state) => (range) => {
             return (
-                state.multiplePriceRanges.filter(item => _.isEqual(item, range))
-                    .length > 0
+                state.multiplePriceRanges.filter((item) =>
+                    _.isEqual(item, range)
+                ).length > 0
             );
         },
     },
