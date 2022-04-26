@@ -20,10 +20,11 @@ const fetchListing = async (context, fetchOptions) => {
         config.getListingFetchRoute(context)
     );
 
-    let response = await store.dispatch('listing/fetchProducts', {
-        route,
-        ...(fetchOptions || {}),
-    });
+    let options = {
+            route,
+            ...(fetchOptions || {}),
+        },
+        response = await store.dispatch('listing/fetchProducts', options);
 
     //Set models
     store.commit(
@@ -68,12 +69,15 @@ module.exports = {
             }
         },
         methods: {
-            fetchListing() {
-                fetchListing({
-                    store: this.$store,
-                    route: this.$route,
-                    action: this.$action,
-                });
+            async fetchListing(options) {
+                return await fetchListing(
+                    {
+                        store: this.$store,
+                        route: this.$route,
+                        action: this.$action,
+                    },
+                    options
+                );
             },
         },
     },
@@ -81,7 +85,7 @@ module.exports = {
         mounted() {
             this.updateQuery();
 
-            this.onQueryChangeListener();
+            this.$bus.$on('queryChange', this.onQueryChange);
         },
         beforeDestroy() {
             //Reregister again
@@ -117,8 +121,15 @@ module.exports = {
                     )
                 );
             },
-            onQueryChangeListener() {
-                this.$bus.$on('queryChange', this.onQueryChange);
+            async fetchListing(options) {
+                return await fetchListing(
+                    {
+                        store: this.$store,
+                        route: this.$route,
+                        action: this.$action,
+                    },
+                    options
+                );
             },
             onQueryChange: _.debounce(function({ newQuery, oldQuery }) {
                 if (
@@ -135,7 +146,7 @@ module.exports = {
                 this.$store.dispatch('filter/bootFromQuery', newQuery);
 
                 // prettier-ignore
-                this.fetchProducts({
+                this.fetchListing({
                     resetDefaultPriceRange: hasAttributesChanged(this.$store.state.filter.attributes, newQuery, oldQuery),
                 });
 
@@ -173,7 +184,7 @@ module.exports = {
                 }
 
                 try {
-                    let response = await this.fetchProducts({
+                    let response = await this.fetchListing({
                         url: this.pagination.next_page_url,
                         setProducts: false,
                     });
