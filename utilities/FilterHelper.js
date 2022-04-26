@@ -41,9 +41,10 @@ const buildAttributesFromQuery = (attributes, query) => {
         let attribute = _.find(attributes, { slug: key });
 
         if (attribute) {
-            filterObject[attribute.id] = (query[key] + '')
-                .split(',')
-                .map(id => parseInt(id));
+            let values = (query[key] + '').split(',').map(id => parseInt(id));
+
+            filterObject[attribute.id] =
+                values.length == 1 ? values[0] : values;
         }
     }
 
