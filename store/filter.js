@@ -54,7 +54,11 @@ const store = {
 
             //Set new value
             else {
-                Vue.set(state.attributesFilter, attribute_id, id);
+                //We can't use Vue.set, because if package ist linked via "npm link", value is not updated correctly.
+                //Super-weird behaoviour.
+                let obj = state.attributesFilter;
+                obj[attribute_id] = id;
+                state.attributesFilter = { ...obj };
             }
         },
         toggleAttributeItem(state, { attribute_id, id }) {
@@ -70,7 +74,9 @@ const store = {
             if (newValues.length == 0) {
                 Vue.delete(state.attributesFilter, attribute_id);
             } else {
-                Vue.set(state.attributesFilter, attribute_id, newValues);
+                let obj = state.attributesFilter;
+                obj[attribute_id] = newValues;
+                state.attributesFilter = { ...obj };
             }
         },
         setPriceRange(state, range) {
