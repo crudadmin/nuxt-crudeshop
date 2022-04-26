@@ -10,6 +10,14 @@ const config = {
 
         return action('ListingController@index', category);
     },
+    onListingFetch({ store }, response) {
+        store.commit(
+            'listing/setCategory',
+            response.model ? response.model.category : null
+        );
+
+        store.commit('listing/setCategories', response.data.categories || []);
+    },
 };
 
 const fetchListing = async (context, fetchOptions) => {
@@ -26,11 +34,7 @@ const fetchListing = async (context, fetchOptions) => {
         },
         response = await store.dispatch('listing/fetchProducts', options);
 
-    //Set models
-    store.commit(
-        'listing/setCategory',
-        response.model ? response.model.category : null
-    );
+    config.onListingFetch(context, response);
 
     return response;
 };

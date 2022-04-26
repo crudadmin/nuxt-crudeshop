@@ -18,6 +18,7 @@ const products = {
 
             //Eshop
             category: null,
+            categories: [],
         };
     },
 
@@ -55,6 +56,9 @@ const products = {
         },
         setCategory(state, category) {
             state.category = category;
+        },
+        setCategories(state, categories) {
+            state.categories = categories;
         },
     },
 
