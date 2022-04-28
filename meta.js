@@ -2,18 +2,18 @@ const _ = require('lodash');
 const { bindModelMeta } = require('./utilities/meta.js');
 const crudadmin = require('./crudadmin.js');
 
-const getActualSeoRoute = route => {
+const getActualSeoRoute = (route) => {
     if (crudadmin.seoRoutes.length == 0 || !route) {
         return;
     }
 
     let matchedRoute = route.matched
-        .map(matched => {
+        .map((matched) => {
             let meta = matched ? matched.meta || {} : {};
 
             return meta._original;
         })
-        .filter(item => item);
+        .filter((item) => item);
 
     if (matchedRoute.length > 0) {
         return _.find(crudadmin.seoRoutes, {
@@ -22,7 +22,7 @@ const getActualSeoRoute = route => {
     }
 };
 
-module.exports = (models, route) => {
+module.exports = (models, route, properties = {}) => {
     var options = {
         title: '',
         meta: [],
@@ -30,7 +30,7 @@ module.exports = (models, route) => {
 
     let actualSeoRoute = getActualSeoRoute(route);
 
-    models = models ? _.toArray(models).filter(item => item) : [];
+    models = models ? _.toArray(models).filter((item) => item) : [];
 
     if (actualSeoRoute) {
         models = [actualSeoRoute].concat(models);
@@ -40,7 +40,7 @@ module.exports = (models, route) => {
         let reversedModels = models.reverse();
 
         for (var i = 0; i < reversedModels.length; i++) {
-            bindModelMeta(options, reversedModels[i]);
+            bindModelMeta(options, reversedModels[i], properties);
         }
     }
 
