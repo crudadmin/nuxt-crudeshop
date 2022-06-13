@@ -16,16 +16,21 @@ class Attribute extends Model {
         }
 
         let isDesc = ['desc'].indexOf(this.sortby) > -1,
+            isNumber = ['number', 'decimal'].includes(this.unitFormat),
             isInternationalSizes =
                 this.items
-                    .map(item => item.name)
-                    .filter(item => internationalSizes.indexOf(item) > -1)
+                    .map((item) => item.name)
+                    .filter((item) => internationalSizes.indexOf(item) > -1)
                     .length == this.items.length;
 
-        const compareValue = item => {
+        const compareValue = (item) => {
             //Sort by international size number value
             if (isInternationalSizes) {
                 return internationalSizes.indexOf(item.name);
+            }
+
+            if (isNumber) {
+                return parseFloat(item.name);
             }
 
             return item.name;
@@ -33,8 +38,16 @@ class Attribute extends Model {
 
         return [].concat(this.items).sort((a, b) => {
             if (this.sortby == 'asc') {
+                if (isNumber) {
+                    return a - b;
+                }
+
                 return (compareValue(a) + '').localeCompare(compareValue(b));
             } else if (this.sortby == 'desc') {
+                if (isNumber) {
+                    return b - a;
+                }
+
                 return (compareValue(b) + '').localeCompare(compareValue(a));
             }
         });
@@ -42,7 +55,7 @@ class Attribute extends Model {
 
     getValues(separator = ', ') {
         return this.items
-            .map(item => {
+            .map((item) => {
                 if (this.unitName) {
                     return item.name + ' ' + this.unitName;
                 }
@@ -56,7 +69,7 @@ class Attribute extends Model {
         if (
             (crudadmin.store.getters['store/backendEnv']('ATTR_COLOR_ID') + '')
                 .split(',')
-                .map(id => parseInt(id))
+                .map((id) => parseInt(id))
                 .indexOf(this.id) > -1
         ) {
             return true;
@@ -66,7 +79,7 @@ class Attribute extends Model {
     }
 
     selectedItems() {
-        return this.items.filter(item =>
+        return this.items.filter((item) =>
             crudadmin.store.getters['filter/isItemChecked'](item)
         );
     }
