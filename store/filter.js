@@ -6,6 +6,7 @@ const Attribute = require('../models/Attribute.js');
 const {
     buildAttributesFromState,
     buildAttributesFromQuery,
+    castAndSortFilterKeys,
     queryBuilder,
 } = require('../utilities/FilterHelper.js');
 
@@ -56,7 +57,7 @@ const store = {
         toggleAttributeItem(state, { attribute_id, id }) {
             let values = _.castArray(
                 state.attributesFilter[attribute_id] || []
-            ).map(id => parseInt(id));
+            ).map((id) => parseInt(id));
 
             let newValues = _.xor(values, [id]);
 
@@ -68,7 +69,7 @@ const store = {
         },
         setPriceRange(state, range) {
             state.priceRange = range
-                ? range.map(price => parseFloat(price))
+                ? range.map((price) => parseFloat(price))
                 : state.defaultPriceRange;
         },
         setInstantPriceRange(state, range) {
@@ -92,7 +93,7 @@ const store = {
             }
 
             //Set default range
-            var defaultRange = range.map(price => parseFloat(price)),
+            var defaultRange = range.map((price) => parseFloat(price)),
                 defaultRange = [
                     parseInt(defaultRange[0]),
                     Math.ceil(defaultRange[1]),
@@ -205,10 +206,14 @@ const store = {
 
             dispatch('updateQuery');
         },
-        updateQuery({ state, getters }) {
-            let query = _.cloneDeep(getters.getQueryParams),
-                currentRoute = this.$router.currentRoute,
-                currentQuery = _.cloneDeep(currentRoute.query);
+        updateQuery({ state, getters }, route) {
+            let query = castAndSortFilterKeys(
+                    _.cloneDeep(getters.getQueryParams)
+                ),
+                currentRoute = route || this.$router.currentRoute,
+                currentQuery = castAndSortFilterKeys(
+                    _.cloneDeep(currentRoute.query)
+                );
 
             //Remove whitelisted keys
             for (let key of this.state.listing.whitelistedQueries) {
@@ -217,10 +222,12 @@ const store = {
             }
 
             if (!_.isEqual(query, currentQuery)) {
-                this.$router.push({
-                    path: currentRoute.path,
-                    query,
-                });
+                this.$router
+                    .push({
+                        path: currentRoute.path,
+                        query,
+                    })
+                    .catch((e) => e);
             }
         },
         bootFromQuery({ state, commit }, query) {
@@ -250,17 +257,23 @@ const store = {
             commit('setStaticFilter', filters);
         },
         resetFilter({ commit, dispatch }, allParams) {
+            var route;
+
+            if (_.isObject(allParams)) {
+                var { allParams = false, route } = allParams;
+            }
+
             commit('resetFilter', allParams);
 
-            dispatch('updateQuery');
+            dispatch('updateQuery', route);
         },
     },
 
     getters: {
-        getStaticFilter: state => key => {
+        getStaticFilter: (state) => (key) => {
             return state.filters[key];
         },
-        selectedItems: state => {
+        selectedItems: (state) => {
             var items = [],
                 filter = state.attributesFilter;
 
@@ -274,7 +287,7 @@ const store = {
                 }
 
                 items = items.concat(
-                    attribute.items.filter(item => {
+                    attribute.items.filter((item) => {
                         //If is multi array of attributes
                         if (_.isArray(filter[attrId])) {
                             return _.includes(filter[attrId], item.id);
@@ -290,14 +303,14 @@ const store = {
 
             return items;
         },
-        isItemChecked: state => item => {
+        isItemChecked: (state) => (item) => {
             const { attribute_id, id } = item;
 
             let values = state.attributesFilter[attribute_id] || [];
 
             return values.indexOf(id) > -1;
         },
-        isAttributesSelected: state => {
+        isAttributesSelected: (state) => {
             return Object.keys(state.attributesFilter).length > 0;
         },
         isFilterEnabled: (state, getters) => {
@@ -366,16 +379,16 @@ const store = {
 
             return query;
         },
-        getAttributes: state => {
+        getAttributes: (state) => {
             return Object.values(state.attributes).map(
-                attr => new Attribute(attr)
+                (attr) => new Attribute(attr)
             );
         },
 
         /**
          * Price filter
          */
-        defaultPriceRangeMutated: state => {
+        defaultPriceRangeMutated: (state) => {
             return [
                 parseInt(state.defaultPriceRange[0]),
                 Math.ceil(state.defaultPriceRange[1]),
@@ -393,8 +406,9 @@ const store = {
         },
         isPriceRangeEnabled: (state, getters) => {
             return (
-                getters.defaultPriceRangeMutated.filter(item => !_.isNil(item))
-                    .length == 2
+                getters.defaultPriceRangeMutated.filter(
+                    (item) => !_.isNil(item)
+                ).length == 2
             );
         },
         isChangedPriceRange: (state, getters) => {

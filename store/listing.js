@@ -67,7 +67,10 @@ const products = {
                 resetFilter === true &&
                 this.$router.currentRoute.name == route.name
             ) {
-                this.dispatch('filter/resetFilter', true);
+                this.dispatch('filter/resetFilter', {
+                    route,
+                    allParams: true,
+                });
             }
 
             let postData = {
@@ -120,21 +123,23 @@ const products = {
         },
     },
     getters: {
-        getUrlWithParams: state => ({ url, query }) => {
-            url = url || state.defaultFetchRoute;
+        getUrlWithParams:
+            (state) =>
+            ({ url, query }) => {
+                url = url || state.defaultFetchRoute;
 
-            let obj = {};
+                let obj = {};
 
-            for (let key of state.whitelistedQueries) {
-                if (query[key]) {
-                    obj[key] = query[key];
+                for (let key of state.whitelistedQueries) {
+                    if (query[key]) {
+                        obj[key] = query[key];
+                    }
                 }
-            }
 
-            url = url + (url.indexOf('?') > -1 ? '&' : '?');
+                url = url + (url.indexOf('?') > -1 ? '&' : '?');
 
-            return url + buildQueryFromObject(obj);
-        },
+                return url + buildQueryFromObject(obj);
+            },
     },
 };
 

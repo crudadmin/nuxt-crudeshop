@@ -12,7 +12,7 @@ const buildAttributesFromState = (filter, attributes) => {
             let value = filter[attrId];
 
             if (_.isArray(value)) {
-                let queryString = _.uniq(value.map(id => parseInt(id))).join(
+                let queryString = _.uniq(value.map((id) => parseInt(id))).join(
                     ','
                 );
 
@@ -43,17 +43,17 @@ const buildAttributesFromQuery = (attributes, query) => {
         if (attribute) {
             filterObject[attribute.id] = (query[key] + '')
                 .split(',')
-                .map(id => parseInt(id));
+                .map((id) => parseInt(id));
         }
     }
 
     return filterObject;
 };
 
-const buildQueryFromObject = params => {
+const buildQueryFromObject = (params) => {
     var esc = encodeURIComponent;
     var query = Object.keys(params)
-        .map(k => esc(k) + '=' + esc(params[k]))
+        .map((k) => esc(k) + '=' + esc(params[k]))
         .join('&');
 
     return query;
@@ -71,6 +71,23 @@ const hasAttributesChanged = (attributes, newQuery, oldQuery) => {
     return false;
 };
 
+const castAndSortFilterKeys = (object) => {
+    if (typeof object != 'object') {
+        return object;
+    }
+
+    let keys = _.sortBy(Object.keys(object)),
+        newObject = {};
+
+    for (key of keys) {
+        newObject[key] = _.isNumber(object[key])
+            ? object[key] + ''
+            : object[key];
+    }
+
+    return newObject;
+};
+
 const queryBuilder = {
     _price: {
         filterEnabled({ state, getters }) {
@@ -80,14 +97,14 @@ const queryBuilder = {
             let priceRange = (value + '')
                 .split(',')
                 .slice(0, 2)
-                .map(price => parseFloat(price));
+                .map((price) => parseFloat(price));
 
             commit('setPriceRange', priceRange);
         },
         get({ state, getters }) {
             if (
                 getters.isChangedPriceRange &&
-                state.priceRange.filter(item => item).length
+                state.priceRange.filter((item) => item).length
             ) {
                 return state.priceRange.join(',');
             }
@@ -122,4 +139,5 @@ module.exports = {
     queryBuilder,
     buildQueryFromObject,
     hasAttributesChanged,
+    castAndSortFilterKeys,
 };
