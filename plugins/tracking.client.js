@@ -45,7 +45,7 @@ export default async ({ app, store, $bus }) => {
     });
 
     $bus.$on('tracking/beginPurchase', () => {
-        let items = store.state.cart.items.map(cartItem =>
+        let items = store.state.cart.items.map((cartItem) =>
             buildGa4ItemFromCartItem(cartItem)
         );
 
@@ -57,7 +57,7 @@ export default async ({ app, store, $bus }) => {
     });
 
     $bus.$on('tracking/setDelivery', () => {
-        let items = store.state.cart.items.map(cartItem =>
+        let items = store.state.cart.items.map((cartItem) =>
             buildGa4ItemFromCartItem(cartItem)
         );
 
@@ -70,7 +70,7 @@ export default async ({ app, store, $bus }) => {
     });
 
     $bus.$on('tracking/setPaymentMethod', () => {
-        let items = store.state.cart.items.map(cartItem =>
+        let items = store.state.cart.items.map((cartItem) =>
             buildGa4ItemFromCartItem(cartItem)
         );
 
@@ -82,8 +82,8 @@ export default async ({ app, store, $bus }) => {
         });
     });
 
-    $bus.$on('tracking/purchase', order => {
-        let items = store.state.cart.items.map(cartItem =>
+    $bus.$on('tracking/purchase', (order) => {
+        let items = store.state.cart.items.map((cartItem) =>
             buildGa4ItemFromCartItem(cartItem)
         );
 
@@ -97,6 +97,22 @@ export default async ({ app, store, $bus }) => {
                 ? store.state.cart.selectedPaymentMethod.name
                 : null,
             shipping: order.delivery_price,
+        });
+    });
+
+    $bus.$on('tracking/productDetail', ({ product, productOrVariant }) => {
+        dataLayer.push({
+            event: 'view_item',
+            ecommerce: {
+                items: [
+                    {
+                        item_id: productOrVariant.id,
+                        item_name: productOrVariant.name,
+                        currency: 'EUR',
+                        price: productOrVariant.priceWithVat,
+                    },
+                ],
+            },
         });
     });
 };
