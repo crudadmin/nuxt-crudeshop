@@ -120,7 +120,7 @@ module.exports = {
                 return _.uniqBy(
                     _.sortBy(
                         options
-                            .map(limit => parseInt(limit))
+                            .map((limit) => parseInt(limit))
                             .concat(this.pagination.per_page)
                     )
                 );
@@ -135,7 +135,7 @@ module.exports = {
                     options
                 );
             },
-            onQueryChange: _.debounce(function({ newQuery, oldQuery }) {
+            onQueryChange: _.debounce(function ({ newQuery, oldQuery }) {
                 if (
                     //Component is not initialized yet
                     //prettier-ignore
@@ -160,7 +160,8 @@ module.exports = {
                 }
             }, 50),
             async loadNextPage(options) {
-                let { rewritePageQuery = false } = options || {};
+                let { rewritePageQuery = false, rewriteLimitQuery = false } =
+                    options || {};
 
                 //If pagination has no more pages.
                 if (
@@ -173,15 +174,33 @@ module.exports = {
                 this.setLoadingNextPage(true);
 
                 if (rewritePageQuery === true) {
-                    let page = (
+                    // prettier-ignore
+                    let page = parseInt((
                         this.pagination.next_page_url.split('page=')[1] + ''
-                    ).split('%')[0];
+                    ).split('%')[0])||1;
 
                     this.$router
                         .push({
                             query: {
                                 ...this.$route.query,
                                 ...{ page },
+                            },
+                        })
+                        .catch(() => {});
+                }
+
+                if (rewriteLimitQuery === true) {
+                    // prettier-ignore
+                    let page = parseInt((
+                        this.pagination.next_page_url.split('page=')[1] + ''
+                    ).split('%')[0])||1,
+                        limit = page * this.pagination.per_page;
+
+                    this.$router
+                        .push({
+                            query: {
+                                ...this.$route.query,
+                                ...{ _limit: limit },
                             },
                         })
                         .catch(() => {});
@@ -202,7 +221,7 @@ module.exports = {
                     this.setLoadingNextPage(false);
                 });
             },
-            scrollToListing: _.debounce(function() {
+            scrollToListing: _.debounce(function () {
                 let scrollTop = $(window).scrollTop();
 
                 //Disable scroll if scrollTop is not present
