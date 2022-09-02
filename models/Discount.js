@@ -12,13 +12,16 @@ class Discount extends Model {
 
         return {
             name: message.name,
-            value: message.value[hasVat ? 'withVat' : 'withoutVat'],
+            value:
+                typeof message.value == 'object'
+                    ? message.value[hasVat ? 'withVat' : 'withoutVat']
+                    : message.value,
             discount: this,
         };
     }
 
     getFormatedMessages(hasVat) {
-        return this.messages.map(message =>
+        return this.messages.map((message) =>
             this.getMessageProperties(message, hasVat)
         );
     }
