@@ -87,28 +87,25 @@ module.exports = {
     },
 
     async rewriteRoutes(routes, currentPath) {
-        //We does not want to rewrite routes, it may be buggy
-        routes = _.cloneDeep(routes);
-
         var translator = await crudadmin.getTranslator();
 
         //Initialize localization on ssr and also client
         this.setPath(currentPath || this.path).initialize();
 
-        //Translate routes from backend
-        for (let i = 0; i < routes.length; i++) {
-            //Remove duplicate route names
-            if (_.filter(routes, { name: routes[i].name }).length >= 2) {
-                routes.splice(i, 1);
-            } else {
-                routes[i].meta = {
-                    ...(routes[i].meta || {}),
-                    _original: routes[i].path,
-                };
+        //We does not want to rewrite routes, it may be buggy
+        routes = _.uniqBy(_.cloneDeep(routes), (route) => {
+            return route.name;
+        }).map((route) => {
+            //Translate routes from backend
+            route.meta = {
+                ...(route.meta || {}),
+                _original: route.path,
+            };
 
-                routes[i].path = translator.__(routes[i].path);
-            }
-        }
+            route.path = translator.__(route.path);
+
+            return route;
+        });
 
         return await this.asyncAddSlugIntoRoutes(routes);
     },
@@ -123,7 +120,7 @@ module.exports = {
             return routes;
         }
 
-        routes = routes.map(route => {
+        routes = routes.map((route) => {
             route.path = '/' + this.get().slug + route.path;
 
             return route;
@@ -133,8 +130,8 @@ module.exports = {
     },
 
     getValidLangSegment(path) {
-        return [(path + '').split('/').filter(item => item)[0]].filter(slug =>
-            _.find(this.all(), { slug })
+        return [(path + '').split('/').filter((item) => item)[0]].filter(
+            (slug) => _.find(this.all(), { slug })
         )[0];
     },
 
