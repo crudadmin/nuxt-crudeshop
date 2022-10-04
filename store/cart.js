@@ -6,7 +6,7 @@ const PaymentMethod = require('../models/PaymentMethod.js');
 const Model = require('../models/Model.js');
 const _ = require('lodash');
 
-const getIdentifierFromObject = object => {
+const getIdentifierFromObject = (object) => {
     return CrudAdmin.identifiers[object.identifier || 'products'];
 };
 
@@ -262,6 +262,24 @@ var cartStore = {
                 dispatch('cartError', e);
             }
         },
+        async setDeliveryLocation({ commit, dispatch, state }, locationId) {
+            var obj = {
+                id: locationId,
+            };
+
+            try {
+                var { data } = await this.$axios.$post(
+                    this.$action('Cart\\CartController@setDeliveryLocation'),
+                    obj
+                );
+
+                commit('setCart', data);
+
+                dispatch('sendItemEvent', { event: 'setDelivery' });
+            } catch (e) {
+                dispatch('cartError', e);
+            }
+        },
         async setPaymentMethod({ commit, state, dispatch }, id) {
             if (_.isObject(id)) {
                 id = id.id;
@@ -310,57 +328,57 @@ var cartStore = {
     },
 
     getters: {
-        getSummary: state => key => {
+        getSummary: (state) => (key) => {
             return state.summary[key] || 0;
         },
-        getTotalSummary: state => key => {
+        getTotalSummary: (state) => (key) => {
             return state.summaryTotal[key] || 0;
         },
-        getCartItems: state => (options = {}) => {
-            let items = (options.hidden == true
-                ? state.itemsHidden
-                : state.items
-            ).map(item => new CartItem(item));
+        getCartItems:
+            (state) =>
+            (options = {}) => {
+                let items = (
+                    options.hidden == true ? state.itemsHidden : state.items
+                ).map((item) => new CartItem(item));
 
-            if (options.withAssignedChildItems === false) {
-                items = items.filter(item => {
-                    return item.hasParentCartItem() == false;
-                });
-            }
+                if (options.withAssignedChildItems === false) {
+                    items = items.filter((item) => {
+                        return item.hasParentCartItem() == false;
+                    });
+                }
 
-            return items;
-        },
-        getDiscounts: state => {
-            return state.discounts.map(item => new Discount(item));
+                return items;
+            },
+        getDiscounts: (state) => {
+            return state.discounts.map((item) => new Discount(item));
         },
         //Returns all available discount values.
         //One discount provider may have multiple discounts. For example discount codes.
-        getDiscountsMessages: (state, getters) => (
-            whitelistedDiscounts = [],
-            hasVat = null
-        ) => {
-            let messages = [];
+        getDiscountsMessages:
+            (state, getters) =>
+            (whitelistedDiscounts = [], hasVat = null) => {
+                let messages = [];
 
-            for (let discount of getters.getDiscounts) {
-                if (
-                    whitelistedDiscounts.length == 0 ||
-                    whitelistedDiscounts.indexOf(discount.key) > -1
-                ) {
-                    messages = messages.concat(
-                        discount.getFormatedMessages(hasVat)
-                    );
+                for (let discount of getters.getDiscounts) {
+                    if (
+                        whitelistedDiscounts.length == 0 ||
+                        whitelistedDiscounts.indexOf(discount.key) > -1
+                    ) {
+                        messages = messages.concat(
+                            discount.getFormatedMessages(hasVat)
+                        );
+                    }
                 }
-            }
 
-            return messages;
+                return messages;
+            },
+        getItemsQuantityCount: (state) => {
+            return _.sum(state.items.map((item) => item.quantity));
         },
-        getItemsQuantityCount: state => {
-            return _.sum(state.items.map(item => item.quantity));
-        },
-        isInCart: (state, getters) => object => {
+        isInCart: (state, getters) => (object) => {
             return getters.getCartItemFromObject(object) ? true : false;
         },
-        getCartItemFromObject: state => object => {
+        getCartItemFromObject: (state) => (object) => {
             var search = getIdentifierFromObject(object).buildObject(object);
 
             //If has parent identifier, we need check also parent identifier match
@@ -377,45 +395,45 @@ var cartStore = {
 
             return item ? new CartItem(item) : null;
         },
-        getDiscountCode: state => {
+        getDiscountCode: (state) => {
             let item = _.find(state.discounts, { key: 'DiscountCode' });
             if (item) {
                 return new Discount(item);
             }
         },
-        isSelectedPaymentMethod: state => method => {
+        isSelectedPaymentMethod: (state) => (method) => {
             return (
                 state.selectedPaymentMethod &&
                 state.selectedPaymentMethod.id == method.id
             );
         },
-        isSelectedDelivery: state => delivery => {
+        isSelectedDelivery: (state) => (delivery) => {
             return (
                 state.selectedDelivery &&
                 state.selectedDelivery.id == delivery.id
             );
         },
-        isSelectedDeliveryLocation: state => location => {
+        isSelectedDeliveryLocation: (state) => (location) => {
             return (
                 state.selectedLocation &&
                 state.selectedLocation.id == location.id
             );
         },
-        getSelectedDelivery: state => {
+        getSelectedDelivery: (state) => {
             return state.selectedDelivery
                 ? new Delivery(state.selectedDelivery)
                 : null;
         },
-        getSelectedPaymentMethod: state => {
+        getSelectedPaymentMethod: (state) => {
             return state.selectedPaymentMethod
                 ? new PaymentMethod(state.selectedPaymentMethod)
                 : null;
         },
-        getDeliveries: state => {
-            return state.deliveries.map(item => new Delivery(item));
+        getDeliveries: (state) => {
+            return state.deliveries.map((item) => new Delivery(item));
         },
-        getPaymentMethods: state => {
-            return state.paymentMethods.map(item => new PaymentMethod(item));
+        getPaymentMethods: (state) => {
+            return state.paymentMethods.map((item) => new PaymentMethod(item));
         },
     },
 };

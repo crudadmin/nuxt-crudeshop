@@ -3,7 +3,7 @@ const redirectIfCartIsNotValid = async ({ app, step, goTo }) => {
 
     //If cart has errors
     try {
-        var response = await $axios.get(
+        var response = await $axios.$get(
             $action('Cart\\CartController@passesValidation', step)
         );
     } catch (e) {
