@@ -6,7 +6,7 @@ import _ from 'lodash';
 var storeMixin = {
     methods: {
         toProductModels(products) {
-            return products.map(item => new Product(item));
+            return products.map((item) => new Product(item));
         },
         toProductModel(item) {
             return new Product(item);
@@ -56,9 +56,9 @@ var storeMixin = {
             );
         },
 
-        async fetchStoreSession(callback) {
+        async fetchStoreSession(callback, full = false) {
             // prettier-ignore
-            var { data } = await this.$axios.get(this.action('Cart\\CartController@getFullSummary'), {
+            var { data } = await this.$axios.get(this.action('Cart\\CartController@'+(full === true ? 'getFullSummary' : 'getSummary')), {
                     headers: { 'Cart-Initialize': 1 },
                 }),
                 data = data.data;

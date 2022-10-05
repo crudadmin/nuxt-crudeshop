@@ -1,11 +1,17 @@
 const redirectIfCartIsNotValid = async ({ app, step, goTo }) => {
-    const { $axios, $action, $translator, redirect } = app;
+    const { $axios, $action, $translator, redirect, store } = app;
 
     //If cart has errors
     try {
         var response = await $axios.$get(
             $action('Cart\\CartController@passesValidation', step)
         );
+
+        if (response.data) {
+            store.commit('cart/setCart', response.data);
+        }
+
+        return response;
     } catch (e) {
         //If is browser, we want show alert
         if (process.client) {
