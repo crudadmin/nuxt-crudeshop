@@ -14,22 +14,25 @@ module.exports = {
         return this;
     },
 
-    initialize() {
-        if (this.isEnabled() == false) {
-            return;
+    initialize(currentPath) {
+        if (this.isEnabled() == true) {
+            //Initialize localization on ssr and also client
+            this.setPath(currentPath || this.path);
+
+            let language = this.get(false);
+
+            this.languageSlug = language ? language.slug : null;
+
+            //Get first segment, if it is valid language slug. we can return this value
+            let slug = this.getValidLangSegment(this.path);
+
+            //If slug has been changed
+            if (slug && slug != this.languageSlug) {
+                this.setLocalization(slug);
+            }
         }
 
-        let language = this.get(false);
-
-        this.languageSlug = language ? language.slug : null;
-
-        //Get first segment, if it is valid language slug. we can return this value
-        let slug = this.getValidLangSegment(this.path);
-
-        //If slug has been changed
-        if (slug && slug != this.languageSlug) {
-            this.setLocalization(slug);
-        }
+        return this;
     },
 
     isEnabled() {
@@ -47,7 +50,7 @@ module.exports = {
             storage.removeUniversal(this.localizationKey);
         }
 
-        //Set slug if has been changed
+        // Set slug if has been changed
         else if (storage.getUniversal(this.localizationKey) !== slug) {
             storage.setUniversal(this.localizationKey, slug);
         }
@@ -86,11 +89,8 @@ module.exports = {
         return this.getDefaultLanguage().slug == (slug || this.get().slug);
     },
 
-    async rewriteRoutes(routes, currentPath) {
+    async rewriteRoutes(routes) {
         var translator = await crudadmin.getTranslator();
-
-        //Initialize localization on ssr and also client
-        this.setPath(currentPath || this.path).initialize();
 
         //We does not want to rewrite routes, it may be buggy
         routes = _.uniqBy(_.cloneDeep(routes), (route) => {
@@ -137,6 +137,7 @@ module.exports = {
 
     getLocaleHeaders(obj = {}) {
         var _localeSlug;
+
         if ((_localeSlug = this.getSlugFromStorage())) {
             obj['App-Locale'] = _localeSlug;
         }

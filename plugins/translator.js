@@ -24,8 +24,8 @@ const gettextSelectors = [
 //Install all translation helpers
 const installTranslator = async () => {
     var a = await CrudAdmin.getTranslator(),
-        getSelector = function(selector) {
-            return function() {
+        getSelector = function (selector) {
+            return function () {
                 var s = selector in a ? selector : '__';
 
                 return a[s].apply(a, arguments);
