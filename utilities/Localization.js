@@ -93,9 +93,13 @@ module.exports = {
         var translator = await crudadmin.getTranslator();
 
         //We does not want to rewrite routes, it may be buggy
-        routes = _.uniqBy(_.cloneDeep(routes), (route) => {
+        //We need remove unique duplicates from beggining, latest routes are
+        //final. Because we may add new routes from extendRoutes method in nuxt.config.js
+        routes = _.uniqBy(_.cloneDeep(routes).reverse(), (route) => {
             return route.name;
-        }).map((route) => {
+        }).reverse();
+
+        routes = routes.map((route) => {
             //Translate routes from backend
             route.meta = {
                 ...(route.meta || {}),
