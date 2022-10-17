@@ -57,6 +57,13 @@ var storeMixin = {
         },
 
         async fetchStoreSession(callback, full = false) {
+            //If cart is fully fetched, we does noot need to fetch again in cart.
+            //This will result receiving of wrong summary data.
+            //Cart may be fetched during validation process.
+            if (this.$store.state.cart.initialized === true && full !== true) {
+                return;
+            }
+
             // prettier-ignore
             var { data } = await this.$axios.get(this.action('Cart\\CartController@'+(full === true ? 'getFullSummary' : 'getSummary')), {
                     headers: { 'Cart-Initialize': 1 },

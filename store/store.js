@@ -71,18 +71,18 @@ const store = {
     },
 
     getters: {
-        defaultVat: state => {
+        defaultVat: (state) => {
             return _.find(state.vats, { default: true });
         },
-        backendEnv: state => key => {
+        backendEnv: (state) => (key) => {
             return state.backendEnv[key];
         },
-        addDefaultVat: (state, getters) => price => {
+        addDefaultVat: (state, getters) => (price) => {
             var defaultVat = (getters.defaultVat || {}).vat || 0;
 
             return price * (1 + defaultVat / 100);
         },
-        numberFormat: state => number => {
+        numberFormat: (state) => (number) => {
             let digits = state.decimalPlaces || state.rounding;
 
             number = Math.round(number * 100) / 100;
@@ -92,12 +92,19 @@ const store = {
                 maximumFractionDigits: digits,
             });
         },
-        priceFormat: (state, getters) => (price, negative = true) => {
-            //Only positive numbers can be shown as prices
-            price = price < 0 && negative == false ? 0 : price;
+        priceFormat:
+            (state, getters) =>
+            (price, negative = true) => {
+                //Only positive numbers can be shown as prices
+                price = price < 0 && negative == false ? 0 : price;
 
-            return getters.numberFormat(price) + ' ' + state.currency;
-        },
+                let currencyChar =
+                    state.currency && typeof state.currency == 'object'
+                        ? state.currency.char
+                        : state.currency;
+
+                return getters.numberFormat(price) + ' ' + currencyChar;
+            },
         priceFormatWithVatName: (state, getters) => (price, vat) => {
             //Use default vat value if no vat has been given
             if (_.isNil(vat)) {
