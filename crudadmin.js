@@ -95,16 +95,21 @@ const CrudAdmin = {
             return;
         }
 
-        var response = await this.$axios.$get('/api/bootstrap');
+        if (this.context) {
+            this.context.nuxt.caResponse = this.response =
+                await this.$axios.$get('/api/bootstrap');
+        } else {
+            this.response = window.__NUXT__.caResponse;
+        }
 
-        var bootstrap = response.data;
+        this.setBootstrapResponse(this.response.data);
+    },
 
+    setBootstrapResponse(bootstrap) {
         //Refresh/save cart token
         if (bootstrap.cart_token) {
             this.setCartToken(bootstrap.cart_token);
         }
-
-        this.response = bootstrap;
 
         this.setTranslates(bootstrap.translates);
 
@@ -117,7 +122,7 @@ const CrudAdmin = {
         this.booted = true;
     },
 
-    bootStore(store) {
+    bootStore(store, app) {
         this.store = store;
 
         let data = this.response.store;

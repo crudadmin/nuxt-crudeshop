@@ -181,10 +181,10 @@ module.exports = {
     },
 
     getLocaleHeaders(obj = {}) {
-        var _localeSlug;
+        var _locale;
 
-        if ((_localeSlug = this.getSlugFromStorage())) {
-            obj['App-Locale'] = _localeSlug;
+        if ((_locale = this.get())) {
+            obj['App-Locale'] = _locale.slug;
         }
 
         return obj;
