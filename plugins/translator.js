@@ -48,7 +48,7 @@ const languageRedirector = (route, redirect) => {
         return;
     }
 
-    let actualSegment = Localization.getValidLangSegment(route.path),
+    let actualSegment = Localization.getValidUrlLangSegment(route.path),
         defaultLanguageSlug = Localization.all()[0].slug;
 
     //We cannot use default slug as segment. In this case we need redirect and switch to the default language

@@ -32,9 +32,7 @@ export async function createRouter(ssrContext, config) {
 
     axiosMutator(CrudAdmin.$axios);
 
-    let routes = await Localization.initialize(
-        ssrContext ? ssrContext.req.url : null
-    ).rewriteRoutes(options.routes);
+    let routes = await Localization.initialize().rewriteRoutes(options.routes);
 
     return new Router({
         ...options,

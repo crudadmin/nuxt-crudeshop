@@ -103,16 +103,14 @@ export default async ({ app, store, $bus }) => {
     $bus.$on('tracking/productDetail', ({ product, productOrVariant }) => {
         dataLayer.push({
             event: 'view_item',
-            ecommerce: {
-                items: [
-                    {
-                        item_id: productOrVariant.id,
-                        item_name: productOrVariant.name,
-                        currency: 'EUR',
-                        price: productOrVariant.priceWithVat,
-                    },
-                ],
-            },
+            items: [
+                {
+                    item_id: productOrVariant.id,
+                    item_name: productOrVariant.name,
+                    currency: 'EUR',
+                    price: productOrVariant.priceWithVat,
+                },
+            ],
         });
     });
 };

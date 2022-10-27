@@ -6,33 +6,37 @@ module.exports = {
 
     localizationKey: 'localization',
 
-    path: null,
-
-    setPath(path) {
-        this.path = path;
-
-        return this;
-    },
-
-    initialize(currentPath) {
+    initialize(ssrContext) {
         if (this.isEnabled() == true) {
-            //Initialize localization on ssr and also client
-            this.setPath(currentPath || this.path);
-
             let language = this.get(false);
 
-            this.languageSlug = language ? language.slug : null;
-
-            //Get first segment, if it is valid language slug. we can return this value
-            let slug = this.getValidLangSegment(this.path);
-
-            //If slug has been changed
-            if (slug && slug != this.languageSlug) {
-                this.setLocalization(slug);
+            if (language) {
+                this.setLocalization(language.slug);
             }
         }
 
         return this;
+    },
+
+    getHost() {
+        return 'optisia.cz';
+        if (crudadmin.context) {
+            return crudadmin.context.req.headers.host;
+        } else if (typeof window == 'object') {
+            return window.location.host;
+        }
+    },
+
+    getDomainName() {
+        return (this.getHost() + '').split('.').pop();
+    },
+
+    getPath() {
+        if (crudadmin.context) {
+            return crudadmin.context.req.url;
+        } else if (typeof window == 'object') {
+            return window.location.pathname;
+        }
     },
 
     isEnabled() {
@@ -44,14 +48,8 @@ module.exports = {
     setLocalization(slug) {
         let storage = crudadmin.getStorage();
 
-        //We does not save default slug into storage.
-        //Because when we will be sending default storage as header and we dont do want that.
-        if (this.isDefaultLanguage(slug) === true) {
-            storage.removeUniversal(this.localizationKey);
-        }
-
         // Set slug if has been changed
-        else if (storage.getUniversal(this.localizationKey) !== slug) {
+        if (storage.getUniversal(this.localizationKey) !== slug) {
             storage.setUniversal(this.localizationKey, slug);
         }
 
@@ -59,16 +57,42 @@ module.exports = {
     },
 
     get(cache = true) {
-        let languages = this.all();
+        let languages = this.all(),
+            urlLang,
+            domainLang,
+            storageLang,
+            storageLangSlug = this.getSlugFromStorage();
 
+        //Cached language
         if (cache == true && this.languageSlug) {
             return _.find(languages, { slug: this.languageSlug });
         }
 
-        return (
-            _.find(languages, { slug: this.getSlugFromStorage() }) ||
-            languages[0]
-        );
+        //Get first segment, if it is valid language slug. we can return this value
+        let urlSlug = this.getValidUrlLangSegment();
+        if (urlSlug && (urlLang = _.find(languages, { slug: urlSlug }))) {
+            return urlLang;
+        }
+
+        //Get selected language from storage
+        if (
+            storageLangSlug &&
+            (storageLang = _.find(languages, { slug: storageLangSlug }))
+        ) {
+            return storageLang;
+        }
+
+        //Get language by domain name
+        let domainSlug = this.getValidDomainLangSegment();
+        if (
+            domainSlug &&
+            (domainLang = _.find(languages, { slug: domainSlug }))
+        ) {
+            return domainLang;
+        }
+
+        //Return default first language
+        return languages[0];
     },
 
     getSlugFromStorage() {
@@ -82,7 +106,14 @@ module.exports = {
     },
 
     all() {
-        return crudadmin.languages || [];
+        var languages = crudadmin.languages || [],
+            domainName = this.getDomainName();
+
+        languages = languages.sort((lang) => {
+            return lang.slug == domainName ? -1 : 1;
+        });
+
+        return languages;
     },
 
     isDefaultLanguage(slug) {
@@ -133,10 +164,21 @@ module.exports = {
         return routes;
     },
 
-    getValidLangSegment(path) {
+    getValidUrlLangSegment() {
+        let path = this.getPath(),
+            all = this.all();
+
         return [(path + '').split('/').filter((item) => item)[0]].filter(
-            (slug) => _.find(this.all(), { slug })
+            (slug) => _.find(all, { slug })
         )[0];
+    },
+
+    getValidDomainLangSegment() {
+        let all = this.all(),
+            domainName = this.getDomainName(),
+            domainLanguage = _.find(all, { slug: domainName });
+
+        return domainLanguage ? domainLanguage.slug : null;
     },
 
     getLocaleHeaders(obj = {}) {
