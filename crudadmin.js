@@ -125,7 +125,8 @@ const CrudAdmin = {
     bootStore(store, app) {
         this.store = store;
 
-        let data = this.response.store;
+        let data = this.response.data.store;
+
         if (!data || data.length == 0) {
             return;
         }
