@@ -19,7 +19,6 @@ module.exports = {
     },
 
     getHost() {
-        return 'optisia.cz';
         if (crudadmin.context) {
             return crudadmin.context.req.headers.host;
         } else if (typeof window == 'object') {
