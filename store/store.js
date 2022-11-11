@@ -98,10 +98,7 @@ const store = {
                 //Only positive numbers can be shown as prices
                 price = price < 0 && negative == false ? 0 : price;
 
-                let currencyChar =
-                    state.currency && typeof state.currency == 'object'
-                        ? state.currency.char
-                        : state.currency;
+                let currencyChar = state.currency.char;
 
                 return getters.numberFormat(price) + ' ' + currencyChar;
             },
