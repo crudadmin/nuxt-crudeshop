@@ -5,7 +5,7 @@ import { sumBy } from 'lodash';
 
 const currencyCode = () => {
     return (
-        $nuxt.$store.state.store.currency?.code || currencyCode()
+        ($nuxt.$store.state.store.currency || {}).code || currencyCode()
     ).toUpperCase();
 };
 
