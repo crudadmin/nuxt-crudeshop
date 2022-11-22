@@ -1,4 +1,5 @@
 const { buildQueryFromObject } = require('../utilities/FilterHelper');
+const Localization = require('crudeshop/utilities/Localization');
 const _ = require('lodash');
 
 const products = {
@@ -98,7 +99,11 @@ const products = {
                     },
                 },
                 //Build latest request data
-                latestRequest = { url, postData };
+                latestRequest = {
+                    url,
+                    postData,
+                    lang: (Localization.get() || {}).slug,
+                };
 
             //Disable fire duplicate requests.
             if (_.isEqual(state.latestRequest, latestRequest)) {
@@ -143,22 +148,24 @@ const products = {
         },
     },
     getters: {
-        getUrlWithParams: state => ({ url, query }) => {
-            url = url || state.defaultFetchRoute;
+        getUrlWithParams:
+            (state) =>
+            ({ url, query }) => {
+                url = url || state.defaultFetchRoute;
 
-            let obj = {};
+                let obj = {};
 
-            for (let key of state.whitelistedQueries) {
-                //Add whitelisted query from url, only when given url does not contain value already
-                if (query[key] && url.includes(key + '=') === false) {
-                    obj[key] = query[key];
+                for (let key of state.whitelistedQueries) {
+                    //Add whitelisted query from url, only when given url does not contain value already
+                    if (query[key] && url.includes(key + '=') === false) {
+                        obj[key] = query[key];
+                    }
                 }
-            }
 
-            url = url + (url.indexOf('?') > -1 ? '&' : '?');
+                url = url + (url.indexOf('?') > -1 ? '&' : '?');
 
-            return url + buildQueryFromObject(obj);
-        },
+                return url + buildQueryFromObject(obj);
+            },
     },
 };
 
