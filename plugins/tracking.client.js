@@ -1,24 +1,68 @@
 import Vue from 'vue';
 import VueGtag from 'vue-gtag';
 import CartItemModel from 'crudeshop/models/CartItem.js';
+import { sumBy } from 'lodash';
+
+const currencyCode = () => {
+    return (
+        $nuxt.$store.state.store.currency?.code || currencyCode()
+    ).toUpperCase();
+};
 
 const buildGa4ItemFromCartItem = (CartItem, quantity) => {
     CartItem = new CartItemModel(CartItem);
 
     let id = CartItem.id,
-        model = CartItem.getCartItem();
+        productOrVariant = CartItem.getCartItem(),
+        product = CartItem.getCartItem('product');
 
     return {
         item_id: CartItem.id,
-        item_name: model ? model.name : null,
-        item_variant: model ? model.attributesText : null,
-        price: model ? model.priceWithVat : null,
-        currency: 'EUR',
+        item_name: productOrVariant ? productOrVariant.name : null,
+        item_variant: productOrVariant ? productOrVariant.attributesText : null,
+        price: productOrVariant ? productOrVariant.priceWithVat : null,
+        currency: currencyCode(),
         quantity: _.isNil(quantity) ? CartItem.quantity : quantity,
+        ...$nuxt.$tracking.onProductModelItem(productOrVariant, product),
     };
 };
 
-export default async ({ app, store, $bus }) => {
+const sumByItems = (items) => {
+    return sumBy(items, (item) => item.price * (item.quantity || 1));
+};
+
+export default async ({ app, store, $bus }, inject) => {
+    inject('tracking', {
+        onProductModelItem: (productOrVariant, product) => {
+            let obj = {};
+
+            let categories = [];
+            try {
+                categories = product ? product.getCategoriesTree()[0] : [];
+
+                for (var i = 0; i < categories.length; i++) {
+                    obj['category' + (i == 0 ? '' : i + 1)] =
+                        categories[i].name;
+                }
+            } catch (e) {}
+
+            try {
+                obj = {
+                    ...obj,
+                    ...app.$tracking.buildProductItem(
+                        productOrVariant,
+                        product
+                    ),
+                };
+            } catch {}
+
+            return obj;
+        },
+        buildProductItem: (productOrVariant, product) => {
+            return {};
+        },
+    });
+
     Vue.use(
         VueGtag,
         {
@@ -31,16 +75,22 @@ export default async ({ app, store, $bus }) => {
     );
 
     $bus.$on('tracking/addToCart', ({ cartItem, quantity }) => {
+        let items = [buildGa4ItemFromCartItem(cartItem, quantity)];
+
         gtag('event', 'add_to_cart', {
-            currency: 'EUR',
-            items: [buildGa4ItemFromCartItem(cartItem, quantity)],
+            currency: currencyCode(),
+            value: sumByItems(items),
+            items,
         });
     });
 
     $bus.$on('tracking/removeFromCart', ({ cartItem, quantity }) => {
+        let items = [buildGa4ItemFromCartItem(cartItem, quantity)];
+
         gtag('event', 'remove_from_cart', {
-            currency: 'EUR',
-            items: [buildGa4ItemFromCartItem(cartItem, quantity)],
+            currency: currencyCode(),
+            value: sumByItems(items),
+            items,
         });
     });
 
@@ -50,9 +100,9 @@ export default async ({ app, store, $bus }) => {
         );
 
         gtag('event', 'begin_checkout', {
-            currency: 'EUR',
-            items: items,
+            currency: currencyCode(),
             value: store.state.cart.summary.priceWithVat,
+            items: items,
         });
     });
 
@@ -62,7 +112,7 @@ export default async ({ app, store, $bus }) => {
         );
 
         gtag('event', 'add_shipping_info', {
-            currency: 'EUR',
+            currency: currencyCode(),
             items: items,
             value: store.state.cart.summary.priceWithVat,
             shipping_tier: store.state.cart.selectedDelivery.name,
@@ -75,7 +125,7 @@ export default async ({ app, store, $bus }) => {
         );
 
         gtag('event', 'add_payment_info', {
-            currency: 'EUR',
+            currency: currencyCode(),
             items: items,
             value: store.state.cart.summary.priceWithVat,
             payment_type: store.state.cart.selectedPaymentMethod.name,
@@ -88,7 +138,7 @@ export default async ({ app, store, $bus }) => {
         );
 
         gtag('event', 'purchase', {
-            currency: 'EUR',
+            currency: currencyCode(),
             transaction_id: order.id,
             items: items,
             value: order.price_vat,
@@ -103,12 +153,18 @@ export default async ({ app, store, $bus }) => {
     $bus.$on('tracking/productDetail', ({ product, productOrVariant }) => {
         dataLayer.push({
             event: 'view_item',
+            currency: currencyCode(),
+            value: productOrVariant.priceWithVat,
             items: [
                 {
                     item_id: productOrVariant.id,
                     item_name: productOrVariant.name,
-                    currency: 'EUR',
+                    currency: currencyCode(),
                     price: productOrVariant.priceWithVat,
+                    ...app.$tracking.onProductModelItem(
+                        productOrVariant,
+                        product
+                    ),
                 },
             ],
         });

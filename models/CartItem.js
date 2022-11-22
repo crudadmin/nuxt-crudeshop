@@ -24,7 +24,7 @@ class CartItem extends Model {
                       identifier: this.parentIdentifier.identifier,
                   }).getItemKey()
                 : null,
-        ].filter(item => item || 0);
+        ].filter((item) => item || 0);
 
         return key.join('-');
     }
@@ -44,11 +44,11 @@ class CartItem extends Model {
         );
     }
 
-    getCartItem() {
+    getCartItem(key = null) {
         let identifier = this.getIdentifier();
 
         if (identifier) {
-            return identifier.getCartItem(this);
+            return identifier.getCartItem(this, key);
         }
     }
 
@@ -108,7 +108,7 @@ class CartItem extends Model {
     getAssignedItems() {
         let items = crudadmin.store.getters['cart/getCartItems']();
 
-        return items.filter(item => {
+        return items.filter((item) => {
             return this.isCartItemParent(item);
         });
     }

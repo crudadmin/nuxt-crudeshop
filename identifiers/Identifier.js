@@ -1,5 +1,9 @@
 class Identifier {
-    getCartItem(cartItem) {
+    getCartItem(cartItem, key = null) {
+        if (key && cartItem[key]) {
+            return cartItem[key];
+        }
+
         for (var key in this.identifierKeys()) {
             if (cartItem[key]) {
                 return cartItem[key];
