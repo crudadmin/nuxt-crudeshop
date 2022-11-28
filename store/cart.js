@@ -15,6 +15,7 @@ var cartStore = {
 
     state() {
         return {
+            data: {},
             initialized: false,
             items: [],
             itemsHidden: [],
@@ -37,6 +38,8 @@ var cartStore = {
 
     mutations: {
         setCart(state, cart) {
+            state.data = cart;
+
             //We can mutate this variable from outside
             for (var key in cart) {
                 if (key in state) {

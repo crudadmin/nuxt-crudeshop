@@ -57,11 +57,35 @@ var storeMixin = {
         },
 
         async fetchStoreSession(callback, full = false) {
+            const onCartFetch = (data) => {
+                //Authenticate logged client and cart identification
+                if (data.client) {
+                    this.setClient(data.client);
+                }
+
+                //If user is not logged anymore, we need logout him. Otherwise errors may occur.
+                else if ('client' in data && this.$auth.loggedIn) {
+                    this.$auth.logout();
+                }
+
+                //Set cart summary data
+                if (data.favourites) {
+                    this.$store.commit('store/setFavourites', data.favourites);
+                }
+
+                //other data
+                //...
+
+                if (callback && typeof callback == 'function') {
+                    callback(data);
+                }
+            };
+
             //If cart is fully fetched, we does noot need to fetch again in cart.
             //This will result receiving of wrong summary data.
             //Cart may be fetched during validation process.
             if (this.$store.state.cart.initialized === true && full !== true) {
-                return;
+                return onCartFetch(this.$store.state.cart.data);
             }
 
             // prettier-ignore
@@ -70,30 +94,10 @@ var storeMixin = {
                 }),
                 data = data.data;
 
-            //Authenticate logged client and cart identification
-            if (data.client) {
-                this.setClient(data.client);
-            }
-
-            //If user is not logged anymore, we need logout him. Otherwise errors may occur.
-            else if (this.$auth.loggedIn) {
-                this.$auth.logout();
-            }
+            onCartFetch(data);
 
             this.$crudadmin.setCartToken(data.cartToken);
             this.$store.commit('cart/setCart', data);
-
-            //other data
-            //...
-
-            //Set cart summary data
-            if (data.favourites) {
-                this.$store.commit('store/setFavourites', data.favourites);
-            }
-
-            if (callback && typeof callback == 'function') {
-                callback(data);
-            }
         },
         fromCategoriesTreeToRoute(name, category, level) {
             let index = _.findIndex(level, { id: category.id });

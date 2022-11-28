@@ -1,5 +1,5 @@
 const { buildQueryFromObject } = require('../utilities/FilterHelper');
-const Localization = require('crudeshop/utilities/Localization');
+const Localization = require('../utilities/Localization');
 const _ = require('lodash');
 
 const products = {
