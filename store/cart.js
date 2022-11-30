@@ -15,8 +15,9 @@ var cartStore = {
 
     state() {
         return {
-            data: {},
             initialized: false,
+            data: {},
+            cartToken: null,
             items: [],
             itemsHidden: [],
             discounts: [],
@@ -25,6 +26,7 @@ var cartStore = {
             deliveries: [],
             paymentMethods: [],
             selectedDelivery: null,
+            selectedDeliveryData: null,
             selectedLocation: null,
             selectedCountry: null,
             selectedPaymentMethod: null,
@@ -237,12 +239,15 @@ var cartStore = {
             });
         },
         async setDelivery({ commit, dispatch, state }, object) {
-            let location_id, id;
+            let location_id,
+                id,
+                deliveryData = undefined;
 
             //If object is
             if (object && typeof object === 'object') {
                 id = object.id;
                 location_id = object.location_id;
+                deliveryData = object.data;
             } else {
                 id = object;
             }
@@ -251,6 +256,11 @@ var cartStore = {
                 delivery_id: id || null,
                 location_id: location_id || null,
             };
+
+            //Add delivery data
+            if (deliveryData !== undefined) {
+                obj.data = deliveryData;
+            }
 
             try {
                 var { data } = await this.$axios.$post(
@@ -437,6 +447,26 @@ var cartStore = {
         },
         getPaymentMethods: (state) => {
             return state.paymentMethods.map((item) => new PaymentMethod(item));
+        },
+        getDeliveryPointName: (state, getters) => (delivery) => {
+            let name;
+
+            if (getters.isSelectedDelivery(delivery)) {
+                //multiple Locations
+                if (state.selectedLocation) {
+                    name = state.selectedLocation.name;
+                }
+
+                //Packeta
+                if (
+                    delivery.shippingProvider &&
+                    delivery.shippingProvider.point
+                ) {
+                    name = delivery.shippingProvider.point.name;
+                }
+            }
+
+            return name ? ' - ' + name : '';
         },
     },
 };
