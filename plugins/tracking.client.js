@@ -41,7 +41,7 @@ export default async ({ app, store, $bus }, inject) => {
                 categories = product ? product.getCategoriesTree()[0] : [];
 
                 for (var i = 0; i < categories.length; i++) {
-                    obj['category' + (i == 0 ? '' : i + 1)] =
+                    obj['item_category' + (i == 0 ? '' : i + 1)] =
                         categories[i].name;
                 }
             } catch (e) {}
@@ -94,12 +94,12 @@ export default async ({ app, store, $bus }, inject) => {
         });
     });
 
-    $bus.$on('tracking/beginPurchase', () => {
+    $bus.$on('tracking/beginPurchase', (stepName) => {
         let items = store.state.cart.items.map((cartItem) =>
             buildGa4ItemFromCartItem(cartItem)
         );
 
-        gtag('event', 'begin_checkout', {
+        gtag('event', stepName || 'begin_checkout', {
             currency: currencyCode(),
             value: store.state.cart.summary.priceWithVat,
             items: items,
