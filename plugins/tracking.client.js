@@ -33,18 +33,23 @@ const sumByItems = (items) => {
 
 export default async ({ app, store, $bus }, inject) => {
     inject('tracking', {
+        getProductCategories: (product) => {
+            return product ? product.getCategoriesTree()[0] : [];
+        },
         onProductModelItem: (productOrVariant, product) => {
             let obj = {};
 
             let categories = [];
             try {
-                categories = product ? product.getCategoriesTree()[0] : [];
+                categories = app.$tracking.getProductCategories(product);
 
                 for (var i = 0; i < categories.length; i++) {
                     obj['item_category' + (i == 0 ? '' : i + 1)] =
                         categories[i].name;
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.error(e);
+            }
 
             try {
                 obj = {
