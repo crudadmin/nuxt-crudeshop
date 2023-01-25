@@ -19,11 +19,15 @@ module.exports = {
     },
 
     getHost() {
+        let host = '';
+
         if (crudadmin.context) {
-            return crudadmin.context.req.headers.host;
+            host = crudadmin.context.req.headers.host;
         } else if (typeof window == 'object') {
-            return window.location.host;
+            host = window.location.host;
         }
+
+        return host.split(':')[0];
     },
 
     getDomainName() {
@@ -58,7 +62,6 @@ module.exports = {
     get(cache = true) {
         let languages = this.all(),
             urlLang,
-            domainLang,
             storageLang,
             storageLangSlug = this.getSlugFromStorage();
 
@@ -82,11 +85,8 @@ module.exports = {
         }
 
         //Get language by domain name
-        let domainSlug = this.getValidDomainLangSegment();
-        if (
-            domainSlug &&
-            (domainLang = _.find(languages, { slug: domainSlug }))
-        ) {
+        let domainLang = this.getValidDomainLang();
+        if (domainLang) {
             return domainLang;
         }
 
@@ -106,10 +106,11 @@ module.exports = {
 
     all() {
         var languages = crudadmin.languages || [],
-            domainName = this.getDomainName();
+            domainName = this.getDomainName(),
+            host = this.getHost();
 
         languages = languages.sort((lang) => {
-            return lang.slug == domainName ? -1 : 1;
+            return lang.domain == host || lang.slug == domainName ? -1 : 1;
         });
 
         return languages;
@@ -172,12 +173,14 @@ module.exports = {
         )[0];
     },
 
-    getValidDomainLangSegment() {
+    getValidDomainLang() {
         let all = this.all(),
             domainName = this.getDomainName(),
-            domainLanguage = _.find(all, { slug: domainName });
+            domainLanguage =
+                _.find(all, { domain: this.getHost() }) ||
+                _.find(all, { slug: domainName });
 
-        return domainLanguage ? domainLanguage.slug : null;
+        return domainLanguage;
     },
 
     getLocaleHeaders(obj = {}) {
