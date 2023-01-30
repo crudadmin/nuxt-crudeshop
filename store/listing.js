@@ -1,6 +1,6 @@
-const { buildQueryFromObject } = require('../utilities/FilterHelper');
-const Localization = require('../utilities/Localization');
-const _ = require('lodash');
+import { buildQueryFromObject } from '../utilities/FilterHelper';
+import Localization from '../utilities/Localization';
+import _ from 'lodash';
 
 const products = {
     namespaced: true,
@@ -169,4 +169,4 @@ const products = {
     },
 };
 
-module.exports = products;
+export default products;

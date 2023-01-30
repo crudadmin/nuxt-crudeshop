@@ -1,6 +1,7 @@
-import Vue from 'vue';
-import CrudAdmin from 'crudeshop';
-import Localization from 'crudeshop/utilities/Localization';
+import { defineNuxtPlugin } from '#app';
+
+import CrudAdmin from '../crudadmin';
+import Localization from '../utilities/Localization';
 
 const gettextSelectors = [
     '__',
@@ -22,7 +23,7 @@ const gettextSelectors = [
 ];
 
 //Install all translation helpers
-const installTranslator = async () => {
+const installTranslator = async (vueApp) => {
     var a = await CrudAdmin.getTranslator(),
         getSelector = function (selector) {
             return function () {
@@ -32,13 +33,17 @@ const installTranslator = async () => {
             };
         };
 
-    Vue.use({
+    vueApp.use({
         install: (Vue, options) => {
+            let methods = {};
+
             for (var i = 0; i < gettextSelectors.length; i++) {
-                Vue.prototype[gettextSelectors[i]] = getSelector(
-                    gettextSelectors[i]
-                );
+                methods[gettextSelectors[i]] = getSelector(gettextSelectors[i]);
             }
+
+            vueApp.mixin({
+                methods: methods,
+            });
         },
     });
 };
@@ -68,12 +73,16 @@ const languageRedirector = (route, redirect) => {
     }
 };
 
-export default async ({ route, redirect }, inject) => {
-    await installTranslator();
-
-    inject('translator', await CrudAdmin.getTranslator());
+export default defineNuxtPlugin(async ({ route, redirect, vueApp, hook }) => {
+    await installTranslator(vueApp);
 
     if (Localization.isEnabled()) {
         languageRedirector(route, redirect);
     }
-};
+
+    return {
+        provide: {
+            translator: await CrudAdmin.getTranslator(),
+        },
+    };
+});

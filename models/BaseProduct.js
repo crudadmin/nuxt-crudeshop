@@ -1,15 +1,15 @@
-const _ = require('lodash');
-const crudadmin = require('../crudadmin');
-const Attribute = require('./Attribute');
-const Model = require('./Model');
+import _ from 'lodash';
+import crudadmin from '../crudadmin';
+import Attribute from './Attribute';
+import Model from './Model';
 
-class BaseProduct extends Model {
+export default class BaseProduct extends Model {
     constructor(rawObject) {
         super(rawObject);
 
         if (this.attributesList) {
             this.attributesList = this.attributesList.map(
-                attr => new Attribute(attr)
+                (attr) => new Attribute(attr)
             );
         }
     }
@@ -89,7 +89,7 @@ class BaseProduct extends Model {
      */
     hasExactAttributeItem(id) {
         return _.find(
-            this.getAttributesList().map(attribute => attribute.items[0]),
+            this.getAttributesList().map((attribute) => attribute.items[0]),
             { id }
         )
             ? true
@@ -103,7 +103,7 @@ class BaseProduct extends Model {
     hasAnyAttributeItem(id) {
         return _.find(
             _.flatten(
-                this.getAttributesList().map(attribute => attribute.items)
+                this.getAttributesList().map((attribute) => attribute.items)
             ),
             { id }
         )
@@ -179,5 +179,3 @@ class BaseProduct extends Model {
         return this.stock_quantity;
     }
 }
-
-module.exports = BaseProduct;

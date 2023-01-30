@@ -1,6 +1,6 @@
-const { mapState, mapActions, mapMutations, mapGetters } = require('vuex');
-const _ = require('lodash');
-const { hasAttributesChanged } = require('../utilities/FilterHelper.js');
+import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
+import _ from 'lodash';
+import { hasAttributesChanged } from '../utilities/FilterHelper.js';
 
 //From which route should we fetch products by default on attribute filter change
 const config = {
@@ -62,7 +62,7 @@ const listingAsyncData = async ({ route, $axios, $action, store, error }, callba
     }
 };
 
-module.exports = {
+export default {
     config,
     fetchListing,
     listingAsyncData,

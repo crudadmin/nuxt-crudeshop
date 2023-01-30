@@ -1,4 +1,4 @@
-const _ = require('lodash');
+import _ from 'lodash';
 
 const buildAttributesFromState = (filter, attributes) => {
     let query = {};
@@ -12,7 +12,7 @@ const buildAttributesFromState = (filter, attributes) => {
             let value = filter[attrId];
 
             if (_.isArray(value)) {
-                let queryString = _.uniq(value.map(id => parseInt(id))).join(
+                let queryString = _.uniq(value.map((id) => parseInt(id))).join(
                     ','
                 );
 
@@ -41,7 +41,7 @@ const buildAttributesFromQuery = (attributes, query) => {
         let attribute = _.find(attributes, { slug: key });
 
         if (attribute) {
-            let values = (query[key] + '').split(',').map(id => parseInt(id));
+            let values = (query[key] + '').split(',').map((id) => parseInt(id));
 
             filterObject[attribute.id] =
                 values.length == 1 ? values[0] : values;
@@ -51,10 +51,10 @@ const buildAttributesFromQuery = (attributes, query) => {
     return filterObject;
 };
 
-const buildQueryFromObject = params => {
+const buildQueryFromObject = (params) => {
     var esc = encodeURIComponent;
     var query = Object.keys(params)
-        .map(k => esc(k) + '=' + esc(params[k]))
+        .map((k) => esc(k) + '=' + esc(params[k]))
         .join('&');
 
     return query;
@@ -72,7 +72,7 @@ const hasAttributesChanged = (attributes, newQuery, oldQuery) => {
     return false;
 };
 
-const castAndSortFilterKeys = object => {
+const castAndSortFilterKeys = (object) => {
     if (typeof object != 'object') {
         return object;
     }
@@ -98,14 +98,14 @@ const queryBuilder = {
             let priceRange = (value + '')
                 .split(',')
                 .slice(0, 2)
-                .map(price => parseFloat(price));
+                .map((price) => parseFloat(price));
 
             commit('setPriceRange', priceRange);
         },
         get({ state, getters }) {
             if (
                 getters.isChangedPriceRange &&
-                state.priceRange.filter(item => item).length
+                state.priceRange.filter((item) => item).length
             ) {
                 return state.priceRange.join(',');
             }
@@ -125,20 +125,20 @@ const queryBuilder = {
 
             let priceRanges = (value + '')
                 .split(';')
-                .map(range =>
+                .map((range) =>
                     range
                         .split(',')
-                        .filter(item => item)
-                        .map(item => parseFloat(item))
+                        .filter((item) => item)
+                        .map((item) => parseFloat(item))
                 )
-                .filter(item => item.length);
+                .filter((item) => item.length);
 
             commit('setMultiplePriceRanges', priceRanges);
         },
         get({ state, getters }) {
             if (state.multiplePriceRanges.length) {
                 return state.multiplePriceRanges
-                    .map(range => range.join(','))
+                    .map((range) => range.join(','))
                     .join(';');
             }
         },
@@ -180,7 +180,7 @@ const queryBuilder = {
     },
 };
 
-module.exports = {
+export default {
     buildAttributesFromState,
     buildAttributesFromQuery,
     queryBuilder,

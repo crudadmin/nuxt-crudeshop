@@ -1,6 +1,6 @@
-const _ = require('lodash');
-const crudadmin = require('../crudadmin');
-const Model = require('./Model');
+import _ from 'lodash';
+import crudadmin from '../crudadmin';
+import Model from './Model';
 
 class Discount extends Model {
     constructor(rawObject) {
@@ -45,4 +45,4 @@ class Discount extends Model {
     }
 }
 
-module.exports = Discount;
+export default Discount;

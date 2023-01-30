@@ -1,8 +1,8 @@
-const https = require('https');
-const crudadmin = require('../crudadmin.js');
-const Localization = require('./Localization.js');
+import https from 'https';
+import crudadmin from '../crudadmin.js';
+import Localization from './Localization.js';
 
-module.exports = ($axios) => {
+export default ($axios) => {
     //Allow self signed https for development purposes
     $axios.defaults['httpsAgent'] = new https.Agent({
         rejectUnauthorized: false,

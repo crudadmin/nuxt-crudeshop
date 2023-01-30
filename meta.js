@@ -1,6 +1,6 @@
-const _ = require('lodash');
-const { bindModelMeta } = require('./utilities/meta.js');
-const crudadmin = require('./crudadmin.js');
+import _ from 'lodash';
+import { bindModelMeta } from './utilities/meta.js';
+import crudadmin from './crudadmin.js';
 
 const getActualSeoRoute = (route) => {
     if (crudadmin.seoRoutes.length == 0 || !route) {
@@ -22,7 +22,7 @@ const getActualSeoRoute = (route) => {
     }
 };
 
-module.exports = (models, route, properties = {}) => {
+export default (models, route, properties = {}) => {
     var options = {
         title: '',
         meta: [],

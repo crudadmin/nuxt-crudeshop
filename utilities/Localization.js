@@ -1,7 +1,7 @@
-const _ = require('lodash');
-const crudadmin = require('../crudadmin.js');
+import _ from 'lodash';
+import crudadmin from '../crudadmin.js';
 
-module.exports = {
+export default {
     languageSlug: null,
 
     localizationKey: 'localization',

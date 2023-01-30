@@ -1,11 +1,11 @@
-const _ = require('lodash');
+import _ from 'lodash';
 
 /**
  * If matched attributes has been found in all variants.
  * We want filter items out of each attribute in synchronious order,
  * if previously selected attribute items does not exists in actual attribute item list.
  */
-const filterUnexistingConfiguredAttributeItems = (
+export const filterUnexistingConfiguredAttributeItems = (
     sharedAttributes,
     product,
     productOrVariant
@@ -20,7 +20,7 @@ const filterUnexistingConfiguredAttributeItems = (
             );
 
             availableSelectableVariants = availableSelectableVariants.filter(
-                variant =>
+                (variant) =>
                     _.find(
                         variant.getAttributeItems(previousAttributes[i].id),
                         { id: selectedItemId }
@@ -28,16 +28,12 @@ const filterUnexistingConfiguredAttributeItems = (
             );
         }
 
-        attribute.items = attribute.items.filter(item => {
+        attribute.items = attribute.items.filter((item) => {
             return (
-                availableSelectableVariants.filter(variant =>
+                availableSelectableVariants.filter((variant) =>
                     variant.hasAttributeItem(item.id)
                 ).length > 0
             );
         });
     });
-};
-
-module.exports = {
-    filterUnexistingConfiguredAttributeItems,
 };

@@ -1,8 +1,8 @@
-const Translator = require('gettext-translator').default;
-const cartToken = require('./utilities/cartToken');
-const axiosMutator = require('./utilities/axiosMutator');
+import Translator from 'gettext-translator';
+import cartToken from './utilities/cartToken';
+import axiosMutator from './utilities/axiosMutator';
 
-const CrudAdmin = {
+export default {
     booted: false,
 
     $axios: null,
@@ -154,5 +154,3 @@ const CrudAdmin = {
         cartToken.refreshToken(this.getStorage(), token);
     },
 };
-
-module.exports = CrudAdmin;

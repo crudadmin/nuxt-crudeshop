@@ -1,20 +1,18 @@
-const _ = require('lodash');
-const crudadmin = require('../crudadmin');
-const BaseProduct = require('./BaseProduct');
-const ProductsVariant = require('./ProductsVariant');
-const Attribute = require('./Attribute');
-const {
-    filterUnexistingConfiguredAttributeItems,
-} = require('../utilities/ProductHelper.js');
+import _ from 'lodash';
+import crudadmin from '../crudadmin.js';
+import BaseProduct from './BaseProduct';
+import ProductsVariant from './ProductsVariant';
+import Attribute from './Attribute';
+import { filterUnexistingConfiguredAttributeItems } from '../utilities/ProductHelper.js';
 
-class Product extends BaseProduct {
+export default class Product extends BaseProduct {
     constructor(rawObject) {
         super(rawObject);
 
         //Cast also product variants if are available
         if (this.isType('variants') && this.variants) {
             this.variants = this.variants.map(
-                variant => new ProductsVariant(variant)
+                (variant) => new ProductsVariant(variant)
             );
         }
     }
@@ -25,7 +23,7 @@ class Product extends BaseProduct {
      */
     getVariantsKey() {
         return [this.id]
-            .concat((this.variants || []).map(variant => variant.id))
+            .concat((this.variants || []).map((variant) => variant.id))
             .join('-');
     }
 
@@ -40,7 +38,7 @@ class Product extends BaseProduct {
     priceFormatWithCheapestVariant(key) {
         if (this.isType('variants')) {
             let cheapestPrice = _.uniqBy(
-                _.sortBy(this.variants.map(variant => variant[key]))
+                _.sortBy(this.variants.map((variant) => variant[key]))
             );
 
             //If multiple prices are available, show from price
@@ -70,7 +68,7 @@ class Product extends BaseProduct {
     getCategoriesTree() {
         let trees = [];
 
-        const buildTreeLevels = parentId => {
+        const buildTreeLevels = (parentId) => {
             let levels = [];
 
             for (let category of _.filter(this.categories, {
@@ -87,7 +85,7 @@ class Product extends BaseProduct {
         for (let category of _.filter(this.categories, { category_id: null })) {
             let treeLevel = [category.id].concat(buildTreeLevels(category.id));
 
-            trees.push(treeLevel.map(id => _.find(this.categories, { id })));
+            trees.push(treeLevel.map((id) => _.find(this.categories, { id })));
         }
 
         return trees;
@@ -124,7 +122,7 @@ class Product extends BaseProduct {
      */
 
     hasAllVariantsAttribute(attribute_id) {
-        let variantsWithSizes = this.variants.filter(variant => {
+        let variantsWithSizes = this.variants.filter((variant) => {
             return variant.getAttribute(attribute_id);
         });
 
@@ -148,28 +146,28 @@ class Product extends BaseProduct {
         let allAttributes = _.cloneDeep(
                 isVariant
                     ? _.flatten(
-                          this.variants.map(variant => variant.attributesList)
+                          this.variants.map((variant) => variant.attributesList)
                       )
                     : this.attributesList
             ),
             sharedAttributes = _.uniqBy(allAttributes, 'id')
-                .filter(attribute => attribute.variants == true)
-                .filter(attribute =>
+                .filter((attribute) => attribute.variants == true)
+                .filter((attribute) =>
                     isVariant
-                        ? this.variants.filter(variant =>
+                        ? this.variants.filter((variant) =>
                               _.find(variant.attributesList, {
                                   id: attribute.id,
                               })
                           ).length == this.variants.length
                         : true
                 )
-                .map(attribute => {
+                .map((attribute) => {
                     let sharedAttr = new Attribute(_.cloneDeep(attribute));
 
                     sharedAttr.items = _.uniqBy(
                         _.filter(allAttributes, {
                             id: attribute.id,
-                        }).map(attr => attr.items[0]),
+                        }).map((attr) => attr.items[0]),
                         'id'
                     );
 
@@ -179,7 +177,7 @@ class Product extends BaseProduct {
         //Filter out attributes with only one item. we does not want show this attribute in switch
         if (withoutOneItem == true) {
             sharedAttributes = sharedAttributes.filter(
-                attribute => attribute.items.length > 1
+                (attribute) => attribute.items.length > 1
             );
         }
 
@@ -200,12 +198,12 @@ class Product extends BaseProduct {
             return this;
         }
 
-        let variantsWithGivenItem = this.variants.filter(variant =>
+        let variantsWithGivenItem = this.variants.filter((variant) =>
             variant.hasExactAttributeItem(item.id)
         );
 
         let variantAttributesExceptGiven = this.getVariantsAttributes().filter(
-            attribute => attribute.id != item.attribute_id
+            (attribute) => attribute.id != item.attribute_id
         );
 
         let filtratedVariants = variantsWithGivenItem;
@@ -215,7 +213,7 @@ class Product extends BaseProduct {
                 continue;
             }
 
-            let filtrated = filtratedVariants.filter(variant =>
+            let filtrated = filtratedVariants.filter((variant) =>
                 variant.hasExactAttributeItem(
                     actualVariant.getAttributeItemId(attribute.id)
                 )
@@ -238,5 +236,3 @@ class Product extends BaseProduct {
         return filtratedVariants[0];
     }
 }
-
-module.exports = Product;

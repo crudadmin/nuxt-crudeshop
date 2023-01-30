@@ -1,10 +1,10 @@
-const CrudAdmin = require('../crudadmin.js');
-const CartItem = require('../models/CartItem.js');
-const Discount = require('../models/Discount.js');
-const Delivery = require('../models/Delivery.js');
-const PaymentMethod = require('../models/PaymentMethod.js');
-const Model = require('../models/Model.js');
-const _ = require('lodash');
+import CrudAdmin from '../crudadmin.js';
+import CartItem from '../models/CartItem.js';
+import Discount from '../models/Discount.js';
+import Delivery from '../models/Delivery.js';
+import PaymentMethod from '../models/PaymentMethod.js';
+import Model from '../models/Model.js';
+import _ from 'lodash';
 
 const getIdentifierFromObject = (object) => {
     return CrudAdmin.identifiers[object.identifier || 'products'];
@@ -471,4 +471,4 @@ var cartStore = {
     },
 };
 
-module.exports = cartStore;
+export default cartStore;

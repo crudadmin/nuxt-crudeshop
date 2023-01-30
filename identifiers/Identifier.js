@@ -41,4 +41,4 @@ class Identifier {
     }
 }
 
-module.exports = Identifier;
+export default Identifier;

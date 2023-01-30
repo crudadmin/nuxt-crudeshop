@@ -1,67 +1,24 @@
-import { relative, resolve, basename, join } from 'path';
-import { existsSync, writeFileSync } from 'fs';
-import sitemapGenerator from './utilities/sitemap.js';
+import { defineNuxtModule } from '@nuxt/kit';
 
-export default function(moduleOptions) {
-    [
-        //Register these modules
-        'plugins/store.js',
-        'plugins/translator.js',
-        'plugins/action.js',
-        'plugins/bootstrap.js',
-        'plugins/plugin.js',
-        'plugins/bus.js',
-        moduleOptions.tracking ? 'plugins/tracking.client.js' : null,
-        'mixins/auth.mixin.js',
-        'mixins/store.mixin.js',
-        'middleware/authenticableMiddleware.js',
-    ]
-        .filter(item => item)
-        .reverse()
-        .forEach(plugin => {
-            this.addPlugin({
-                src: resolve(__dirname, plugin),
-                fileName: join('crudeshop', basename(plugin)),
-            });
-        });
+import {
+    addTranslatableRoutes,
+    addCustomRouter,
+} from './utilities/initialize/routes.js';
+import { addSitemap } from './utilities/initialize/sitemap.js';
+import { addPlugins } from './utilities/initialize/plugins.js';
 
-    // Rewrite default router with crudadmin router
-    this.addPlugin({
-        src: resolve(__dirname, './templates/router.js'),
-        fileName: 'router.js',
-    });
+export default defineNuxtModule({
+    // Default configuration options for your module
+    defaults: {},
+    hooks: {},
+    async setup(moduleOptions, nuxt) {
+        addPlugins(nuxt, moduleOptions);
 
-    // Put default router as .nuxt/defaultRouter.js
-    let defaultRouter = require.resolve('@nuxt/vue-app/template/router');
-    this.addTemplate({
-        fileName: 'defaultRouter.js',
-        src: defaultRouter,
-    });
+        addCustomRouter(nuxt, moduleOptions);
 
-    //Generate routes translations
-    this.nuxt.hook('build:done', builder => {
-        var routes = [];
+        addTranslatableRoutes(nuxt);
 
-        for (var key in builder.routes) {
-            routes.push("__('" + builder.routes[key].path + "')");
-        }
-
-        const extraFilePath = join(
-            builder.nuxt.options.buildDir + '/crudeshop/',
-            'crudadmin_routes.js'
-        );
-
-        var routesString = routes.join(', ');
-
-        writeFileSync(extraFilePath, `{ routes: [${routesString}] }`);
-    });
-
-    if (moduleOptions.sitemap) {
-        this.options.sitemap = {
-            hostname: this.options.env.baseUrl,
-            routes: () => {
-                return sitemapGenerator();
-            },
-        };
-    }
-}
+        //Refactor
+        addSitemap(nuxt, moduleOptions);
+    },
+});

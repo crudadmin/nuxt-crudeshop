@@ -1,6 +1,6 @@
-const _ = require('lodash');
-const crudadmin = require('../crudadmin');
-const Model = require('./Model');
+import _ from 'lodash';
+import crudadmin from '../crudadmin';
+import Model from './Model';
 
 class Delivery extends Model {
     constructor(rawObject) {

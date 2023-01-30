@@ -1,6 +1,6 @@
-const _ = require('lodash');
-const crudadmin = require('../crudadmin');
-const Model = require('./Model');
+import _ from 'lodash';
+import crudadmin from '../crudadmin';
+import Model from './Model';
 
 class PaymentMethod extends Model {
     constructor(rawObject) {
@@ -18,4 +18,4 @@ class PaymentMethod extends Model {
     }
 }
 
-module.exports = PaymentMethod;
+export default PaymentMethod;

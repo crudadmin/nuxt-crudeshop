@@ -1,6 +1,6 @@
-const Product = require('../models/Product');
-const ProductsVariant = require('../models/ProductsVariant');
-const Identifier = require('./Identifier');
+import Product from '../models/Product';
+import ProductsVariant from '../models/ProductsVariant';
+import Identifier from './Identifier';
 
 class ProductIdentifier extends Identifier {
     identifierKeys() {
@@ -46,4 +46,4 @@ class ProductIdentifier extends Identifier {
     }
 }
 
-module.exports = ProductIdentifier;
+export default ProductIdentifier;

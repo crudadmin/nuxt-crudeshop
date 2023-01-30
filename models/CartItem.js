@@ -1,7 +1,7 @@
-const _ = require('lodash');
-const crudadmin = require('../crudadmin');
+import _ from 'lodash';
+import crudadmin from '../crudadmin';
 
-const Model = require('./Model');
+import Model from './Model';
 
 class CartItem extends Model {
     constructor(rawObject) {
@@ -114,4 +114,4 @@ class CartItem extends Model {
     }
 }
 
-module.exports = CartItem;
+export default CartItem;

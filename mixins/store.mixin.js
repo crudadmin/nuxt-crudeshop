@@ -1,6 +1,7 @@
+import { defineNuxtPlugin } from '#app';
 import { mapGetters, mapState } from 'vuex';
-import Vue from 'vue';
-import Product from 'crudeshop/models/Product.js';
+
+import Product from '../models/Product.js';
 import _ from 'lodash';
 
 var storeMixin = {
@@ -119,4 +120,6 @@ var storeMixin = {
     },
 };
 
-Vue.mixin(storeMixin);
+export default defineNuxtPlugin((nuxtApp) => {
+    nuxtApp.vueApp.mixin(storeMixin);
+});

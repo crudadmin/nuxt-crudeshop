@@ -1,4 +1,4 @@
-const _ = require('lodash');
+import _ from 'lodash';
 
 class Model {
     constructor(rawObject) {
@@ -20,7 +20,7 @@ class Model {
                 this[key] instanceof Model ? this[key].getData() : this[key];
 
             if (_.isArray(objectValue)) {
-                objectValue = objectValue.map(arrayValue =>
+                objectValue = objectValue.map((arrayValue) =>
                     arrayValue instanceof Model
                         ? arrayValue.getData()
                         : arrayValue
@@ -34,4 +34,4 @@ class Model {
     }
 }
 
-module.exports = Model;
+export default Model;

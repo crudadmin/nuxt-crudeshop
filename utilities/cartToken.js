@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     cartKey: 'cart_token',
 
     refreshToken(storage, token) {

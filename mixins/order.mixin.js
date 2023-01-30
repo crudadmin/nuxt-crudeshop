@@ -31,7 +31,7 @@ const redirectIfCartIsNotValid = async ({ app, step, goTo }) => {
     }
 };
 
-module.exports = {
+export default {
     redirectIfCartIsNotValid,
     methods: {
         processOrder(response, { callback, successWithoutCallback }) {

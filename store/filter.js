@@ -1,14 +1,14 @@
-const _ = require('lodash');
-const Vue = require('vue').default;
+import _ from 'lodash';
+import Vue from 'vue';
 
-const Attribute = require('../models/Attribute.js');
+import Attribute from '../models/Attribute.js';
 
-const {
+import {
     buildAttributesFromState,
     buildAttributesFromQuery,
     queryBuilder,
     castAndSortFilterKeys,
-} = require('../utilities/FilterHelper.js');
+} from '../utilities/FilterHelper.js';
 
 var filterTimeout;
 
@@ -473,4 +473,4 @@ const store = {
     },
 };
 
-module.exports = store;
+export default store;

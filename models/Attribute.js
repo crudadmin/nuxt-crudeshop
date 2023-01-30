@@ -1,11 +1,11 @@
-const _ = require('lodash');
-const crudadmin = require('../crudadmin');
-const Model = require('./Model');
+import _ from 'lodash';
+import crudadmin from '../crudadmin';
+import Model from './Model';
 
 // prettier-ignore
 const internationalSizes = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '4XL', '5XL', '6XL', '7XL', '8XL', '9XL'];
 
-class Attribute extends Model {
+export default class Attribute extends Model {
     constructor(rawObject) {
         super(rawObject);
     }
@@ -18,11 +18,11 @@ class Attribute extends Model {
         let isDesc = ['desc'].indexOf(this.sortby) > -1,
             isInternationalSizes =
                 this.items
-                    .map(item => item.name)
-                    .filter(item => internationalSizes.indexOf(item) > -1)
+                    .map((item) => item.name)
+                    .filter((item) => internationalSizes.indexOf(item) > -1)
                     .length == this.items.length;
 
-        const compareValue = item => {
+        const compareValue = (item) => {
             //Sort by international size number value
             if (isInternationalSizes) {
                 return internationalSizes.indexOf(item.name);
@@ -50,7 +50,7 @@ class Attribute extends Model {
 
     getValues(separator = ', ') {
         return this.items
-            .map(item => {
+            .map((item) => {
                 return this.getItemName(item);
             })
             .join(separator);
@@ -60,7 +60,7 @@ class Attribute extends Model {
         if (
             (crudadmin.store.getters['store/backendEnv']('ATTR_COLOR_ID') + '')
                 .split(',')
-                .map(id => parseInt(id))
+                .map((id) => parseInt(id))
                 .indexOf(this.id) > -1
         ) {
             return true;
@@ -70,7 +70,7 @@ class Attribute extends Model {
     }
 
     selectedItems() {
-        return this.items.filter(item =>
+        return this.items.filter((item) =>
             crudadmin.store.getters['filter/isItemChecked'](item)
         );
     }
@@ -81,5 +81,3 @@ class Attribute extends Model {
         )[0];
     }
 }
-
-module.exports = Attribute;
