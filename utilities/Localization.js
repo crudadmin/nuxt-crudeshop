@@ -27,7 +27,7 @@ module.exports = {
             host = window.location.host;
         }
 
-        return host.split(':')[0];
+        return (host.split(':')[0]||'').replace('www.', '');
     },
 
     getDomainName() {
