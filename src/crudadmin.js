@@ -27,6 +27,19 @@ export default {
 
     identifiers: {},
 
+    async boot() {
+        if (this.booted === true) {
+            return;
+        }
+
+        this.response = await useNuxtApp().$axios.$get('/api/bootstrap');
+        // this.response = window.__NUXT__.caResponse;
+
+        this.setBootstrapResponse(this.response.data || {});
+
+        return this;
+    },
+
     addIdentifier(name, classReference) {
         if (!(name in this.identifiers)) {
             this.identifiers[name] = new classReference();
@@ -61,19 +74,6 @@ export default {
         // }
 
         return obj;
-    },
-
-    async boot() {
-        if (this.booted === true) {
-            return;
-        }
-
-        this.response = await useNuxtApp().$axios.$get('/api/bootstrap');
-        // this.response = window.__NUXT__.caResponse;
-
-        this.setBootstrapResponse(this.response.data || {});
-
-        return this;
     },
 
     setBootstrapResponse(bootstrap) {
