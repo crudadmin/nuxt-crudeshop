@@ -6,10 +6,11 @@ export const addPlugins = (nuxt, moduleOptions) => {
 
     [
         //Register these modules
+        'plugins/axios.js',
         // 'plugins/store.js',
         'plugins/translator.js',
         // 'plugins/action.js',
-        // 'plugins/bootstrap.js',
+        'plugins/bootstrap.js',
         // 'plugins/plugin.js',
         // 'plugins/bus.js',
         // moduleOptions.tracking ? 'plugins/tracking.client.js' : null,
@@ -20,9 +21,14 @@ export const addPlugins = (nuxt, moduleOptions) => {
         .filter((item) => item)
         .reverse()
         .forEach((plugin) => {
-            addPlugin({
-                src: resolve(rootDir, plugin),
-                fileName: join('crudeshop', basename(plugin)),
-            });
+            addPlugin(
+                {
+                    src: resolve(rootDir, plugin),
+                    fileName: join('crudeshop', basename(plugin)),
+                },
+                {
+                    append: false,
+                }
+            );
         });
 };

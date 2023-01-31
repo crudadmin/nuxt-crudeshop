@@ -2,7 +2,7 @@
     "name": "crudeshop",
     "version": "2.2.8",
     "description": "",
-    "main": "crudadmin.js",
+    "main": "./src/crudadmin.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },

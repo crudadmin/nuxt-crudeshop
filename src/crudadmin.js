@@ -1,6 +1,6 @@
 import Translator from 'gettext-translator';
 import cartToken from './utilities/cartToken';
-import axiosMutator from './utilities/axiosMutator';
+import { $axios } from './utilities/axios';
 
 export default {
     booted: false,
@@ -27,37 +27,10 @@ export default {
 
     identifiers: {},
 
-    /**
-     * We need reset this data on each new request
-     */
-    setNewInstance() {
-        this.$auth = null;
-
-        this.booted = false;
-
-        this.context = null;
-    },
-
     addIdentifier(name, classReference) {
         if (!(name in this.identifiers)) {
             this.identifiers[name] = new classReference();
         }
-    },
-
-    setContext(context) {
-        this.context = context;
-    },
-
-    setAuth($auth) {
-        let obj = this.context || {};
-
-        $auth(obj, () => {});
-
-        this.$auth = obj.$auth;
-    },
-
-    setAxios($axios) {
-        $axios(this, () => {});
     },
 
     getAuth() {
@@ -79,30 +52,28 @@ export default {
             _authToken,
             _cartToken;
 
-        if ((_authToken = auth.getStrategy('local').token.get())) {
-            obj['Authorization'] = _authToken;
-        }
+        // if ((_authToken = auth.getStrategy('local').token.get())) {
+        //     obj['Authorization'] = _authToken;
+        // }
 
-        if ((_cartToken = cartToken.getCartToken(auth.$storage))) {
-            obj['Cart-Token'] = _cartToken;
-        }
+        // if ((_cartToken = cartToken.getCartToken(auth.$storage))) {
+        //     obj['Cart-Token'] = _cartToken;
+        // }
 
         return obj;
     },
 
-    async bootApp() {
+    async boot() {
         if (this.booted === true) {
             return;
         }
 
-        if (this.context) {
-            this.context.nuxt.caResponse = this.response =
-                await this.$axios.$get('/api/bootstrap');
-        } else {
-            this.response = window.__NUXT__.caResponse;
-        }
+        this.response = await useNuxtApp().$axios.$get('/api/bootstrap');
+        // this.response = window.__NUXT__.caResponse;
 
-        this.setBootstrapResponse(this.response.data);
+        this.setBootstrapResponse(this.response.data || {});
+
+        return this;
     },
 
     setBootstrapResponse(bootstrap) {
@@ -137,7 +108,7 @@ export default {
     },
 
     async getTranslator() {
-        await this.bootApp();
+        await this.boot();
 
         return (this.translator = new Translator(this.translates));
     },

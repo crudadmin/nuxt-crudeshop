@@ -1,6 +1,6 @@
-import Vue from 'vue';
+import { defineNuxtPlugin } from '#app';
 import https from 'https';
-import CrudAdmin from 'crudeshop';
+import CrudAdmin from '../crudadmin.js';
 
 function getRequestModels(data) {
     var models = {};
@@ -44,7 +44,8 @@ function getQueryParams(route, response) {
     }
 }
 
-export default async ({ $axios, app, store, route, redirect }, inject) => {
+export default defineNuxtPlugin((nuxtApp) => {
+    return;
     //On budle update
     // $axios.onResponse(function(response) {
     //Set buddle hash data
@@ -84,7 +85,7 @@ export default async ({ $axios, app, store, route, redirect }, inject) => {
     });
 
     //Handle crudadmin findBySlug history support redirects
-    $axios.onResponse(function(response) {
+    $axios.onResponse(function (response) {
         (() => {
             var slugPath;
 
@@ -134,4 +135,4 @@ export default async ({ $axios, app, store, route, redirect }, inject) => {
             store.commit('store/setSeoModel', null);
         }
     });
-};
+});

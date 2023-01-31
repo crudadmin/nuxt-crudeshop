@@ -1,7 +1,6 @@
-import Vue from 'vue';
-import CrudAdmin from 'crudeshop';
+import CrudAdmin from '../crudadmin.js';
 
-const action = function(controller) {
+export default (controller) => {
     var routes = CrudAdmin.routes,
         actions = {};
 
@@ -25,14 +24,4 @@ const action = function(controller) {
     }
 
     return action;
-};
-
-export default async ({}, inject) => {
-    Vue.use({
-        install: (Vue, options) => {
-            Vue.prototype.action = action;
-        },
-    });
-
-    inject('action', action);
 };

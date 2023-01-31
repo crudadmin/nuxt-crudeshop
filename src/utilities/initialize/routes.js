@@ -50,9 +50,22 @@ export const addTranslatableRoutes = (nuxt) => {
 export const addCustomRouter = (nuxt) => {
     const rootDir = resolve(__dirname, '../..');
 
-    console.log('router adding hmm');
-    nuxt.hook('pages:extend', (a) => {
-        console.log('extendingdada', a);
+    // console.log('router adding hmm');
+    nuxt.hook('pages:extend', (routes) => {
+        // console.log('Router extending:', routes);
+    });
+
+    nuxt.hook('builder:generateApp', function (a, b) {
+        // a.options.router = {
+        //     options: {
+        //         routes: function (routes) {
+        //             console.log('we can mutate routes here...', routes);
+        //             return routes;
+        //         },
+        //     },
+        // };
+        console.log('Router prerendegin:', a);
+        // return config;
     });
 
     if (isNuxt2()) {
@@ -74,6 +87,5 @@ export const addCustomRouter = (nuxt) => {
             );
         });
     } else if (isNuxt3()) {
-        //...
     }
 };

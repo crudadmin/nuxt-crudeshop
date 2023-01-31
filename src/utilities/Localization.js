@@ -6,6 +6,25 @@ export default {
 
     localizationKey: 'localization',
 
+    gettextSelectors: [
+        '__',
+        'Gettext',
+        'd__',
+        'dgettext',
+        'dngettext',
+        'dnp__',
+        'dnpgettext',
+        'dp__',
+        'dpgettext',
+        'gettext',
+        'n__',
+        'ngettext',
+        'np__',
+        'npgettext',
+        'p__',
+        'pgettext',
+    ],
+
     initialize(ssrContext) {
         if (this.isEnabled() == true) {
             let language = this.get(false);
@@ -95,9 +114,9 @@ export default {
     },
 
     getSlugFromStorage() {
-        let storage = crudadmin.getStorage();
-
-        return storage.getUniversal(this.localizationKey);
+        //TODO:
+        // let storage = crudadmin.getStorage();
+        // return storage.getUniversal(this.localizationKey);
     },
 
     getDefaultLanguage() {
@@ -120,7 +139,7 @@ export default {
         return this.getDefaultLanguage().slug == (slug || this.get().slug);
     },
 
-    async rewriteRoutes(routes) {
+    async getRewritedRoutes(routes) {
         var translator = await crudadmin.getTranslator();
 
         //We does not want to rewrite routes, it may be buggy
@@ -142,7 +161,9 @@ export default {
             return route;
         });
 
-        return await this.asyncAddSlugIntoRoutes(routes);
+        routes = await this.asyncAddSlugIntoRoutes(routes);
+
+        return routes;
     },
 
     async asyncAddSlugIntoRoutes(routes) {
@@ -191,5 +212,61 @@ export default {
         }
 
         return obj;
+    },
+
+    async install(vueApp) {
+        var a = await crudadmin.getTranslator(),
+            getSelector = function (selector) {
+                return function () {
+                    var s = selector in a ? selector : '__';
+
+                    return a[s].apply(a, arguments);
+                };
+            };
+
+        vueApp.use({
+            install: (Vue, options) => {
+                let methods = {};
+
+                for (var i = 0; i < this.gettextSelectors.length; i++) {
+                    methods[this.gettextSelectors[i]] = getSelector(
+                        this.gettextSelectors[i]
+                    );
+                }
+
+                Vue.mixin({
+                    methods: methods,
+                });
+            },
+        });
+    },
+
+    async installDefaultLocaleRedirect(route, redirect) {
+        if (this.isEnabled() == false) {
+            return;
+        }
+
+        let actualSegment = this.getValidUrlLangSegment(route.path),
+            defaultLanguageSlug = this.getDefaultLanguage().slug;
+
+        //We cannot use default slug as segment. In this case we need redirect and switch to the default language
+        if (actualSegment && actualSegment == defaultLanguageSlug) {
+            this.setLocalization(actualSegment);
+
+            redirect('/');
+        }
+
+        //If no valid segment is present in url, but is not default language
+        //The nwe need redirect user do the selected lang slug
+        else if (
+            !actualSegment &&
+            this.get().slug !== this.getDefaultLanguage().slug
+        ) {
+            redirect('/' + this.get().slug);
+        }
+    },
+
+    async getTranslator() {
+        return crudadmin.getTranslator();
     },
 };
