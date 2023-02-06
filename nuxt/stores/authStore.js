@@ -1,6 +1,6 @@
 const cookieKey = 'auth.token';
 
-export const useAuthStore = defineStore('AuthStore', {
+export const options = {
     state: () => {
         return {
             token: null,
@@ -32,7 +32,9 @@ export const useAuthStore = defineStore('AuthStore', {
             this.token = token;
         },
     },
-});
+};
+
+export const useAuthStore = defineStore('AuthStore', options);
 
 if (import.meta.hot) {
     import.meta.hot.accept(acceptHMRUpdate(useAuthStore, import.meta.hot));
