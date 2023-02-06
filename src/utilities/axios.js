@@ -1,23 +1,20 @@
 import axios from 'axios';
 import https from 'https';
-import crudadmin from '../crudadmin.js';
-import Localization from './Localization.js';
 
-export var $axios = null;
-
-export const addInterceptors = ($axios) => {
+export const addInterceptors = ($axios, addHeaders) => {
     $axios.interceptors.request.use(
         (successfulReq) => {
             //Push admin headers into each request
             if (successfulReq.headers) {
-                //Add cart and auth headers into axios
-                var storeHeaders = {
-                    ...crudadmin.getAuthorizationHeaders(),
-                    ...Localization.getLocaleHeaders(),
-                };
+                // prettier-ignore
+                console.log('[AXIOS]', successfulReq.method.toUpperCase(), '-', successfulReq.url);
 
-                for (var key in storeHeaders) {
-                    successfulReq.headers[key] = storeHeaders[key];
+                //Add cart and auth headers into axios
+                var appHeaders =
+                    typeof addHeaders == 'function' ? addHeaders() : {};
+
+                for (var key in appHeaders) {
+                    successfulReq.headers[key] = appHeaders[key];
                 }
             }
 
@@ -49,7 +46,7 @@ const addCustomMethods = ($axios) => {
 };
 
 export const createAxios = (options = {}) => {
-    $axios = axios.create({
+    const $axios = axios.create({
         ...options,
         headers: {
             common: {},
@@ -63,12 +60,10 @@ export const createAxios = (options = {}) => {
         });
     }
 
-    addInterceptors($axios);
+    addInterceptors($axios, options.addHeaders);
 
     // Request helpers ($get, $post, ...)
     addCustomMethods($axios);
 
     return $axios;
 };
-
-// export default $axios;

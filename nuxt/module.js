@@ -7,8 +7,6 @@ import {
 } from '@nuxt/kit';
 const { resolve } = createResolver(import.meta.url);
 
-import { createAxios } from '../src/utilities/axios.js';
-
 // import {
 //     addTranslatableRoutes,
 //     addCustomRouter,

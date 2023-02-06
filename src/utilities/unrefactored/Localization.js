@@ -1,10 +1,13 @@
 import _ from 'lodash';
 import crudadmin from '../crudadmin.js';
+import Translator from './Translator.js';
 
 export default {
     languageSlug: null,
 
     localizationKey: 'localization',
+
+    translator: null,
 
     gettextSelectors: [
         '__',
@@ -140,7 +143,7 @@ export default {
     },
 
     async getRewritedRoutes(routes) {
-        var translator = await crudadmin.getTranslator();
+        // var translator = await Translator.getTranslator();
 
         //We does not want to rewrite routes, it may be buggy
         //We need remove unique duplicates from beggining, latest routes are
@@ -214,33 +217,6 @@ export default {
         return obj;
     },
 
-    async install(vueApp) {
-        var a = await crudadmin.getTranslator(),
-            getSelector = function (selector) {
-                return function () {
-                    var s = selector in a ? selector : '__';
-
-                    return a[s].apply(a, arguments);
-                };
-            };
-
-        vueApp.use({
-            install: (Vue, options) => {
-                let methods = {};
-
-                for (var i = 0; i < this.gettextSelectors.length; i++) {
-                    methods[this.gettextSelectors[i]] = getSelector(
-                        this.gettextSelectors[i]
-                    );
-                }
-
-                Vue.mixin({
-                    methods: methods,
-                });
-            },
-        });
-    },
-
     async installDefaultLocaleRedirect(route, redirect) {
         if (this.isEnabled() == false) {
             return;
@@ -264,9 +240,5 @@ export default {
         ) {
             redirect('/' + this.get().slug);
         }
-    },
-
-    async getTranslator() {
-        return crudadmin.getTranslator();
     },
 };

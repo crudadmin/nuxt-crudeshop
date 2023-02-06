@@ -1,4 +1,4 @@
-import Localization from '../../src/utilities/Localization';
+// import Localization from '../../src/utilities/Localization';
 
 export default {
     routes(routes) {
