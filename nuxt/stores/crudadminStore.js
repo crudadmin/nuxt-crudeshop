@@ -26,6 +26,8 @@ export const useCrudadminStore = defineStore('CrudadminStore', {
             this.routes = bootstrap.routes || {};
             this.languages = bootstrap.languages || [];
             this.seoRoutes = bootstrap.seo_routes || [];
+
+            this.initialized = true;
         },
     },
 });
