@@ -1,4 +1,4 @@
-const cookieKey = 'auth.token';
+const cookieTokenKey = 'auth.token';
 
 export const options = {
     state: () => {
@@ -13,7 +13,7 @@ export const options = {
         },
 
         useSetTokenFromCookie() {
-            this.token = useNuxtApp().$storage.get(cookieKey);
+            this.token = useNuxtApp().$storage.get(cookieTokenKey);
         },
 
         setUser(user, token) {
@@ -23,13 +23,18 @@ export const options = {
                 this.setToken(token);
             }
         },
-
         setToken(token, save = true) {
             if (save === true) {
-                useNuxtApp().$storage.set(cookieKey, token);
+                useNuxtApp().$storage.set(cookieTokenKey, token);
             }
 
             this.token = token;
+        },
+        logout() {
+            this.user = null;
+            this.token = null;
+
+            useNuxtApp().$storage.set(cookieTokenKey, null);
         },
     },
 };
