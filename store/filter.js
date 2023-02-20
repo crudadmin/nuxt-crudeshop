@@ -48,7 +48,7 @@ const store = {
             //If empty value has been given, we want remove attribute from filter
             if (_.isNil(id)) {
                 if (attribute_id in state.attributesFilter) {
-                    Vue.delete(state.attributesFilter, attribute_id);
+                    delete state.attributesFilter[attribute_id];
                 }
             }
 
@@ -72,7 +72,8 @@ const store = {
             );
 
             if (newValues.length == 0) {
-                Vue.delete(state.attributesFilter, attribute_id);
+                delete state.attributesFilter[attribute_id];
+                state.attributesFilter = { ...(state.attributesFilter || {}) };
             } else {
                 let obj = state.attributesFilter;
                 obj[attribute_id] = newValues;
@@ -112,7 +113,7 @@ const store = {
                 defaultRange = [
                     parseInt(defaultRange[0]),
                     Math.ceil(defaultRange[1]),
-                ];
+                ].filter((num) => _.isNaN(num) == false);
 
             state.priceRange = defaultRange;
             state.defaultPriceRange = defaultRange;
@@ -432,10 +433,16 @@ const store = {
          * Price filter
          */
         defaultPriceRangeMutated: (state) => {
-            return [
-                parseInt(state.defaultPriceRange[0]),
-                Math.ceil(state.defaultPriceRange[1]),
-            ];
+            if (state.defaultPriceRange.length >= 2) {
+                return [
+                    parseInt(state.defaultPriceRange[0]),
+                    Math.ceil(state.defaultPriceRange[1]),
+                ].filter((num) => _.isNil(num) == false);
+            } else if (state.defaultPriceRange.length >= 1) {
+                return [parseInt(state.defaultPriceRange[0])];
+            }
+
+            return [];
         },
         priceRangeMutated: (state, getters) => {
             let min = getters.defaultPriceRangeMutated[0],
@@ -445,7 +452,10 @@ const store = {
                         ? state.instantPriceRange
                         : state.priceRange;
 
-            return [_.max([min, priceRange[0]]), _.min([max, priceRange[1]])];
+            return [
+                _.max([min, priceRange[0]]),
+                _.min([max, priceRange[1]]),
+            ].filter((num) => _.isNil(num) == false);
         },
         isPriceRangeEnabled: (state, getters) => {
             return (

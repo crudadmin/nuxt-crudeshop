@@ -1,6 +1,6 @@
 {
     "name": "crudeshop",
-    "version": "2.2.9",
+    "version": "2.2.10",
     "description": "",
     "main": "crudadmin.js",
     "scripts": {
@@ -9,7 +9,7 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "@nuxtjs/auth-next": "5.0.0-1618898588.9655d0e",
+        "@nuxtjs/auth-next": "^5.0.0-1667386184.dfbbb54",
         "gettext-translator": "^3.0.1",
         "lodash": "^4.17.21"
     },
