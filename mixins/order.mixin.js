@@ -19,7 +19,6 @@ const redirectIfCartIsNotValid = async ({ app, step, goTo }) => {
 
             $nuxt.$dialog.alert(e.response.data.orderErrors.join('<br>'), {
                 html: true,
-                okText: $translator.__('Okay'),
                 customClass: 'dialog-error',
                 backdropClose: true,
             });
