@@ -34,7 +34,7 @@ const sumByItems = (items) => {
 export default async ({ app, store, $bus }, inject) => {
     inject('tracking', {
         getProductCategories: (product) => {
-            return product ? product.getCategoriesTree()[0] : [];
+            return product ? product.getCategoriesTree()[0] || [] : [];
         },
         onProductModelItem: (productOrVariant, product) => {
             let obj = {};
