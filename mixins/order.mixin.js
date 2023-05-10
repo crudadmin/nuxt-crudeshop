@@ -32,6 +32,22 @@ const redirectIfCartIsNotValid = async ({ app, step, goTo }) => {
 
 module.exports = {
     redirectIfCartIsNotValid,
+    data() {
+        return {
+            loading: false,
+            stripePayment: {
+                enabled: false,
+                response: null,
+                loading: false,
+                error: null,
+            },
+        };
+    },
+    mounted() {
+        if (process.browser && this.backendEnv('STRIPE_PB_KEY')) {
+            this.initializeStripe(this.backendEnv('STRIPE_PB_KEY'));
+        }
+    },
     methods: {
         processOrder(response, { callback, successWithoutCallback }) {
             this.$bus.$emit('tracking/purchase', response.data.order);
@@ -43,6 +59,11 @@ module.exports = {
 
             if (callback && typeof callback == 'function') {
                 callback(payment, response);
+            }
+
+            //Stripe elements payment
+            else if (payment.provider == 'StripeIntentPayment') {
+                this.initializeStripeCartElements(response);
             }
 
             //Automatic callback
@@ -66,6 +87,73 @@ module.exports = {
             //If no callback has been found
             else if (successWithoutCallback) {
                 successWithoutCallback(payment, response);
+            }
+        },
+        initializeStripe(stripePbKey) {
+            this.bootStripe = setInterval(() => {
+                if (window.Stripe) {
+                    this.$stripe = window.Stripe(stripePbKey);
+
+                    clearInterval(this.bootStripe);
+                }
+            }, 50);
+        },
+        initializeStripeCartElements(response) {
+            this.stripePayment.enabled = true;
+            this.stripePayment.response = response;
+
+            // Set up Stripe.js and Elements to use in checkout form, passing the client secret obtained in step 3
+            this.$elements = this.$stripe.elements({
+                clientSecret: this.stripePayment.response.data.payment.secret,
+                // Fully customizable with appearance API.
+                appearance: {
+                    /*...*/
+                },
+            });
+
+            // Create and mount the Payment Element
+            const paymentElement = this.$elements.create('payment');
+
+            paymentElement.mount('#payment-element');
+
+            paymentElement.on('ready', () => {
+                this.scrollTo('#payment-element');
+            });
+        },
+        async submitCard() {
+            if (this.stripePayment.loading) {
+                return;
+            }
+
+            this.stripePayment.loading = true;
+            this.stripePayment.error = null;
+
+            const { error, paymentIntent } = await this.$stripe.confirmPayment({
+                //`Elements` instance that was used to create the Payment Element
+                elements: this.$elements,
+                confirmParams: {
+                    return_url:
+                        this.stripePayment.response.data.payment.return_url,
+                },
+                // redirect: 'if_required', (only dev testing)
+            });
+
+            this.stripePayment.loading = false;
+
+            if (error) {
+                console.error('[stripe payment]', error);
+
+                // This point will only be reached if there is an immediate error when
+                // confirming the payment. Show error to your customer (for example, payment
+                // details incomplete)
+                this.stripePayment.error = error.message;
+            } else {
+                console.log('[stripe payment]', paymentIntent);
+
+                //Completed:
+                // Your customer will be redirected to your `return_url`. For some payment
+                // methods like iDEAL, your customer will be redirected to an intermediate
+                // site first to authorize the payment, then redirected to the `return_url`.
             }
         },
     },
