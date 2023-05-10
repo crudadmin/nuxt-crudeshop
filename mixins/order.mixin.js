@@ -36,20 +36,19 @@ module.exports = {
         return {
             loading: false,
             stripePayment: {
+                secret: null,
+                return_url: null,
                 enabled: false,
-                response: null,
                 loading: false,
                 error: null,
             },
         };
     },
-    mounted() {
-        if (process.browser && this.backendEnv('STRIPE_PB_KEY')) {
-            this.initializeStripe(this.backendEnv('STRIPE_PB_KEY'));
-        }
-    },
     methods: {
-        processOrder(response, { callback, successWithoutCallback }) {
+        processOrder(
+            response,
+            { callback, successWithoutCallback, stripeIntentCallback }
+        ) {
             this.$bus.$emit('tracking/purchase', response.data.order);
 
             //We need reset cart
@@ -63,7 +62,11 @@ module.exports = {
 
             //Stripe elements payment
             else if (payment.provider == 'StripeIntentPayment') {
-                this.initializeStripeCartElements(response);
+                if (stripeIntentCallback) {
+                    stripeIntentCallback(payment, response);
+                } else {
+                    this.stripeCartElements(payment.secret, payment.return_url);
+                }
             }
 
             //Automatic callback
@@ -89,22 +92,33 @@ module.exports = {
                 successWithoutCallback(payment, response);
             }
         },
-        initializeStripe(stripePbKey) {
+        initializeStripe(callback) {
+            let stripePbKey = this.backendEnv('STRIPE_PB_KEY');
+
+            if (!stripePbKey || !process.browser) {
+                return;
+            }
+
             this.bootStripe = setInterval(() => {
                 if (window.Stripe) {
                     this.$stripe = window.Stripe(stripePbKey);
 
                     clearInterval(this.bootStripe);
+
+                    if (callback) {
+                        callback();
+                    }
                 }
             }, 50);
         },
-        initializeStripeCartElements(response) {
+        stripeCartElements(secret, return_url) {
             this.stripePayment.enabled = true;
-            this.stripePayment.response = response;
+            this.stripePayment.secret = secret;
+            this.stripePayment.return_url = return_url;
 
             // Set up Stripe.js and Elements to use in checkout form, passing the client secret obtained in step 3
             this.$elements = this.$stripe.elements({
-                clientSecret: this.stripePayment.response.data.payment.secret,
+                clientSecret: this.stripePayment.secret,
                 // Fully customizable with appearance API.
                 appearance: {
                     /*...*/
@@ -132,8 +146,7 @@ module.exports = {
                 //`Elements` instance that was used to create the Payment Element
                 elements: this.$elements,
                 confirmParams: {
-                    return_url:
-                        this.stripePayment.response.data.payment.return_url,
+                    return_url: this.stripePayment.return_url,
                 },
                 // redirect: 'if_required', (only dev testing)
             });
