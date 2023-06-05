@@ -20,6 +20,9 @@ const products = {
             //Eshop
             category: null,
             categories: [],
+
+            //Serialized callbacks
+            listingFetchRoute: null,
         };
     },
 
@@ -60,6 +63,9 @@ const products = {
         },
         setCategories(state, categories) {
             state.categories = categories;
+        },
+        setListingFetchRoute(state, serializedFunction) {
+            state.listingFetchRoute = 'return ' + serializedFunction.toString();
         },
     },
 
@@ -148,6 +154,20 @@ const products = {
         },
     },
     getters: {
+        getListingFetchRoute: (state) => (context) => {
+            if (state.listingFetchRoute) {
+                let callback = new Function(state.listingFetchRoute);
+
+                return callback(context);
+            }
+
+            const { route, action, store } = context;
+
+            // prettier-ignore
+            let category = route.params.category5 || route.params.category4 || route.params.category3 || route.params.category2 || route.params.category1;
+
+            return action('ListingController@index', category);
+        },
         getUrlWithParams:
             (state) =>
             ({ url, query }) => {

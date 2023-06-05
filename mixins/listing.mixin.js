@@ -4,12 +4,6 @@ const { hasAttributesChanged } = require('../utilities/FilterHelper.js');
 
 //From which route should we fetch products by default on attribute filter change
 const config = {
-    getListingFetchRoute: ({ route, action, store }) => {
-        // prettier-ignore
-        let category = route.params.category5 || route.params.category4 || route.params.category3 || route.params.category2 || route.params.category1;
-
-        return action('ListingController@index', category);
-    },
     onListingFetch({ store }, response) {
         store.commit(
             'listing/setCategory',
@@ -23,10 +17,9 @@ const config = {
 const fetchListing = async (context, fetchOptions) => {
     const { store, route } = context;
 
-    store.commit(
-        'listing/setDefaultFetchRoute',
-        config.getListingFetchRoute(context)
-    );
+    let routeAction = store.getters['listing/getListingFetchRoute']()(context);
+
+    store.commit('listing/setDefaultFetchRoute', routeAction);
 
     let options = {
             route,
