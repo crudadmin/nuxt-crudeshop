@@ -1,5 +1,7 @@
 import { createAxios } from '../../src/utilities/axios';
 
+const isServer = process.server;
+
 export const useAppHeaders = () => {
     let obj = {};
 
@@ -13,14 +15,17 @@ export const useAppHeaders = () => {
 };
 
 export const useAxios = () => {
-    const $axios = createAxios({
-        baseURL: useRuntimeConfig().API_URL,
-        addHeaders() {
-            let headers = useAppHeaders();
+    const $axios = createAxios(
+        {
+            baseURL: useRuntimeConfig().API_URL,
+            addHeaders() {
+                let headers = useAppHeaders();
 
-            return headers;
+                return headers;
+            },
         },
-    });
+        isServer
+    );
 
     return $axios;
 };

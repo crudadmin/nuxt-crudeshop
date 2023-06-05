@@ -45,7 +45,7 @@ const addCustomMethods = ($axios) => {
     }
 };
 
-export const createAxios = (options = {}) => {
+export const createAxios = (options = {}, server = false) => {
     const $axios = axios.create({
         ...options,
         headers: {
@@ -54,7 +54,7 @@ export const createAxios = (options = {}) => {
     });
 
     //Allow self signed https for development purposes
-    if (process.server) {
+    if (server) {
         $axios.defaults['httpsAgent'] = new https.Agent({
             rejectUnauthorized: false,
         });
