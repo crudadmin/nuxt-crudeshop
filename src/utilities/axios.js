@@ -1,5 +1,4 @@
 import axios from 'axios';
-import https from 'https';
 
 export const addInterceptors = ($axios, addHeaders) => {
     $axios.interceptors.request.use(
@@ -45,20 +44,13 @@ const addCustomMethods = ($axios) => {
     }
 };
 
-export const createAxios = (options = {}, server = false) => {
+export const createAxios = (options = {}) => {
     const $axios = axios.create({
         ...options,
         headers: {
             common: {},
         },
     });
-
-    //Allow self signed https for development purposes
-    if (server) {
-        $axios.defaults['httpsAgent'] = new https.Agent({
-            rejectUnauthorized: false,
-        });
-    }
 
     addInterceptors($axios, options.addHeaders);
 

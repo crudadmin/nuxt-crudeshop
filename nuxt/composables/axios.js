@@ -1,3 +1,4 @@
+import https from 'https';
 import { createAxios } from '../../src/utilities/axios';
 
 const isServer = process.server;
@@ -15,17 +16,21 @@ export const useAppHeaders = () => {
 };
 
 export const useAxios = () => {
-    const $axios = createAxios(
-        {
-            baseURL: useRuntimeConfig().API_URL,
-            addHeaders() {
-                let headers = useAppHeaders();
+    const $axios = createAxios({
+        baseURL: useRuntimeConfig().API_URL,
+        addHeaders() {
+            let headers = useAppHeaders();
 
-                return headers;
-            },
+            return headers;
         },
-        isServer
-    );
+    });
+
+    //Allow self signed https for development purposes
+    if (isServer) {
+        $axios.defaults['httpsAgent'] = new https.Agent({
+            rejectUnauthorized: false,
+        });
+    }
 
     return $axios;
 };
