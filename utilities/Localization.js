@@ -27,7 +27,7 @@ module.exports = {
             host = window.location.host;
         }
 
-        return (host.split(':')[0]||'').replace('www.', '');
+        return (host.split(':')[0] || '').replace('www.', '');
     },
 
     getDomainName() {
@@ -70,6 +70,12 @@ module.exports = {
             return _.find(languages, { slug: this.languageSlug });
         }
 
+        //Get language by domain name
+        let domainLang = this.getValidDomainLang();
+        if (domainLang) {
+            return domainLang;
+        }
+
         //Get first segment, if it is valid language slug. we can return this value
         let urlSlug = this.getValidUrlLangSegment();
         if (urlSlug && (urlLang = _.find(languages, { slug: urlSlug }))) {
@@ -82,12 +88,6 @@ module.exports = {
             (storageLang = _.find(languages, { slug: storageLangSlug }))
         ) {
             return storageLang;
-        }
-
-        //Get language by domain name
-        let domainLang = this.getValidDomainLang();
-        if (domainLang) {
-            return domainLang;
         }
 
         //Return default first language
