@@ -152,6 +152,7 @@ export default async ({ app, store, $bus }, inject) => {
                 ? store.state.cart.selectedPaymentMethod.name
                 : null,
             shipping: order.delivery_price,
+            order: order,
         });
     });
 
