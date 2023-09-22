@@ -16,7 +16,7 @@ export const useCrudadminStore = defineStore('CrudadminStore', {
             useAuthStore().boot();
 
             let response = await useAxios().$get('/api/bootstrap'),
-                bootstrap = response.data.crudadmin;
+                bootstrap = response.data;
 
             this.translates =
                 typeof bootstrap.translates == 'string'

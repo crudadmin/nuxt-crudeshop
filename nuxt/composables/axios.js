@@ -17,7 +17,7 @@ export const useAppHeaders = () => {
 
 export const useAxios = () => {
     const $axios = createAxios({
-        baseURL: useRuntimeConfig().API_URL,
+        baseURL: useRuntimeConfig().public.API_URL,
         addHeaders() {
             let headers = useAppHeaders();
 
