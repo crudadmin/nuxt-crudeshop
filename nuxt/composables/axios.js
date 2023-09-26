@@ -6,21 +6,25 @@ const isServer = process.server;
 export const useAppHeaders = () => {
     let obj = {};
 
-    let token = useAuthStore().token;
-
+    let token = useGetAuthToken();
     if (token) {
         obj['Authorization'] = 'Bearer ' + token;
+    }
+
+    let localeSlug = useGetLocaleSlug();
+    if (localeSlug) {
+        obj['App-Locale'] = localeSlug;
     }
 
     return obj;
 };
 
 export const useAxios = () => {
+    const headers = useAppHeaders();
+
     const $axios = createAxios({
         baseURL: useRuntimeConfig().public.API_URL,
         addHeaders() {
-            let headers = useAppHeaders();
-
             return headers;
         },
     });

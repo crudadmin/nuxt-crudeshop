@@ -1,11 +1,8 @@
 import { defineNuxtPlugin } from '#app';
-
 import Translator from '../../src/utilities/Translator';
 
 export default defineNuxtPlugin(async ({ route, redirect, vueApp, hook }) => {
-    let $translator = new Translator(() => {
-        return useCrudadminStore().translates;
-    });
+    let $translator = useTranslatorClass();
 
     await $translator.install(vueApp);
 
@@ -15,7 +12,7 @@ export default defineNuxtPlugin(async ({ route, redirect, vueApp, hook }) => {
 
     return {
         provide: {
-            translator: $translator,
+            translator: $translator.getTranslator(),
         },
     };
 });

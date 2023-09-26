@@ -2,8 +2,6 @@ import { createResolver } from '@nuxt/kit';
 const { resolve } = createResolver(import.meta.url);
 
 export default {
-    modules: [resolve('./module.js')],
-
     modules: [
         [
             '@pinia/nuxt',
@@ -11,6 +9,7 @@ export default {
                 autoImports: ['defineStore', 'acceptHMRUpdate'],
             },
         ],
+        resolve('./module.js'),
     ],
 
     imports: {

@@ -13,18 +13,17 @@ export const useCrudadminStore = defineStore('CrudadminStore', {
                 return;
             }
 
-            useAuthStore().boot();
+            // useAuthStore().boot();
 
-            let response = await useAxios().$get('/api/bootstrap'),
-                bootstrap = response.data,
-                crudadmin = bootstrap.crudadmin;
+            let response = await useBootstrapResponse(),
+                bootstrap = response.data.crudadmin;
 
             this.translates =
                 typeof bootstrap.translates == 'string'
                     ? JSON.parse(bootstrap.translates)
                     : [];
 
-            this.routes = bootstrap.routes || {};
+            this.routes = bootstrap.routes || [];
             this.languages = bootstrap.languages || [];
             this.seoRoutes = bootstrap.seo_routes || [];
 

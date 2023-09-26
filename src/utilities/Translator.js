@@ -1,5 +1,8 @@
-import { default as GettextTranslator } from 'gettext-translator';
+import $GettextTranslator from 'gettext-translator';
 import _ from 'lodash';
+
+//Nuxt 3 loader fix
+const GettextTranslator = $GettextTranslator.default || $GettextTranslator;
 
 export default class Translator {
     constructor(rawTranslates) {
@@ -54,6 +57,8 @@ export default class Translator {
     }
 
     getTranslator(translates) {
+        translates = translates || this.rawTranslates;
+
         if (this._translator) {
             return this._translator;
         }

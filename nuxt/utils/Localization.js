@@ -1,32 +1,9 @@
 import _ from 'lodash';
-import crudadmin from '../crudadmin.js';
-import Translator from './Translator.js';
 
 export default {
     languageSlug: null,
 
     localizationKey: 'localization',
-
-    translator: null,
-
-    gettextSelectors: [
-        '__',
-        'Gettext',
-        'd__',
-        'dgettext',
-        'dngettext',
-        'dnp__',
-        'dnpgettext',
-        'dp__',
-        'dpgettext',
-        'gettext',
-        'n__',
-        'ngettext',
-        'np__',
-        'npgettext',
-        'p__',
-        'pgettext',
-    ],
 
     initialize(ssrContext) {
         if (this.isEnabled() == true) {
@@ -40,14 +17,14 @@ export default {
         return this;
     },
 
-    getHost() {
-        let host = '';
+    getMode() {
+        let mode = useGetLocalesConfig().type;
 
-        if (crudadmin.context) {
-            host = crudadmin.context.req.headers.host;
-        } else if (typeof window == 'object') {
-            host = window.location.host;
-        }
+        return ['domain', 'slug'].includes(mode) ? mode : 'slug';
+    },
+
+    getHost() {
+        let host = useRequestURL().host;
 
         return host.split(':')[0];
     },
@@ -57,11 +34,7 @@ export default {
     },
 
     getPath() {
-        if (crudadmin.context) {
-            return crudadmin.context.req.url;
-        } else if (typeof window == 'object') {
-            return window.location.pathname;
-        }
+        return useRequestURL().pathname;
     },
 
     isEnabled() {
@@ -71,55 +44,59 @@ export default {
     },
 
     setLocalization(slug) {
-        let storage = crudadmin.getStorage();
+        let $storage = useStorage();
 
         // Set slug if has been changed
-        if (storage.getUniversal(this.localizationKey) !== slug) {
-            storage.setUniversal(this.localizationKey, slug);
+        if ($storage.get(this.localizationKey) !== slug) {
+            $storage.set(this.localizationKey, slug);
         }
 
         this.languageSlug = slug;
     },
 
-    get(cache = true) {
-        let languages = this.all(),
-            urlLang,
-            storageLang,
-            storageLangSlug = this.getSlugFromStorage();
+    getSlug(cache = true) {
+        let locales = useGetLocales(),
+            mode = this.getMode();
 
         //Cached language
         if (cache == true && this.languageSlug) {
-            return _.find(languages, { slug: this.languageSlug });
+            return this.languageSlug;
         }
 
-        //Get first segment, if it is valid language slug. we can return this value
-        let urlSlug = this.getValidUrlLangSegment();
-        if (urlSlug && (urlLang = _.find(languages, { slug: urlSlug }))) {
-            return urlLang;
-        }
+        if (mode == 'domain') {
+            //Get language by domain name
+            let domainSlug = this.getValidDomainSlug();
 
-        //Get selected language from storage
-        if (
-            storageLangSlug &&
-            (storageLang = _.find(languages, { slug: storageLangSlug }))
-        ) {
-            return storageLang;
-        }
+            if (domainSlug) {
+                return domainSlug;
+            }
+        } else {
+            //Get first segment, if it is valid language slug. we can return this value
+            let urlSlug = this.getValidUrlLangSegment();
+            if (urlSlug) {
+                return urlSlug;
+            }
 
-        //Get language by domain name
-        let domainLang = this.getValidDomainLang();
-        if (domainLang) {
-            return domainLang;
+            //Get selected language from storage
+            let storageLangSlug = this.getSlugFromStorage();
+            if (storageLangSlug && storageLangSlug in locales) {
+                return storageLangSlug;
+            }
         }
 
         //Return default first language
-        return languages[0];
+        return Object.keys(locales)[0];
+    },
+
+    get(cache = true) {
+        let languages = this.all(),
+            slug = this.getSlug();
+
+        return _.find(languages, { slug: this.languageSlug });
     },
 
     getSlugFromStorage() {
-        //TODO:
-        // let storage = crudadmin.getStorage();
-        // return storage.getUniversal(this.localizationKey);
+        return useStorage().get(this.localizationKey);
     },
 
     getDefaultLanguage() {
@@ -127,7 +104,7 @@ export default {
     },
 
     all() {
-        var languages = crudadmin.languages || [],
+        var languages = useCrudadminStore().languages || [],
             domainName = this.getDomainName(),
             host = this.getHost();
 
@@ -139,11 +116,11 @@ export default {
     },
 
     isDefaultLanguage(slug) {
-        return this.getDefaultLanguage().slug == (slug || this.get().slug);
+        return this.getDefaultLanguage().slug == (slug || this.getSlug());
     },
 
-    async getRewritedRoutes(routes) {
-        // var translator = await Translator.getTranslator();
+    getRewritedRoutes(routes) {
+        const translator = useTranslator();
 
         //We does not want to rewrite routes, it may be buggy
         //We need remove unique duplicates from beggining, latest routes are
@@ -164,12 +141,12 @@ export default {
             return route;
         });
 
-        routes = await this.asyncAddSlugIntoRoutes(routes);
+        routes = this.asyncAddSlugIntoRoutes(routes);
 
         return routes;
     },
 
-    async asyncAddSlugIntoRoutes(routes) {
+    asyncAddSlugIntoRoutes(routes) {
         if (this.isEnabled() == false) {
             return routes;
         }
@@ -190,21 +167,27 @@ export default {
 
     getValidUrlLangSegment() {
         let path = this.getPath(),
-            all = this.all();
+            locales = useGetLocales();
 
         return [(path + '').split('/').filter((item) => item)[0]].filter(
-            (slug) => _.find(all, { slug })
+            (slug) => slug in locales
         )[0];
     },
 
-    getValidDomainLang() {
-        let all = this.all(),
+    getValidDomainSlug() {
+        let locales = useGetLocales(),
             domainName = this.getDomainName(),
-            domainLanguage =
-                _.find(all, { domain: this.getHost() }) ||
-                _.find(all, { slug: domainName });
+            host = this.getHost();
 
-        return domainLanguage;
+        for (let slug in locales) {
+            if (locales[slug].includes(host)) {
+                return slug;
+            }
+        }
+
+        if (domainName in locales) {
+            return domainName;
+        }
     },
 
     getLocaleHeaders(obj = {}) {

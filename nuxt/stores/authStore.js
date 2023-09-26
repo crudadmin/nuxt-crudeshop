@@ -1,5 +1,3 @@
-const cookieTokenKey = 'auth.token';
-
 export const options = {
     state: () => {
         return {
@@ -9,11 +7,7 @@ export const options = {
     },
     actions: {
         async boot() {
-            await this.useSetTokenFromCookie();
-        },
-
-        useSetTokenFromCookie() {
-            this.token = useNuxtApp().$storage.get(cookieTokenKey);
+            this.token = useGetAuthToken();
         },
 
         setUser(user, token) {
@@ -25,7 +19,7 @@ export const options = {
         },
         setToken(token, save = true) {
             if (save === true) {
-                useNuxtApp().$storage.set(cookieTokenKey, token);
+                useSetAuthToken(token);
             }
 
             this.token = token;
@@ -34,7 +28,7 @@ export const options = {
             this.user = null;
             this.token = null;
 
-            useNuxtApp().$storage.set(cookieTokenKey, null);
+            useSetAuthToken(token);
         },
     },
 };

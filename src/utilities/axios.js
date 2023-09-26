@@ -6,7 +6,7 @@ export const addInterceptors = ($axios, addHeaders) => {
             //Push admin headers into each request
             if (successfulReq.headers) {
                 // prettier-ignore
-                console.log('[AXIOS]', successfulReq.method.toUpperCase(), '-', successfulReq.url);
+                // console.log('[AXIOS]', successfulReq.method.toUpperCase(), '-', successfulReq.url);
 
                 //Add cart and auth headers into axios
                 var appHeaders =
