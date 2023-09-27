@@ -7,6 +7,8 @@ export const config = {
 export default defineNuxtPlugin({
     enforce: 'pre',
     setup: async (nuxtApp) => {
+        await useAuthStore().boot();
+
         await useCrudadminStore().boot();
     },
 });

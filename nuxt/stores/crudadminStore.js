@@ -1,3 +1,6 @@
+import { find } from 'lodash';
+import { getActivePinia } from 'pinia';
+
 export const useCrudadminStore = defineStore('CrudadminStore', {
     state: () => {
         return {
@@ -13,8 +16,6 @@ export const useCrudadminStore = defineStore('CrudadminStore', {
                 return;
             }
 
-            // useAuthStore().boot();
-
             let response = await useBootstrapResponse(),
                 bootstrap = response.data.crudadmin;
 
@@ -28,6 +29,29 @@ export const useCrudadminStore = defineStore('CrudadminStore', {
             this.seoRoutes = bootstrap.seo_routes || [];
 
             this.initialized = true;
+
+            this.setStore(response.data.store);
+        },
+        setStore(storeData) {
+            const dynamicStores = [useAuthStore(), useListingStore()];
+
+            for (var path in storeData) {
+                let parts = path.split('/'),
+                    key = parts[0],
+                    callback = parts[1],
+                    value = storeData[path],
+                    store = find(dynamicStores, { $id: key });
+
+                if (store) {
+                    if (typeof store[callback] == 'function') {
+                        store[callback](value);
+                    } else {
+                        let obj = {};
+                        obj[callback] = value;
+                        store.$patch(obj);
+                    }
+                }
+            }
         },
     },
 });

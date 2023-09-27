@@ -1,4 +1,4 @@
-export const options = {
+export const authStore = {
     state: () => {
         return {
             token: null,
@@ -33,7 +33,7 @@ export const options = {
     },
 };
 
-export const useAuthStore = defineStore('AuthStore', options);
+export const useAuthStore = defineStore('AuthStore', authStore);
 
 if (import.meta.hot) {
     import.meta.hot.accept(acceptHMRUpdate(useAuthStore, import.meta.hot));
