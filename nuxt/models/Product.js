@@ -1,9 +1,8 @@
 import _ from 'lodash';
-import crudadmin from '../crudadmin.js';
 import BaseProduct from './BaseProduct';
 import ProductsVariant from './ProductsVariant';
 import Attribute from './Attribute';
-import { filterUnexistingConfiguredAttributeItems } from '../utilities/ProductHelper.js';
+import { filterUnexistingConfiguredAttributeItems } from '../utils/ProductHelper.js';
 
 export default class Product extends BaseProduct {
     constructor(rawObject) {
@@ -43,18 +42,14 @@ export default class Product extends BaseProduct {
 
             //If multiple prices are available, show from price
             if (cheapestPrice.length > 1) {
-                let price = crudadmin.store.getters['store/priceFormat'](
-                    cheapestPrice[0]
-                );
+                let price = useStoreStore().priceFormat(cheapestPrice[0]);
 
                 return crudadmin.translator.__('Od %s', price);
             }
 
             //Return default price
             else {
-                return crudadmin.store.getters['store/priceFormat'](
-                    cheapestPrice[0]
-                );
+                return useStoreStore().priceFormat(cheapestPrice[0]);
             }
         }
 
@@ -97,10 +92,17 @@ export default class Product extends BaseProduct {
         return productOrVariant.hasOnStock();
     }
 
+    addToCart(quantity = 1) {
+        useCartStore().addToCart({
+            product_id: this.id,
+            quantity: quantity,
+        });
+    }
+
     cartQuantityExceed(variant) {
         let productOrVariant = variant || this;
 
-        let cartItem = crudadmin.store.getters['cart/getCartItemFromObject']({
+        let cartItem = useStoreStore().getCartItemFromObject({
             product_id: this.id,
             variant_id: variant ? variant.id : null,
         });

@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import crudadmin from '../crudadmin';
 import Model from './Model';
 
 class Delivery extends Model {
@@ -8,17 +7,17 @@ class Delivery extends Model {
     }
 
     isSelected() {
-        return crudadmin.store.getters['cart/isSelectedDelivery'](this);
+        return useCartStore().isSelectedDelivery(this);
     }
 
     getPriceTillFreeDelivery() {
-        let priceWithVat = crudadmin.store.state.cart.summary.priceWithVat || 0;
+        let priceWithVat = useCartStore().summary.priceWithVat || 0;
 
         return _.max([0, this.free_from - priceWithVat]);
     }
 
     isReceivedFreeDelivery() {
-        let priceWithVat = crudadmin.store.state.cart.summary.priceWithVat || 0;
+        let priceWithVat = useCartStore().summary.priceWithVat || 0;
 
         return priceWithVat >= this.free_from;
     }
@@ -34,4 +33,4 @@ class Delivery extends Model {
     }
 }
 
-module.exports = Delivery;
+export default Delivery;

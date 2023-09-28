@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import crudadmin from '../crudadmin';
 
 import Model from './Model';
 
@@ -38,9 +37,10 @@ class CartItem extends Model {
     }
 
     getIdentifier() {
+        let identifiers = useCartIdentifiers();
+
         return (
-            crudadmin.identifiers[this.identifier || 'products'] ||
-            crudadmin.identifiers['default']
+            identifiers[this.identifier || 'products'] || identifiers['default']
         );
     }
 
@@ -60,7 +60,7 @@ class CartItem extends Model {
     totalPriceFormat(key) {
         let total = this.getPrice(key) * this.quantity;
 
-        return crudadmin.store.getters['store/priceFormat'](total);
+        return useStoreStore().priceFormat(total);
     }
 
     /**
@@ -75,7 +75,7 @@ class CartItem extends Model {
             total += item.getPrice(key) * item.quantity;
         }
 
-        return crudadmin.store.getters['store/priceFormat'](total);
+        return useStoreStore().priceFormat(total);
     }
 
     hasParentCartItem() {
@@ -106,7 +106,7 @@ class CartItem extends Model {
     }
 
     getAssignedItems() {
-        let items = crudadmin.store.getters['cart/getCartItems']();
+        let items = useCartStore().getCartItems();
 
         return items.filter((item) => {
             return this.isCartItemParent(item);

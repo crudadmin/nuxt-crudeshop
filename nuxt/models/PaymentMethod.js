@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import crudadmin from '../crudadmin';
 import Model from './Model';
 
 class PaymentMethod extends Model {
@@ -8,7 +7,7 @@ class PaymentMethod extends Model {
     }
 
     isSelected() {
-        return crudadmin.store.getters['cart/isSelectedPaymentMethod'](this);
+        return useCartStore().isSelectedPaymentMethod(this);
     }
 
     isProvider(providerName) {

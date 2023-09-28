@@ -33,7 +33,7 @@ export const authStore = {
     },
 };
 
-export const useAuthStore = defineStore('AuthStore', authStore);
+export const useAuthStore = defineStore('auth', authStore);
 
 if (import.meta.hot) {
     import.meta.hot.accept(acceptHMRUpdate(useAuthStore, import.meta.hot));

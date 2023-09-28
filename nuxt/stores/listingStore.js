@@ -170,7 +170,7 @@ const listingStore = {
     },
 };
 
-export const useListingStore = defineStore('listingStore', listingStore);
+export const useListingStore = defineStore('listing', listingStore);
 
 if (import.meta.hot) {
     import.meta.hot.accept(acceptHMRUpdate(useListingStore, import.meta.hot));

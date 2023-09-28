@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import crudadmin from '../crudadmin';
 import Model from './Model';
 
 // prettier-ignore
@@ -58,7 +57,7 @@ export default class Attribute extends Model {
 
     isColor() {
         if (
-            (crudadmin.store.getters['store/backendEnv']('ATTR_COLOR_ID') + '')
+            (useStoreStore().backendEnv('ATTR_COLOR_ID') + '')
                 .split(',')
                 .map((id) => parseInt(id))
                 .indexOf(this.id) > -1
@@ -71,13 +70,11 @@ export default class Attribute extends Model {
 
     selectedItems() {
         return this.items.filter((item) =>
-            crudadmin.store.getters['filter/isItemChecked'](item)
+            useFilterStore().isItemChecked(item)
         );
     }
 
     selectedItemId() {
-        return _.castArray(
-            crudadmin.store.state.filter.attributesFilter[this.id]
-        )[0];
+        return _.castArray(useFilterStore().attributesFilter[this.id])[0];
     }
 }

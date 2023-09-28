@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import crudadmin from '../crudadmin';
 import Attribute from './Attribute';
 import Model from './Model';
 
@@ -28,7 +27,7 @@ export default class BaseProduct extends Model {
     priceFormat(key) {
         let number = this[key];
 
-        return crudadmin.store.getters['store/priceFormat'](number);
+        return useStoreStore().priceFormat(number);
     }
 
     hasDiscount() {
@@ -136,20 +135,14 @@ export default class BaseProduct extends Model {
                 this.getFavouriteObject()
             );
 
-            crudadmin.store.commit(
-                'store/setFavourites',
-                response.data.favourites
-            );
+            useStoreStore().setFavourites(response.data.favourites);
         } catch (e) {
             console.error(e);
         }
     }
 
     isFavourite() {
-        return _.find(
-            crudadmin.store.state.store.favourites,
-            this.getFavouriteObject()
-        )
+        return _.find(useStoreStore().favourites, this.getFavouriteObject())
             ? true
             : false;
     }
@@ -167,7 +160,7 @@ export default class BaseProduct extends Model {
             return 999999999999;
         }
 
-        let cartItem = crudadmin.store.getters['cart/getCartItemFromObject']({
+        let cartItem = useCartStore().getCartItemFromObject({
             product_id: this.product_id || this.id,
             variant_id: this.product_id ? this.id : null,
         });

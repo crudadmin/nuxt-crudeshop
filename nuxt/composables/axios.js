@@ -6,14 +6,22 @@ const isServer = process.server;
 export const useAppHeaders = () => {
     let obj = {};
 
-    let token = useGetAuthToken();
-    if (token) {
-        obj['Authorization'] = 'Bearer ' + token;
-    }
-
+    //Locale
     let localeSlug = useGetLocaleSlug();
     if (localeSlug) {
         obj['App-Locale'] = localeSlug;
+    }
+
+    //Cart token
+    let _cartToken;
+    if ((_cartToken = useGetCartToken())) {
+        obj['Cart-Token'] = _cartToken;
+    }
+
+    //Authorization
+    let token = useGetAuthToken();
+    if (token) {
+        obj['Authorization'] = 'Bearer ' + token;
     }
 
     return obj;

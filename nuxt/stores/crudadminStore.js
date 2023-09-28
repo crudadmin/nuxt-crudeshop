@@ -1,7 +1,7 @@
 import { find } from 'lodash';
 import { getActivePinia } from 'pinia';
 
-export const useCrudadminStore = defineStore('CrudadminStore', {
+export const useCrudadminStore = defineStore('crudadmin', {
     state: () => {
         return {
             initialized: false,
@@ -33,7 +33,11 @@ export const useCrudadminStore = defineStore('CrudadminStore', {
             this.setStore(response.data.store);
         },
         setStore(storeData) {
-            const dynamicStores = [useAuthStore(), useListingStore()];
+            const dynamicStores = [
+                useAuthStore(),
+                useStoreStore(),
+                useListingStore(),
+            ];
 
             for (var path in storeData) {
                 let parts = path.split('/'),

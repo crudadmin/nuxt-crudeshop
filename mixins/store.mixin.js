@@ -6,9 +6,9 @@ import _ from 'lodash';
 
 var storeMixin = {
     methods: {
-        toProductModels(products) {
-            return products.map((item) => new Product(item));
-        },
+        // toProductModels(products) {
+        //     return products.map((item) => new Product(item));
+        // },
         toProductModel(item) {
             return new Product(item);
         },
@@ -55,50 +55,6 @@ var storeMixin = {
             return (
                 item[vat ? selector + 'WithVat' : selector + 'WithoutVat'] || 0
             );
-        },
-
-        async fetchStoreSession(callback, full = false) {
-            const onCartFetch = (data) => {
-                //Authenticate logged client and cart identification
-                if (data.client) {
-                    this.setClient(data.client);
-                }
-
-                //If user is not logged anymore, we need logout him. Otherwise errors may occur.
-                else if ('client' in data && this.$auth.loggedIn) {
-                    this.$auth.logout();
-                }
-
-                //Set cart summary data
-                if (data.favourites) {
-                    this.$store.commit('store/setFavourites', data.favourites);
-                }
-
-                //other data
-                //...
-
-                if (callback && typeof callback == 'function') {
-                    callback(data);
-                }
-            };
-
-            //If cart is fully fetched, we does noot need to fetch again in cart.
-            //This will result receiving of wrong summary data.
-            //Cart may be fetched during validation process.
-            if (this.$store.state.cart.initialized === true && full !== true) {
-                return onCartFetch(this.$store.state.cart.data);
-            }
-
-            // prettier-ignore
-            var { data } = await this.$axios.get(this.action('Cart\\CartController@'+(full === true ? 'getFullSummary' : 'getSummary')), {
-                    headers: { 'Cart-Initialize': 1 },
-                }),
-                data = data.data;
-
-            onCartFetch(data);
-
-            this.$crudadmin.setCartToken(data.cartToken);
-            this.$store.commit('cart/setCart', data);
         },
         fromCategoriesTreeToRoute(name, category, level) {
             let index = _.findIndex(level, { id: category.id });

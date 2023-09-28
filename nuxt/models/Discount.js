@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import crudadmin from '../crudadmin';
 import Model from './Model';
 
 class Discount extends Model {
@@ -8,7 +7,7 @@ class Discount extends Model {
     }
 
     getMessageProperties(message, hasVat) {
-        hasVat = _.isNil(hasVat) ? crudadmin.store.state.store.vat : hasVat;
+        hasVat = _.isNil(hasVat) ? useStoreStore().vat : hasVat;
 
         return {
             name: message.name,
