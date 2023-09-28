@@ -16,6 +16,19 @@ export default class Product extends BaseProduct {
         }
     }
 
+    getRoute() {
+        const config = useRuntimeConfig(),
+            route = _.cloneDeep(config.public.eshop.product.route);
+
+        for (var key in route.params) {
+            if (route.params[key] == '{slug}') {
+                route.params[key] = this.slug;
+            }
+        }
+
+        return route;
+    }
+
     /**
      * Returns producti identifier, when multiple products with same id needs to be in category layout.
      * Then we can generate keys from variants ids
