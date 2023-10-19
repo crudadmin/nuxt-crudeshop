@@ -102,7 +102,9 @@ const CrudAdmin = {
             this.response = window.__NUXT__.caResponse;
         }
 
-        this.setBootstrapResponse(this.response.data);
+        let bootstrap = 'crudadmin' in this.response.data ? this.response.data.crudadmin : this.response.data;
+
+        this.setBootstrapResponse(bootstrap);
     },
 
     setBootstrapResponse(bootstrap) {
