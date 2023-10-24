@@ -3,38 +3,53 @@ import { createAxios } from '../../src/utilities/axios';
 
 const isServer = process.server;
 
-export const useAppHeaders = () => {
-    let obj = {};
+export const useAppHeaders = (options = {}) => {
+    let obj = {},
+        enabledHeaders = options.enabledHeaders || {};
 
     //Locale
-    let localeSlug = useGetLocaleSlug();
-    if (localeSlug) {
-        obj['App-Locale'] = localeSlug;
+    if (enabledHeaders.appLocale !== false) {
+        let localeSlug = useGetLocaleSlug();
+        if (localeSlug) {
+            obj['App-Locale'] = localeSlug;
+        }
     }
 
     //Cart token
-    let _cartToken;
-    if ((_cartToken = useGetCartToken())) {
-        obj['Cart-Token'] = _cartToken;
+    if (enabledHeaders.cartToken !== false) {
+        let _cartToken;
+        if ((_cartToken = useGetCartToken())) {
+            obj['Cart-Token'] = _cartToken;
+        }
     }
 
     //Authorization
-    let token = useGetAuthToken();
-    if (token) {
-        obj['Authorization'] = 'Bearer ' + token;
+    if (enabledHeaders.authorization !== false) {
+        let token = useGetAuthToken();
+        if (token) {
+            obj['Authorization'] = 'Bearer ' + token;
+        }
+    }
+
+    if (enabledHeaders.cartStep !== false) {
+        let cartStep = useCartStep();
+        if (cartStep) {
+            obj['Cart-Step'] = cartStep;
+        }
     }
 
     return obj;
 };
 
-export const useAxios = () => {
-    const headers = useAppHeaders();
+export const useAxios = (options) => {
+    const headers = useAppHeaders(options);
 
     const $axios = createAxios({
         baseURL: useRuntimeConfig().public.API_URL,
         addHeaders() {
             return headers;
         },
+        ...options,
     });
 
     //Allow self signed https for development purposes
