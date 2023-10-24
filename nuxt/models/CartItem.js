@@ -112,6 +112,17 @@ class CartItem extends Model {
             return this.isCartItemParent(item);
         });
     }
+
+    updateQuantity(quantity) {
+        useCartStore().updateQuantity({
+            item: this,
+            quantity: quantity,
+        });
+    }
+
+    remove() {
+        useCartStore().removeItem(this);
+    }
 }
 
 export default CartItem;

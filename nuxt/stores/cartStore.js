@@ -152,8 +152,9 @@ var cartStore = {
         async updateQuantity(obj) {
             let { item, quantity } = obj;
 
+            //Removes quantity
             if (quantity < 1) {
-                quantity = 1;
+                return this.removeItem(item);
             }
 
             //If no change
