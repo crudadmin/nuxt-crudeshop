@@ -94,26 +94,29 @@ export const storeStore = {
             };
         },
         priceFormat(state) {
-            return (price, negative = true) => {
+            return (price, options = {}) => {
+                const {
+                    negative = true,
+                    freeText = false,
+                    vat = null,
+                } = options;
+
                 //Only positive numbers can be shown as prices
                 price = price < 0 && negative == false ? 0 : price;
 
-                let currencyChar = this.currency?.char || '';
-
-                return this.numberFormat(price) + ' ' + currencyChar;
-            };
-        },
-        priceFormatWithVatName(state) {
-            return (price, vat) => {
-                //Use default vat value if no vat has been given
-                if (_.isNil(vat)) {
-                    vat = this.vat;
+                if (freeText === true && price == 0) {
+                    return useTranslator().__('Zdarma');
                 }
 
-                var vatText =
-                    price == 0 ? '' : ' ' + (vat ? _('s DPH') : _('bez DPH'));
+                const currencyChar = this.currency?.char || '',
+                    vatText =
+                        vat === true
+                            ? _('s DPH')
+                            : vat === false
+                            ? _('bez DPH')
+                            : '';
 
-                return this.priceFormat(price) + vatText;
+                return this.numberFormat(price) + ' ' + currencyChar + vatText;
             };
         },
     },

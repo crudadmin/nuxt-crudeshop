@@ -30,6 +30,14 @@ export default class BaseProduct extends Model {
         return useStoreStore().priceFormat(number);
     }
 
+    priceFormatWithFree(key) {
+        let number = this[key];
+
+        return useStoreStore().priceFormat(number, {
+            freeText: true,
+        });
+    }
+
     hasDiscount() {
         return this.initialPriceWithVat > this.priceWithVat;
     }
