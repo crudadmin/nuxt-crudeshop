@@ -42,7 +42,15 @@ class Attribute extends Model {
 
     getItemName(item) {
         if (this.unitName) {
-            return item.name + ' ' + this.unitName;
+            let un = this.unitName,
+                pp = this.hasUnitPrepend,
+                sp = this.hasUnitSpace ? ' ' : '';
+
+            return (
+                (!pp ? '' : this.unitName + sp) +
+                item.name +
+                (pp ? '' : sp + this.unitName)
+            );
         }
 
         return item.name;
