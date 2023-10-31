@@ -14,7 +14,7 @@ const cartError = (error, response) => {
     throw error;
 };
 
-var cartStore = {
+export const cartStore = {
     namespaced: true,
 
     state() {

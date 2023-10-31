@@ -37,6 +37,7 @@ export const useCrudadminStore = defineStore('crudadmin', {
                 useAuthStore(),
                 useStoreStore(),
                 useListingStore(),
+                useCartStore(),
             ];
 
             for (var path in storeData) {
@@ -52,6 +53,7 @@ export const useCrudadminStore = defineStore('crudadmin', {
                     } else {
                         let obj = {};
                         obj[callback] = value;
+
                         store.$patch(obj);
                     }
                 }
