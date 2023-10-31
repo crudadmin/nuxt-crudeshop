@@ -17,7 +17,7 @@ const config = {
 const fetchListing = async (context, fetchOptions) => {
     const { store, route } = context;
 
-    let routeAction = store.getters['listing/getListingFetchRoute']()(context);
+    let routeAction = store.getters['listing/getListingFetchRoute'](context);
 
     store.commit('listing/setDefaultFetchRoute', routeAction);
 
