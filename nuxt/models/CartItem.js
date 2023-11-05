@@ -32,8 +32,26 @@ class CartItem extends Model {
         return this.getIdentifier().getName(this);
     }
 
-    getPrice(key = 'priceWithVat') {
-        return this.getIdentifier().getPrice(this, key);
+    getPrice(options) {
+        const {
+            key = 'priceWithVat',
+            withChildItems = false,
+            total = false,
+        } = options;
+
+        let parentPrice = this.getIdentifier().getPrice(this, key);
+
+        if (total === true) {
+            parentPrice = parentPrice * this.quantity;
+        }
+
+        if (withChildItems === true) {
+            this.getAssignedItems().forEach((subItem) => {
+                parentPrice += subItem.getPrice({ key, total });
+            });
+        }
+
+        return parentPrice;
     }
 
     getIdentifier() {

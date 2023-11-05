@@ -71,6 +71,9 @@ export const storeStore = {
     },
 
     getters: {
+        isProduction() {
+            return this.backendEnv['APP_ENV'] == 'production';
+        },
         defaultVat() {
             return _.find(this.vats, { default: true });
         },

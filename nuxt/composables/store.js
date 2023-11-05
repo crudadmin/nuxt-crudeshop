@@ -14,6 +14,10 @@ export const usePriceFormat = (number) => {
     return storeStore.priceFormat(number);
 };
 
+export const useWeightFormat = (number) => {
+    return useNumberFormat(number) + ' kg';
+};
+
 /*
  * Return price with vat or with not by given selector type
  * price / defaultPrice...

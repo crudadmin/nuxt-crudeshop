@@ -347,11 +347,14 @@ export const cartStore = {
         getCartItems:
             (state) =>
             (options = {}) => {
+                const { hidden = false, withAssignedChildItems = true } =
+                    options || {};
+
                 let items = (
-                    options.hidden == true ? state.itemsHidden : state.items
+                    hidden == true ? state.itemsHidden : state.items
                 ).map((item) => new CartItem(item));
 
-                if (options.withAssignedChildItems === false) {
+                if (withAssignedChildItems === false) {
                     items = items.filter((item) => {
                         return item.hasParentCartItem() == false;
                     });
@@ -382,8 +385,12 @@ export const cartStore = {
 
                 return messages;
             },
-        getItemsQuantityCount: (state) => {
-            return _.sum(state.items.map((item) => item.quantity));
+        getItemsQuantityCount(state, getters) {
+            return (options) => {
+                return _.sum(
+                    this.getCartItems(options).map((item) => item.quantity)
+                );
+            };
         },
         isInCart: (state, getters) => (object) => {
             return getters.getCartItemFromObject(object) ? true : false;

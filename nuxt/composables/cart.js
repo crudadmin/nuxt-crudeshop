@@ -80,43 +80,61 @@ export const useCartStep = (route) => {
     }
 };
 
-// export default {
-//     redirectIfCartIsNotValid,
-//     methods: {
-//         processOrder(response, { callback, successWithoutCallback }) {
-//             this.$bus.$emit('tracking/purchase', response.data.order);
+export const useProcessOrder = (
+    response,
+    { callback, successWithoutCallback }
+) => {
+    // this.$bus.$emit('tracking/purchase', response.data.order);
 
-//             //We need reset cart
-//             this.$store.commit('cart/setCart', response.data.cart);
+    //We need reset cart
+    useCartStore().setCart(response.data.cart);
 
-//             let payment = response.data.payment;
+    let payment = response.data.payment;
 
-//             if (callback && typeof callback == 'function') {
-//                 callback(payment, response);
-//             }
+    if (callback && typeof callback == 'function') {
+        callback(payment, response);
+    }
 
-//             //Automatic callback
-//             else if (payment.url) {
-//                 if (payment.provider == 'GopayPayment') {
-//                     if (window._gopay) {
-//                         _gopay.checkout({
-//                             gatewayUrl: payment.url,
-//                             inline: true,
-//                         });
-//                     } else {
-//                         window.location.href = payment.url;
-//                     }
-//                 } else if (payment.provider == 'GPWebPayment') {
-//                     window.location.href = payment.url;
-//                 } else {
-//                     window.location.href = payment.url;
-//                 }
-//             }
+    //Automatic callback
+    else if (payment.url) {
+        if (payment.provider == 'GopayPayment') {
+            if (window._gopay) {
+                _gopay.checkout({
+                    gatewayUrl: payment.url,
+                    inline: true,
+                });
+            } else {
+                window.location.href = payment.url;
+            }
+        } else if (payment.provider == 'GPWebPayment') {
+            window.location.href = payment.url;
+        } else {
+            window.location.href = payment.url;
+        }
+    }
 
-//             //If no callback has been found
-//             else if (successWithoutCallback) {
-//                 successWithoutCallback(payment, response);
-//             }
-//         },
-//     },
-// };
+    //If no callback has been found
+    else if (successWithoutCallback) {
+        successWithoutCallback(payment, response);
+    }
+};
+
+export const useFetchOrder = async (id, hash) => {
+    let response = await useAxios().$get(
+        useAction('Cart\\CartController@success', id, hash)
+    );
+
+    return response;
+};
+
+export const useAsyncFetchOrder = async (id, hash) => {
+    const { data } = await useAsyncData('cart.order.' + id, () => {
+        return useFetchOrder(id, hash);
+    });
+
+    return {
+        order: data.value.data.order,
+        items: data.value.data.items,
+        invoice_pdf: data.value.data.invoice_pdf,
+    };
+};
