@@ -13,23 +13,15 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
             useCartStore().setCart(data);
         }
     } catch (e) {
-        console.log(e);
         //If is browser, we want show alert
-        // if (process.client) {
-        // const message = e.response.data.orderErrors.join('<br>');
+        if (process.client) {
+            const message = e.response.data.orderErrors.join('<br>');
 
-        //TODO: error dialog.
-        // $nuxt.$dialog.destroy();
+            useErrorAlert(message);
+        }
 
-        // $nuxt.$dialog.alert(message, {
-        //     html: true,
-        //     okText: $translator.__('Okay'),
-        //     customClass: 'dialog-error',
-        //     backdropClose: true,
-        // });
+        return navigateTo({
+            name: to.meta.goTo,
+        });
     }
-
-    // return redirect({
-    //     name: goTo,
-    // });
 });
