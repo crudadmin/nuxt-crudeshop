@@ -56,7 +56,7 @@ export default function(moduleOptions) {
         writeFileSync(extraFilePath, `{ routes: [${routesString}] }`);
     });
 
-    if (moduleOptions.sitemap) {
+    if (moduleOptions.sitemap && !this.options.sitemap) {
         this.options.sitemap = {
             hostname: this.options.env.baseUrl,
             routes: () => {
