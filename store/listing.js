@@ -158,7 +158,7 @@ const products = {
             if (state.listingFetchRoute) {
                 let callback = new Function(state.listingFetchRoute);
 
-                return callback(context);
+                return callback()(context);
             }
 
             const { route, action, store } = context;
