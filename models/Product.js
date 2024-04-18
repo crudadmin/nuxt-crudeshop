@@ -37,7 +37,7 @@ class Product extends BaseProduct {
         return false;
     }
 
-    priceFormatWithCheapestVariant(key) {
+    priceFormatWithCheapestVariant(key, string = true) {
         if (this.isType('variants')) {
             let cheapestPrice = _.uniqBy(
                 _.sortBy(this.variants.map(variant => variant[key]))
@@ -49,7 +49,7 @@ class Product extends BaseProduct {
                     cheapestPrice[0]
                 );
 
-                return crudadmin.translator.__('Od %s', price);
+                return string ? crudadmin.translator.__('Od %s', price) : price;
             }
 
             //Return default price
