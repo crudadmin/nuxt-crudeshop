@@ -37,30 +37,38 @@ class Product extends BaseProduct {
         return false;
     }
 
-    priceFormatWithCheapestVariant(key, string = true) {
+    priceFormatWithCheapestVariant(key, string = true, format = true) {
         if (this.isType('variants')) {
             let cheapestPrice = _.uniqBy(
-                _.sortBy(this.variants.map(variant => variant[key]))
+                _.sortBy(this.variants.map((variant) => variant[key]))
             );
 
             //If multiple prices are available, show from price
             if (cheapestPrice.length > 1) {
-                let price = crudadmin.store.getters['store/priceFormat'](
-                    cheapestPrice[0]
-                );
+                let price = cheapestPrice[0];
+
+                if (!format) {
+                    return price;
+                }
+
+                price = crudadmin.store.getters['store/priceFormat'](price);
 
                 return string ? crudadmin.translator.__('Od %s', price) : price;
             }
 
             //Return default price
             else {
-                return crudadmin.store.getters['store/priceFormat'](
-                    cheapestPrice[0]
-                );
+                if (format) {
+                    return crudadmin.store.getters['store/priceFormat'](
+                        cheapestPrice[0]
+                    );
+                }
+
+                return cheapestPrice[0];
             }
         }
 
-        return this.priceFormat(key);
+        return format ? this.priceFormat(key) : this[key];
     }
 
     isType(type) {
