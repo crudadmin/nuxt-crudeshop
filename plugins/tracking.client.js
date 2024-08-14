@@ -182,7 +182,7 @@ export default async ({ app, store, $bus }, inject, options) => {
         },
     });
 
-    if (app.$config?.tracking?.autoload !== false) {
+    if (app.$config.tracking && app.$config.tracking.autoload !== false) {
         app.$tracking.initialize({
             app_name: process.env.NUXT_ENV_GTAG_APP_NAME,
             measurement_id: process.env.NUXT_ENV_GTAG_MEASUREMENT_ID,
