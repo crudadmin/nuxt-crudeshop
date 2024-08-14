@@ -31,7 +31,7 @@ const sumByItems = (items) => {
     return sumBy(items, (item) => item.price * (item.quantity || 1));
 };
 
-export default async ({ app, store, $bus }, inject) => {
+export default async ({ app, store, $bus }, inject, options) => {
     inject('tracking', {
         getProductCategories: (product) => {
             return product ? product.getCategoriesTree()[0] || [] : [];
@@ -66,113 +66,126 @@ export default async ({ app, store, $bus }, inject) => {
         buildProductItem: (productOrVariant, product) => {
             return {};
         },
-    });
+        initialize(config = {}) {
+            config = config || {};
 
-    Vue.use(
-        VueGtag,
-        {
-            config: {
-                id: process.env.NUXT_ENV_GTAG_MEASUREMENT_ID,
-            },
-            appName: process.env.NUXT_ENV_GTAG_APP_NAME,
-        },
-        app.router
-    );
-
-    $bus.$on('tracking/addToCart', ({ cartItem, quantity }) => {
-        let items = [buildGa4ItemFromCartItem(cartItem, quantity)];
-
-        gtag('event', 'add_to_cart', {
-            currency: currencyCode(),
-            value: sumByItems(items),
-            items,
-        });
-    });
-
-    $bus.$on('tracking/removeFromCart', ({ cartItem, quantity }) => {
-        let items = [buildGa4ItemFromCartItem(cartItem, quantity)];
-
-        gtag('event', 'remove_from_cart', {
-            currency: currencyCode(),
-            value: sumByItems(items),
-            items,
-        });
-    });
-
-    $bus.$on('tracking/beginPurchase', (stepName) => {
-        let items = store.state.cart.items.map((cartItem) =>
-            buildGa4ItemFromCartItem(cartItem)
-        );
-
-        gtag('event', stepName || 'begin_checkout', {
-            currency: currencyCode(),
-            value: store.state.cart.summary.priceWithVat,
-            items: items,
-        });
-    });
-
-    $bus.$on('tracking/setDelivery', () => {
-        let items = store.state.cart.items.map((cartItem) =>
-            buildGa4ItemFromCartItem(cartItem)
-        );
-
-        gtag('event', 'add_shipping_info', {
-            currency: currencyCode(),
-            items: items,
-            value: store.state.cart.summary.priceWithVat,
-            shipping_tier: store.state.cart.selectedDelivery.name,
-        });
-    });
-
-    $bus.$on('tracking/setPaymentMethod', () => {
-        let items = store.state.cart.items.map((cartItem) =>
-            buildGa4ItemFromCartItem(cartItem)
-        );
-
-        gtag('event', 'add_payment_info', {
-            currency: currencyCode(),
-            items: items,
-            value: store.state.cart.summary.priceWithVat,
-            payment_type: store.state.cart.selectedPaymentMethod.name,
-        });
-    });
-
-    $bus.$on('tracking/purchase', (order) => {
-        let items = store.state.cart.items.map((cartItem) =>
-            buildGa4ItemFromCartItem(cartItem)
-        );
-
-        gtag('event', 'purchase', {
-            currency: currencyCode(),
-            transaction_id: order.id,
-            items: items,
-            value: order.price_vat,
-            tax: order.price_vat - order.price,
-            payment_type: store.state.cart.selectedPaymentMethod
-                ? store.state.cart.selectedPaymentMethod.name
-                : null,
-            shipping: order.delivery_price,
-            order: order,
-        });
-    });
-
-    $bus.$on('tracking/productDetail', ({ product, productOrVariant }) => {
-        dataLayer.push({
-            event: 'view_item',
-            currency: currencyCode(),
-            value: productOrVariant.priceWithVat,
-            items: [
+            Vue.use(
+                VueGtag,
                 {
-                    item_id: productOrVariant.id,
-                    item_name: productOrVariant.name,
-                    currency: currencyCode(),
-                    price: productOrVariant.priceWithVat,
-                    ...app.$tracking.onProductModelItem(
-                        productOrVariant,
-                        product
-                    ),
+                    config: {
+                        id: config.measurement_id,
+                    },
+                    appName: config.app_name,
                 },
-            ],
-        });
+                app.router
+            );
+
+            $bus.$on('tracking/addToCart', ({ cartItem, quantity }) => {
+                let items = [buildGa4ItemFromCartItem(cartItem, quantity)];
+
+                gtag('event', 'add_to_cart', {
+                    currency: currencyCode(),
+                    value: sumByItems(items),
+                    items,
+                });
+            });
+
+            $bus.$on('tracking/removeFromCart', ({ cartItem, quantity }) => {
+                let items = [buildGa4ItemFromCartItem(cartItem, quantity)];
+
+                gtag('event', 'remove_from_cart', {
+                    currency: currencyCode(),
+                    value: sumByItems(items),
+                    items,
+                });
+            });
+
+            $bus.$on('tracking/beginPurchase', (stepName) => {
+                let items = store.state.cart.items.map((cartItem) =>
+                    buildGa4ItemFromCartItem(cartItem)
+                );
+
+                gtag('event', stepName || 'begin_checkout', {
+                    currency: currencyCode(),
+                    value: store.state.cart.summary.priceWithVat,
+                    items: items,
+                });
+            });
+
+            $bus.$on('tracking/setDelivery', () => {
+                let items = store.state.cart.items.map((cartItem) =>
+                    buildGa4ItemFromCartItem(cartItem)
+                );
+
+                gtag('event', 'add_shipping_info', {
+                    currency: currencyCode(),
+                    items: items,
+                    value: store.state.cart.summary.priceWithVat,
+                    shipping_tier: store.state.cart.selectedDelivery.name,
+                });
+            });
+
+            $bus.$on('tracking/setPaymentMethod', () => {
+                let items = store.state.cart.items.map((cartItem) =>
+                    buildGa4ItemFromCartItem(cartItem)
+                );
+
+                gtag('event', 'add_payment_info', {
+                    currency: currencyCode(),
+                    items: items,
+                    value: store.state.cart.summary.priceWithVat,
+                    payment_type: store.state.cart.selectedPaymentMethod.name,
+                });
+            });
+
+            $bus.$on('tracking/purchase', (order) => {
+                let items = store.state.cart.items.map((cartItem) =>
+                    buildGa4ItemFromCartItem(cartItem)
+                );
+
+                gtag('event', 'purchase', {
+                    currency: currencyCode(),
+                    transaction_id: order.id,
+                    items: items,
+                    value: order.price_vat,
+                    tax: order.price_vat - order.price,
+                    payment_type: store.state.cart.selectedPaymentMethod
+                        ? store.state.cart.selectedPaymentMethod.name
+                        : null,
+                    shipping: order.delivery_price,
+                    order: order,
+                });
+            });
+
+            $bus.$on(
+                'tracking/productDetail',
+                ({ product, productOrVariant }) => {
+                    dataLayer.push({
+                        event: 'view_item',
+                        currency: currencyCode(),
+                        value: productOrVariant.priceWithVat,
+                        items: [
+                            {
+                                item_id: productOrVariant.id,
+                                item_name: productOrVariant.name,
+                                currency: currencyCode(),
+                                price: productOrVariant.priceWithVat,
+                                ...app.$tracking.onProductModelItem(
+                                    productOrVariant,
+                                    product
+                                ),
+                            },
+                        ],
+                    });
+                }
+            );
+        },
     });
+
+    if (app.$config?.tracking?.autoload !== false) {
+        app.$tracking.initialize({
+            app_name: process.env.NUXT_ENV_GTAG_APP_NAME,
+            measurement_id: process.env.NUXT_ENV_GTAG_MEASUREMENT_ID,
+        });
+    }
 };

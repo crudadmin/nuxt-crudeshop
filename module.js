@@ -2,7 +2,7 @@ import { relative, resolve, basename, join } from 'path';
 import { existsSync, writeFileSync } from 'fs';
 import sitemapGenerator from './utilities/sitemap.js';
 
-export default function(moduleOptions) {
+export default function (moduleOptions) {
     [
         //Register these modules
         'plugins/store.js',
@@ -16,9 +16,9 @@ export default function(moduleOptions) {
         'mixins/store.mixin.js',
         'middleware/authenticableMiddleware.js',
     ]
-        .filter(item => item)
+        .filter((item) => item)
         .reverse()
-        .forEach(plugin => {
+        .forEach((plugin) => {
             this.addPlugin({
                 src: resolve(__dirname, plugin),
                 fileName: join('crudeshop', basename(plugin)),
@@ -39,7 +39,7 @@ export default function(moduleOptions) {
     });
 
     //Generate routes translations
-    this.nuxt.hook('build:done', builder => {
+    this.nuxt.hook('build:done', (builder) => {
         var routes = [];
 
         for (var key in builder.routes) {
