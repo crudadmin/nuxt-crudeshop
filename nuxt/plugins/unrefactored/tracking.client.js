@@ -3,7 +3,7 @@ import { defineNuxtPlugin } from '#app';
 // import Vue from 'vue';
 // import VueGtag from 'vue-gtag';
 // import CartItemModel from 'crudeshop/models/CartItem.js';
-// import { sumBy } from 'lodash';
+// import _ from 'lodash';
 
 // const currencyCode = () => {
 //     return (
@@ -30,7 +30,7 @@ import { defineNuxtPlugin } from '#app';
 // };
 
 // const sumByItems = (items) => {
-//     return sumBy(items, (item) => item.price * (item.quantity || 1));
+//     return _.sumBy(items, (item) => item.price * (item.quantity || 1));
 // };
 
 // export default async ({ app, store, $bus }, inject) => {

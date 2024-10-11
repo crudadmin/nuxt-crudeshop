@@ -1,4 +1,4 @@
-import { find } from 'lodash';
+import _ from 'lodash';
 import { getActivePinia } from 'pinia';
 
 export const useCrudadminStore = defineStore('crudadmin', {
@@ -45,7 +45,7 @@ export const useCrudadminStore = defineStore('crudadmin', {
                     key = parts[0],
                     callback = parts[1],
                     value = storeData[path],
-                    store = find(dynamicStores, { $id: key });
+                    store = _.find(dynamicStores, { $id: key });
 
                 if (store) {
                     if (typeof store[callback] == 'function') {

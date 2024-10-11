@@ -1,4 +1,4 @@
-import Action from '../../src/utilities/Action';
+import Action from '../../src/utilities/action';
 
 export const useBootstrapResponse = async () => {
     return await useAxios().$get('/api/bootstrap');

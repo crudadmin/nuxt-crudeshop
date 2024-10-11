@@ -1,5 +1,5 @@
 import { defineNuxtPlugin } from '#app';
-import Action from '../../src/utilities/Action';
+import Action from '../../src/utilities/action';
 
 export default defineNuxtPlugin(({ vueApp }) => {
     let $action = new Action(() => {

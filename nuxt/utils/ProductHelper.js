@@ -1,4 +1,4 @@
-import { find } from 'lodash';
+import _ from 'lodash';
 
 /**
  * If matched attributes has been found in all variants.
@@ -21,9 +21,12 @@ export const filterUnexistingConfiguredAttributeItems = (
 
             availableSelectableVariants = availableSelectableVariants.filter(
                 (variant) =>
-                    find(variant.getAttributeItems(previousAttributes[i].id), {
-                        id: selectedItemId,
-                    })
+                    _.find(
+                        variant.getAttributeItems(previousAttributes[i].id),
+                        {
+                            id: selectedItemId,
+                        }
+                    )
             );
         }
 
