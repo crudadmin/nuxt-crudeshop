@@ -1,5 +1,4 @@
 import $GettextTranslator from 'gettext-translator';
-import _ from 'lodash';
 
 //Nuxt 3 loader fix
 const GettextTranslator = $GettextTranslator.default || $GettextTranslator;
