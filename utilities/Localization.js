@@ -70,16 +70,20 @@ module.exports = {
             return _.find(languages, { slug: this.languageSlug });
         }
 
+        //Get first segment, if it is valid language slug. we can return this value
+        if (
+            crudadmin?.context?.runtimeConfig?.public?.locales?.slugs !== false
+        ) {
+            let urlSlug = this.getValidUrlLangSegment();
+            if (urlSlug && (urlLang = _.find(languages, { slug: urlSlug }))) {
+                return urlLang;
+            }
+        }
+
         //Get language by domain name
         let domainLang = this.getValidDomainLang();
         if (domainLang) {
             return domainLang;
-        }
-
-        //Get first segment, if it is valid language slug. we can return this value
-        let urlSlug = this.getValidUrlLangSegment();
-        if (urlSlug && (urlLang = _.find(languages, { slug: urlSlug }))) {
-            return urlLang;
         }
 
         //Get selected language from storage
