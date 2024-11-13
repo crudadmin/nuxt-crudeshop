@@ -63,17 +63,20 @@ module.exports = {
         let languages = this.all(),
             urlLang,
             storageLang,
-            storageLangSlug = this.getSlugFromStorage();
+            storageLangSlug = this.getSlugFromStorage(),
+            hasSlugs = true;
 
         //Cached language
         if (cache == true && this.languageSlug) {
             return _.find(languages, { slug: this.languageSlug });
         }
 
+        try {
+            hasSlugs = crudadmin.context.runtimeConfig.public.locales.slugs;
+        } catch (e) {}
+
         //Get first segment, if it is valid language slug. we can return this value
-        if (
-            crudadmin?.context?.runtimeConfig?.public?.locales?.slugs !== false
-        ) {
+        if (hasSlugs !== false) {
             let urlSlug = this.getValidUrlLangSegment();
             if (urlSlug && (urlLang = _.find(languages, { slug: urlSlug }))) {
                 return urlLang;
