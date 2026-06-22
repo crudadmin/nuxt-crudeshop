@@ -21,16 +21,34 @@ const gettextSelectors = [
     'pgettext',
 ];
 
+//Holds the translator for the current request. Updated every request, but the
+//Vue prototype helpers are installed only once (see below).
+let currentTranslator = null;
+let translatorInstalled = false;
+
 //Install all translation helpers
 const installTranslator = async () => {
-    var a = await CrudAdmin.getTranslator(),
-        getSelector = function (selector) {
-            return function () {
-                var s = selector in a ? selector : '__';
+    //Refresh the active translator for this request.
+    currentTranslator = await CrudAdmin.getTranslator();
 
-                return a[s].apply(a, arguments);
-            };
+    //Install the global Vue.prototype helpers only ONCE. This plugin runs on
+    //every SSR request; calling Vue.use({...}) with a fresh object each time
+    //grows Vue._installedPlugins unbounded and retains one Translator per
+    //request (SSR memory leak). The helpers read `currentTranslator` at call
+    //time, so they always use the current request's translator.
+    if (translatorInstalled) {
+        return;
+    }
+    translatorInstalled = true;
+
+    var getSelector = function (selector) {
+        return function () {
+            var a = currentTranslator;
+            var s = a && selector in a ? selector : '__';
+
+            return a[s].apply(a, arguments);
         };
+    };
 
     Vue.use({
         install: (Vue, options) => {

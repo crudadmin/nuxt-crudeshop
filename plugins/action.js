@@ -27,12 +27,22 @@ const action = function(controller) {
     return action;
 };
 
+//Install the global Vue.prototype.action helper only ONCE. This plugin runs on
+//every SSR request; calling Vue.use({...}) with a fresh object each time grows
+//Vue._installedPlugins unbounded (SSR memory leak). `action` is a stable module
+//function that reads the current CrudAdmin.routes, so a single install is correct.
+let actionInstalled = false;
+
 export default async ({}, inject) => {
-    Vue.use({
-        install: (Vue, options) => {
-            Vue.prototype.action = action;
-        },
-    });
+    if (!actionInstalled) {
+        actionInstalled = true;
+
+        Vue.use({
+            install: (Vue, options) => {
+                Vue.prototype.action = action;
+            },
+        });
+    }
 
     inject('action', action);
 };
